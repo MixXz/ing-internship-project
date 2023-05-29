@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using VacaYAY.Business;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
+using Microsoft.AspNetCore.Identity;
+using VacaYAY.Data.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,18 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<Context>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("VacaYAY")));
+
+builder.Services.AddIdentity<Employee, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedAccount = false;
+})
+        .AddEntityFrameworkStores<Context>()
+        .AddDefaultUI()
+        .AddDefaultTokenProviders();
+
+//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.User.RequireUniqueEmail = false)
+//    .AddEntityFrameworkStores<Context>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -33,5 +47,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
 
 app.Run();

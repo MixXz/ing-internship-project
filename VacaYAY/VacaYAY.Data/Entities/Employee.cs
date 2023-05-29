@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace VacaYAY.Data.Entities;
-public class Employee
+public class Employee : IdentityUser
 {
-    [Key]
-    public int ID { get; set; }
-
     [Required]
     [MaxLength(50)]
     public string FristName { get; set; } = string.Empty;
@@ -13,16 +11,6 @@ public class Employee
     [Required]
     [MaxLength(50)]
     public string LastName { get; set; } = string.Empty;
-
-    [Required]
-    [EmailAddress]
-    [MaxLength(50)]
-    public string Email { get; set; } = string.Empty;
-
-    [Required]
-    [MinLength(6)]
-    [MaxLength(50)]
-    public string Password { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(512)]

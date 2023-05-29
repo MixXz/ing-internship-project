@@ -1,4 +1,5 @@
-﻿using VacaYAY.Business.Contracts;
+﻿using Microsoft.EntityFrameworkCore;
+using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
 
 namespace VacaYAY.Business.Repository;
@@ -7,6 +8,11 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     private readonly Context _context;
 
     public RepositoryBase(Context context) => _context = context;
+
+    public virtual async Task<IEnumerable<T>> GetAll()
+    {
+        return await _context.Set<T>().ToListAsync();
+    }
 
     public virtual async Task<T?> GetById(int id)
     {
