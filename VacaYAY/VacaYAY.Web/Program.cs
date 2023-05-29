@@ -11,7 +11,6 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<Context>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("VacaYAY")));
 
-builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
