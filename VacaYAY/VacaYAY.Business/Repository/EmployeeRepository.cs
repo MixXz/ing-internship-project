@@ -13,7 +13,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
     {
         _context = context;
     }
-    public async Task<IEnumerable<Employee>> GetAll()
+    public override async Task<IEnumerable<Employee>> GetAll()
     {
         return await _context.Employees
                         .Include(e => e.Position)
