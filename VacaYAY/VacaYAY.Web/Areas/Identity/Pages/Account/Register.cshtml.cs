@@ -9,8 +9,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using VacaYAY.Business.Contracts;
+using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
+using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Web.Areas.Identity.Pages.Account
 {
@@ -18,6 +21,7 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<Employee> _signInManager;
         private readonly UserManager<Employee> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserStore<Employee> _userStore;
         private readonly IUserEmailStore<Employee> _emailStore;
 
@@ -25,8 +29,9 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
 
         public RegisterModel(
             UserManager<Employee> userManager,
-            IUserStore<Employee> userStore,
             SignInManager<Employee> signInManager,
+            RoleManager<IdentityRole> roleManager,
+            IUserStore<Employee> userStore,
             IUnitOfWork unitOfWork
             )
         {
@@ -35,82 +40,14 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _unitOfWork = unitOfWork;
+            _roleManager = roleManager;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
-        public InputModel Input { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+        public EmployeeCreate Input { get; set; }
         public string ReturnUrl { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
-
         public IEnumerable<Position> Positions { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public class InputModel
-        {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            /// 
-            [Required]
-            [MaxLength(50)]
-            public string FristName { get; set; } = string.Empty;
-
-            [Required]
-            [MaxLength(50)]
-            public string LastName { get; set; } = string.Empty;
-
-            [Required]
-            [MaxLength(512)]
-            public string Address { get; set; } = string.Empty;
-
-            [Required]
-            [MaxLength(50)]
-            public string IDNumber { get; set; } = string.Empty;
-
-            [Required]
-            public int DaysOfNumber { get; set; }
-
-            [Required]
-            public DateTime StartDate { get; set; } 
-
-            [Required]
-            [EmailAddress]
-            [Display(Name = "Email")]
-            public string Email { get; set; }
-
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
-            public string Password { get; set; }
-
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
-
-            [Required]
-            public int SelectedPositionID { get; set; }
-        }
-
 
         public async Task OnGetAsync(string returnUrl = null)
         {
@@ -129,30 +66,24 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
             {
                 var user = await CreateUser();
 
+                if (Input.MakeAdmin)
+                {
+                    if (!await _roleManager.RoleExistsAsync(nameof(Roles.Admin)))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(nameof(Roles.Admin)));
+                    }
+
+                    await _userManager.AddToRoleAsync(user, nameof(Roles.Admin));
+                }
+
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return LocalRedirect(returnUrl);
                 }
                 foreach (var error in result.Errors)
                 {
@@ -169,13 +100,15 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
 
             Employee user = new()
             {
-                FristName = Input.FristName,
+                FirstName = Input.FirstName,
                 LastName = Input.LastName,
                 Address = Input.Address,
                 IDNumber = Input.IDNumber,
                 DaysOfNumber = Input.DaysOfNumber,
-                EmployeeStartDate = Input.StartDate,
-                InsertDate = DateTime.Now
+                EmployeeStartDate = Input.EmployeeStartDate,
+                EmployeeEndDate = Input.EmployeeEndDate,
+                InsertDate = DateTime.Now,
+                Position = position
             };
 
             return user;

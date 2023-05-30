@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VacaYAY.Data.Entities;
-public class Employee : IdentityUser
+namespace VacaYAY.Data.DataTransferObjects;
+
+public class EmployeeCreate
 {
     [Required]
     [MaxLength(50)]
@@ -15,16 +14,6 @@ public class Employee : IdentityUser
     [MaxLength(50)]
     [DisplayName("Last Name")]
     public string LastName { get; set; } = string.Empty;
-
-    [NotMapped]
-    [DisplayName("Name")]
-    public string Name 
-    {
-        get
-        {
-            return $"{FirstName} {LastName}";
-        }
-     }
 
     [Required]
     [MaxLength(512)]
@@ -50,13 +39,23 @@ public class Employee : IdentityUser
     public DateTime? EmployeeEndDate { get; set; }
 
     [Required]
-    [DisplayName("Insert date")]
-    public DateTime InsertDate { get; set; }
-
-    public DateTime? DeleteDate { get; set; }
+    [EmailAddress]
+    [DisplayName("Email")]
+    public string Email { get; set; } = string.Empty;
 
     [Required]
-    public Position Position { get; set; } = new();
+    [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+    [DataType(DataType.Password)]
+    [Display(Name = "Password")]
+    public string Password { get; set; } = string.Empty;
 
-    public List<Request> LeaveRequests { get; set; } = new();
+    [DataType(DataType.Password)]
+    [Display(Name = "Confirm password")]
+    [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Required]
+    public int SelectedPositionID { get; set; }
+
+    public bool MakeAdmin { get; set; } = false;
 }
