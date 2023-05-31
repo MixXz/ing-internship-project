@@ -47,7 +47,6 @@ public class EmployeeEdit
     [DisplayName("Start date")]
     public DateTime EmployeeStartDate { get; set; }
 
-    [Required]
     [DisplayName("End date")]
     public DateTime? EmployeeEndDate { get; set; }
 
