@@ -1,11 +1,20 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Data.Entities;
-public class Employee : IdentityUser
+namespace VacaYAY.Data.DataTransferObjects;
+
+public class EmployeeEdit
 {
+    [Key]
+    public string Id { get; set; } = string.Empty;
+
     [Required]
     [MaxLength(50)]
     [DisplayName("First Name")]
@@ -16,20 +25,13 @@ public class Employee : IdentityUser
     [DisplayName("Last Name")]
     public string LastName { get; set; } = string.Empty;
 
-    [NotMapped]
-    [DisplayName("Name")]
-    public string Name 
-    {
-        get
-        {
-            return $"{FirstName} {LastName}";
-        }
-     }
-
     [Required]
     [MaxLength(512)]
     [DisplayName("Address")]
     public string Address { get; set; } = string.Empty;
+
+    [Required]
+    public string Email { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(50)]
@@ -49,13 +51,7 @@ public class Employee : IdentityUser
     public DateTime? EmployeeEndDate { get; set; }
 
     [Required]
-    [DisplayName("Insert date")]
-    public DateTime InsertDate { get; set; }
-
-    public DateTime? DeleteDate { get; set; }
-
-    [Required]
     public Position Position { get; set; } = new();
 
-    public List<Request> LeaveRequests { get; set; } = new();
+    public bool MakeAdmin { get; set; } = false;
 }

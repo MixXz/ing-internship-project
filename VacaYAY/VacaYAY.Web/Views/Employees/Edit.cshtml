@@ -1,0 +1,83 @@
+﻿@using VacaYAY.Data.DataTransferObjects;
+@using VacaYAY.Data.Entities;
+@model EmployeeEdit
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-md w-50">
+    <h1>Edit</h1>
+
+    <h4>Employee</h4>
+    <hr />
+    <div class="row">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Position.Caption" />
+            <input type="hidden" asp-for="Position.Description" />
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input asp-for="FirstName" class="form-control" aria-required="true" placeholder="Last Name" />
+                        <label asp-for="FirstName"></label>
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="LastName" class="form-control" aria-required="true" placeholder="Last Name" />
+                        <label asp-for="LastName"></label>
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Email"></label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Address" class="form-control" aria-required="true" placeholder="Address" />
+                        <label asp-for="Address"></label>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="IDNumber" class="form-control" aria-required="true" placeholder="ID Number" />
+                        <label asp-for="IDNumber"></label>
+                        <span asp-validation-for="IDNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input asp-for="DaysOfNumber" class="form-control" aria-required="true" placeholder="Days Of Number" />
+                        <label asp-for="DaysOfNumber"></label>
+                        <span asp-validation-for="DaysOfNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="EmployeeStartDate" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
+                        <label asp-for="EmployeeStartDate"></label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="EmployeeEndDate" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
+                        <label asp-for="EmployeeEndDate"></label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        @Html.DropDownListFor(model => model.Position.ID,
+                        new SelectList(ViewBag.Positions, nameof(Position.ID),
+                        nameof(Position.Caption), Model.Position.ID),
+                        new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.Position)
+                        <label for="Model.Position.ID" class="col-sm-2 control-label"> Position </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="MakeAdmin" checked="@Model.MakeAdmin" id="flexCheckDefault">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Administrator privileges
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-end">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
