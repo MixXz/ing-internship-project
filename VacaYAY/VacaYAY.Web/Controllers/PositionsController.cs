@@ -30,7 +30,7 @@ namespace VacaYAY.Web.Controllers
                 return NotFound();
             }
 
-            var position = await _unitOfWork.Position.GetById(id);
+            var position = await _unitOfWork.Position.GetById((int)id);
 
             if (position is null)
             {
@@ -70,7 +70,7 @@ namespace VacaYAY.Web.Controllers
                 return NotFound();
             }
 
-            var position = await _unitOfWork.Position.GetById(id);
+            var position = await _unitOfWork.Position.GetById((int)id);
 
             if (position is null)
             {
@@ -109,7 +109,7 @@ namespace VacaYAY.Web.Controllers
                 return NotFound();
             }
 
-            var position = await _unitOfWork.Position.GetById(id);
+            var position = await _unitOfWork.Position.GetById((int)id);
 
             if (position is null)
             {

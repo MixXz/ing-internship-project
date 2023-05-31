@@ -30,7 +30,7 @@ namespace VacaYAY.Web.Controllers
                 return NotFound();
             }
 
-            var leaveType = await _unitOfWork.LeaveType.GetById(id);
+            var leaveType = await _unitOfWork.LeaveType.GetById((int)id);
 
             if (leaveType is null)
             {
@@ -70,7 +70,7 @@ namespace VacaYAY.Web.Controllers
                 return NotFound();
             }
 
-            var leaveType = await _unitOfWork.LeaveType.GetById(id);
+            var leaveType = await _unitOfWork.LeaveType.GetById((int)id);
 
             if (leaveType is null)
             {
@@ -109,7 +109,7 @@ namespace VacaYAY.Web.Controllers
                 return NotFound();
             }
 
-            var leaveType = await _unitOfWork.LeaveType.GetById(id);
+            var leaveType = await _unitOfWork.LeaveType.GetById((int)id);
 
             if (leaveType is null)
             {

@@ -74,7 +74,7 @@ public class EmployeesController : Controller
     // POST: Employee/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, [Bind("FirstName,LastName,Email,Address,IDNumber,DaysOfNumber,EmployeeStartDate,EmployeeEndDate,Position,MakeAdmin")] EmployeeEdit employee)
+    public async Task<IActionResult> Edit(string id, EmployeeEdit employee)
     {
         ViewBag.Positions = await _unitOfWork.Position.GetAll();
 

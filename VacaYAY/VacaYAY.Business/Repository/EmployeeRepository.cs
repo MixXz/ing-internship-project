@@ -21,12 +21,9 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                         .ToListAsync();
     }
 
-    public async Task<Employee?> GetEmployeeById(string? id)
+    public async Task<Employee?> GetEmployeeById(string id)
     {
-        return id is null ?
-            null
-            :
-            await _context.Employees
+        return await _context.Employees
                         .Include(e => e.Position)
                         .Where(e => e.DeleteDate == null && e.Id == id)
                         .FirstOrDefaultAsync();

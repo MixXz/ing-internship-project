@@ -14,9 +14,9 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return await _context.Set<T>().ToListAsync();
     }
 
-    public virtual async Task<T?> GetById(int? id)
+    public virtual async Task<T?> GetById(int id)
     {
-        return id is null ? null : await _context.Set<T>().FindAsync(id);
+        return await _context.Set<T>().FindAsync(id);
     }
 
     public void Insert(T entity) => _context.Set<T>().Add(entity);
