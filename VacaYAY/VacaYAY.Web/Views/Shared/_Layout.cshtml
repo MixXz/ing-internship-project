@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity;
+@using VacaYAY.Data.Entities;
+@using VacaYAY.Data.Enums;
+@inject SignInManager<Employee> SignInManager
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -9,7 +15,7 @@
     <link rel="stylesheet" href="~/VacaYAY.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    @if (User.Identity.IsAuthenticated)
+    @if (SignInManager.IsSignedIn(User))
     {
         <header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -21,15 +27,18 @@
                     </button>
                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Positions" asp-action="Index">Positions</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="LeaveTypes" asp-action="Index">Leave types</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Employees" asp-action="Index">Employees</a>
-                            </li>
+                            @if (User.IsInRole(nameof(Roles.Admin)))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Positions" asp-action="Index">Positions</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="LeaveTypes" asp-action="Index">Leave types</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Employees" asp-action="Index">Employees</a>
+                                </li>
+                            }
                         </ul>
                         <partial name="_LoginPartial" />
                     </div>

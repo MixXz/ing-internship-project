@@ -53,4 +53,6 @@ public class EmployeeEdit
 
     [Required]
     public Position Position { get; set; } = new();
+
+    public bool MakeAdmin { get; set; } = false;
 }

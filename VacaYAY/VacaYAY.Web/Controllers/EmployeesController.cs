@@ -1,10 +1,11 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
+using AutoMapper;
+using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Web.Controllers;
 
@@ -21,7 +22,7 @@ public class EmployeesController : Controller
     {
         _unitOfWork = unitOfWork;
         _userManager = userManager;
-        _mapper = mapper;   
+        _mapper = mapper;
     }
     public async Task<IActionResult> Index()
     {
@@ -63,15 +64,17 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        var mapped = _mapper.Map<EmployeeEdit>(employee);
+        var employeeEdit = _mapper.Map<EmployeeEdit>(employee);
 
-        return View(mapped);
+        employeeEdit.MakeAdmin = await _userManager.IsInRoleAsync(employee, nameof(Roles.Admin));
+
+        return View(employeeEdit);
     }
 
     // POST: Employee/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, [Bind("FirstName,LastName,Email,Address,IDNumber,DaysOfNumber,EmployeeStartDate,EmployeeEndDate,Position")] EmployeeEdit employee)
+    public async Task<IActionResult> Edit(string id, [Bind("FirstName,LastName,Email,Address,IDNumber,DaysOfNumber,EmployeeStartDate,EmployeeEndDate,Position,MakeAdmin")] EmployeeEdit employee)
     {
         ViewBag.Positions = await _unitOfWork.Position.GetAll();
 
@@ -90,6 +93,18 @@ public class EmployeesController : Controller
             return View(employee);
         }
 
+        var isAdmin = await _userManager.IsInRoleAsync(employeeEntity, nameof(Roles.Admin));
+
+        if (employee.MakeAdmin && !isAdmin)
+        {
+            await _userManager.AddToRoleAsync(employeeEntity, nameof(Roles.Admin));
+        }
+
+        if(!employee.MakeAdmin && isAdmin)
+        {
+            await _userManager.RemoveFromRoleAsync(employeeEntity, nameof(Roles.Admin));
+        }
+
         employeeEntity.FirstName = employee.FirstName;
         employeeEntity.LastName = employee.LastName;
         employeeEntity.Address = employee.Address;
@@ -99,15 +114,15 @@ public class EmployeesController : Controller
         employeeEntity.EmployeeEndDate = employee.EmployeeEndDate;
         employeeEntity.Position = position;
 
-        if(employeeEntity.Email != employee.Email)
+        if (employeeEntity.Email != employee.Email)
         {
             await _userManager.SetEmailAsync(employeeEntity, employee.Email);
         }
 
         var result = await _userManager.UpdateAsync(employeeEntity);
 
-        if(!result.Succeeded) 
-        { 
+        if (!result.Succeeded)
+        {
             return View(employee);
         }
 
@@ -148,7 +163,7 @@ public class EmployeesController : Controller
 
         var result = await _userManager.UpdateAsync(employee);
 
-        if(result.Succeeded)
+        if (result.Succeeded)
         {
             await _userManager.SetLockoutEnabledAsync(employee, true);
             await _userManager.SetLockoutEndDateAsync(employee, DateTime.Today.AddYears(10));
