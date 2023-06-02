@@ -21,7 +21,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                         .ToListAsync();
     }
 
-    public async Task<IEnumerable<Employee>> GetbyFilters(string? searchInput, DateTime? startDate, DateTime? endDate)
+    public async Task<IEnumerable<Employee>> GetByFilters(string? searchInput, DateTime? startDate, DateTime? endDate)
     {
         if ((string.IsNullOrEmpty(searchInput) || string.IsNullOrWhiteSpace(searchInput))
             && startDate is null

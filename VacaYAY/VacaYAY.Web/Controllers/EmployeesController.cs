@@ -9,7 +9,7 @@ using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = nameof(Roles.Admin))]
 public class EmployeesController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -29,7 +29,7 @@ public class EmployeesController : Controller
     // GET: Employees
     public async Task<IActionResult> Index(string? searchInput, DateTime? startDateFilter, DateTime? endDateFilter)
     {
-        var employees = await _unitOfWork.Employee.GetbyFilters(searchInput, startDateFilter, endDateFilter);
+        var employees = await _unitOfWork.Employee.GetByFilters(searchInput, startDateFilter, endDateFilter);
 
         return View(new EmployeeView { Employees = employees });
     }
