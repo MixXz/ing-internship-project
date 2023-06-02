@@ -13,20 +13,25 @@ namespace VacaYAY.Web.Controllers;
 public class EmployeesController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly UserManager<Employee> _userManager;
     private readonly IMapper _mapper;
+    private readonly UserManager<Employee> _userManager;
+
     public EmployeesController(
         IUnitOfWork unitOfWork,
-        UserManager<Employee> userManager,
-        IMapper mapper)
+        IMapper mapper,
+        UserManager<Employee> userManager)
     {
         _unitOfWork = unitOfWork;
-        _userManager = userManager;
         _mapper = mapper;
+        _userManager = userManager;
     }
-    public async Task<IActionResult> Index()
+
+    // GET: Employees
+    public async Task<IActionResult> Index(string? searchInput, DateTime? startDateFilter, DateTime? endDateFilter)
     {
-        return View(await _unitOfWork.Employee.GetAll());
+        var employees = await _unitOfWork.Employee.GetbyFilters(searchInput, startDateFilter, endDateFilter);
+
+        return View(new EmployeeView { Employees = employees });
     }
 
     // GET: Employee/Details/5

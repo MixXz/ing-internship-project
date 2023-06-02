@@ -24,6 +24,10 @@ public class Context : IdentityDbContext<Employee>
             .WithOne(r => r.Request)
             .HasForeignKey<Response>(r => r.RequstID);
 
-        modelBuilder.Entity<Employee>().ToTable("Employes");
+        modelBuilder.Entity<Employee>()
+            .ToTable("Employes");
+
+        modelBuilder.Entity<Employee>()
+            .HasQueryFilter(e => e.DeleteDate == null);
     }
 }
