@@ -5,13 +5,20 @@
     ViewData["Title"] = "Manage employees";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<div>
+    <form asp-controller="Employees" asp-action="LoadExistingEmployees" method="post">
+        <button type="submit" class="btn btn-primary mt-3">Load existing employees</button>
+    </form>
+</div>
 
 <form asp-controller="Employees" asp-action="Index" method="get">
     <div class="d-flex justify-content-between">
         <div>
             <h2>Manage employees</h2>
-            <div>
-                <a class="btn btn-primary" id="register" asp-area="Identity" asp-page="/Account/Register">Register employee</a>
+            <div class="d-flex flex-column">
+                <div>
+                    <a class="btn btn-primary" id="register" asp-area="Identity" asp-page="/Account/Register">Register employee</a>
+                </div>
             </div>
         </div>
         <div class="d-flex flex-column w-25" style="margin-left:auto">

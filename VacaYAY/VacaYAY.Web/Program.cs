@@ -19,6 +19,7 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options => options.SignIn.R
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

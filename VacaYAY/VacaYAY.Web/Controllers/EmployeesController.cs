@@ -6,6 +6,7 @@ using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using AutoMapper;
 using VacaYAY.Data.Enums;
+using Newtonsoft.Json;
 
 namespace VacaYAY.Web.Controllers;
 
@@ -14,16 +15,22 @@ public class EmployeesController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IConfiguration _config;
     private readonly UserManager<Employee> _userManager;
+    private readonly HttpClient _httpClient;
 
     public EmployeesController(
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        UserManager<Employee> userManager)
+        IConfiguration configuration,
+        UserManager<Employee> userManager,
+        HttpClient httpClient)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _config = configuration;
         _userManager = userManager;
+        _httpClient = httpClient;
     }
 
     // GET: Employees
@@ -33,6 +40,48 @@ public class EmployeesController : Controller
 
         return View(new EmployeeView { Employees = employees });
     }
+
+    [HttpPost]
+    public async Task<IActionResult> LoadExistingEmployees()
+    {
+        var apiUrl = _config.GetValue<string>("EmployeeAPIUrl");
+        apiUrl = $"{apiUrl}RandomData";
+
+        var response = await _httpClient.GetAsync(apiUrl);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return NotFound();
+        }
+
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        var employees = JsonConvert.DeserializeObject<List<Employee>>(jsonResponse);
+
+        if(employees is null)
+        {
+            return NotFound();
+        }
+
+        foreach(var employee in employees)
+        {
+            var position = await _unitOfWork.Position.GetById(employee.Position.ID);
+
+            if(position is null)
+            {
+                position = employee.Position;
+
+                _unitOfWork.Position.Insert(position);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            employee.Position = position;
+
+            await _unitOfWork.Employee.InsertViaManager(employee);
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
 
     // GET: Employee/Details/5
     public async Task<IActionResult> Details(string? id)
