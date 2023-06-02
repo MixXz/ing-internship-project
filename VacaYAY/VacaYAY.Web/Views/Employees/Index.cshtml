@@ -1,43 +1,62 @@
-﻿﻿@using VacaYAY.Data.Entities;
-@model IEnumerable<Employee>
+﻿@using VacaYAY.Data.DataTransferObjects;
+@model EmployeeView
 
 @{
     ViewData["Title"] = "Manage employees";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Manage employees</h1>
-
-<p>
-    <a class="btn btn-primary" id="register" asp-area="Identity" asp-page="/Account/Register">Register employee</a>
-</p>
+<form asp-controller="Employees" asp-action="Index" method="get">
+    <div class="d-flex justify-content-between">
+        <div>
+            <h2>Manage employees</h2>
+            <div>
+                <a class="btn btn-primary" id="register" asp-area="Identity" asp-page="/Account/Register">Register employee</a>
+            </div>
+        </div>
+        <div class="d-flex flex-column w-25" style="margin-left:auto">
+            <div class="d-flex justify-content-evenly">
+                <input type="text" asp-for="SearchInput" class="form-control" placeholder="Pera Perić..." />
+                <input type="submit" value="Search" class="btn btn-outline-primary" style="margin-left:10px" />
+            </div>
+            <div class="form-floating mb-3 mt-3">
+                <input asp-for="StartDateFilter" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
+                <label asp-for="StartDateFilter">Start date</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="EndDateFilter" type="date" class="form-control" aria-required="true" placeholder="End Date" />
+                <label asp-for="EndDateFilter">End date</label>
+            </div>
+        </div>
+    </div>
+</form>
 <table class="table table-bordered text-center">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(model => model.Employees.First().Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Email)
+                @Html.DisplayNameFor(model => model.Employees.First().Email)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Position)
+                @Html.DisplayNameFor(model => model.Employees.First().Position)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IDNumber)
+                @Html.DisplayNameFor(model => model.Employees.First().IDNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.InsertDate)
+                @Html.DisplayNameFor(model => model.Employees.First().InsertDate)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Employees)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)                     
+                    @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
