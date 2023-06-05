@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly UserManager<Employee> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IUserStore<Employee> _userStore;
+
     private EmployeeRepository? _employeeRepository;
     private RequestRepository? _requestRepository;
     private ResponseRepository? _responseRepository;
