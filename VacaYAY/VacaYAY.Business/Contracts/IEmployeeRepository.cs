@@ -4,10 +4,9 @@ using VacaYAY.Data.Entities;
 
 namespace VacaYAY.Business.Contracts;
 
-public interface IEmployeeRepository
+public interface IEmployeeRepository : IRepositoryBase<Employee>
 {
     Task<Employee?> GetById(string id);
-    Task<IEnumerable<Employee>> GetAll();
     Task<IEnumerable<Employee>> GetByFilters(string? searchInput, DateTime? startDate, DateTime? endDate);
     Task<IdentityResult> Insert(Employee employee, string password);
     Task<IdentityResult> Update(string id, EmployeeEdit employeeData);

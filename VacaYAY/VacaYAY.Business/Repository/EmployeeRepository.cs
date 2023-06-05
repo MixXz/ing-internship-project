@@ -8,7 +8,7 @@ using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Business.Repository;
 
-public class EmployeeRepository : IEmployeeRepository
+public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
 {
     private readonly Context _context;
     private readonly UserManager<Employee> _userManager;
@@ -21,6 +21,7 @@ public class EmployeeRepository : IEmployeeRepository
         UserManager<Employee> userManager,
         RoleManager<IdentityRole> roleManager,
         IUserStore<Employee> userStore)
+        : base(context)
     {
         _context = context;
         _roleManager = roleManager;
@@ -37,7 +38,7 @@ public class EmployeeRepository : IEmployeeRepository
                         .FirstOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<Employee>> GetAll()
+    public override async Task<IEnumerable<Employee>> GetAll()
     {
         return await _context.Employees
                         .Include(e => e.Position)

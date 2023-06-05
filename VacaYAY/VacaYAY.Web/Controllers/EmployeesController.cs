@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
-using VacaYAY.Data.Entities;
 using AutoMapper;
 using VacaYAY.Data.Enums;
-using Newtonsoft.Json;
 
 namespace VacaYAY.Web.Controllers;
 
@@ -15,18 +13,18 @@ public class EmployeesController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IConfiguration _config;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientService _httpClientService;
 
     public EmployeesController(
         IUnitOfWork unitOfWork,
         IMapper mapper,
         IConfiguration configuration,
-        HttpClient httpClient)
+        IHttpClientService httpClientService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _config = configuration;
-        _httpClient = httpClient;
+        _httpClientService = httpClientService;
     }
 
     // GET: Employees
@@ -39,16 +37,15 @@ public class EmployeesController : Controller
 
     public async Task<IActionResult> LoadExistingEmployees()
     {
-        var apiUrl = _config.GetValue<string>("EmployeeAPIUrl");
+        var response = await _httpClientService.GetAsync("RandomData");
 
-        var response = await _httpClient.GetAsync($"{apiUrl}RandomData");
         if (!response.IsSuccessStatusCode)
         {
             return NotFound();
         }
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        var employees = JsonConvert.DeserializeObject<List<Employee>>(jsonResponse);
+        var employees = _unitOfWork.Employee.DeserializeList(jsonResponse);
 
         if (employees is null)
         {
