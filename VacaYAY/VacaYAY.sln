@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VacaYAY.Web", "VacaYAY.Web\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VacaYAY.Data", "VacaYAY.Data\VacaYAY.Data.csproj", "{26EC1F38-1814-4A3B-9542-DC31333C718D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VacaYAY.Business", "VacaYAY.Business\VacaYAY.Business.csproj", "{4251D169-51C0-46A7-A35C-2F2F30505916}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VacaYAY.Business", "VacaYAY.Business\VacaYAY.Business.csproj", "{4251D169-51C0-46A7-A35C-2F2F30505916}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VacaYAY.API", "VacaYAY.API\VacaYAY.API.csproj", "{44B7DFE4-008D-4891-9230-F9D11E1CD279}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{4251D169-51C0-46A7-A35C-2F2F30505916}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4251D169-51C0-46A7-A35C-2F2F30505916}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4251D169-51C0-46A7-A35C-2F2F30505916}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44B7DFE4-008D-4891-9230-F9D11E1CD279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44B7DFE4-008D-4891-9230-F9D11E1CD279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44B7DFE4-008D-4891-9230-F9D11E1CD279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44B7DFE4-008D-4891-9230-F9D11E1CD279}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

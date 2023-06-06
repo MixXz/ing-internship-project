@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
-using VacaYAY.Data.Entities;
 using AutoMapper;
 using VacaYAY.Data.Enums;
 
@@ -14,16 +12,19 @@ public class EmployeesController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly UserManager<Employee> _userManager;
+    private readonly IConfiguration _config;
+    private readonly IHttpClientService _httpClientService;
 
     public EmployeesController(
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        UserManager<Employee> userManager)
+        IConfiguration configuration,
+        IHttpClientService httpClientService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _userManager = userManager;
+        _config = configuration;
+        _httpClientService = httpClientService;
     }
 
     // GET: Employees
@@ -34,6 +35,48 @@ public class EmployeesController : Controller
         return View(new EmployeeView { Employees = employees });
     }
 
+    public async Task<IActionResult> LoadExistingEmployees()
+    {
+        var response = await _httpClientService.GetAsync("RandomData");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return NotFound();
+        }
+
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        var employees = _unitOfWork.Employee.DeserializeList(jsonResponse);
+
+        if (employees is null)
+        {
+            return NotFound();
+        }
+
+        foreach (var employee in employees)
+        {
+            var position = await _unitOfWork.Position.GetByCaption(employee.Position.Caption);
+
+            if (position is null)
+            {
+                position = new()
+                {
+                    Caption = employee.Position.Caption,
+                    Description = employee.Position.Description
+                };
+
+                _unitOfWork.Position.Insert(position);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            employee.Position = position;
+
+            await _unitOfWork.Employee.Insert(employee, $"{employee.FirstName}123!");
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+
     // GET: Employee/Details/5
     public async Task<IActionResult> Details(string? id)
     {
@@ -42,7 +85,7 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        var employee = await _unitOfWork.Employee.GetEmployeeById(id);
+        var employee = await _unitOfWork.Employee.GetById(id);
 
         if (employee is null)
         {
@@ -62,7 +105,7 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        var employee = await _unitOfWork.Employee.GetEmployeeById(id);
+        var employee = await _unitOfWork.Employee.GetById(id);
 
         if (employee is null)
         {
@@ -71,7 +114,7 @@ public class EmployeesController : Controller
 
         var employeeEdit = _mapper.Map<EmployeeEdit>(employee);
 
-        employeeEdit.MakeAdmin = await _userManager.IsInRoleAsync(employee, nameof(Roles.Admin));
+        employeeEdit.MakeAdmin = await _unitOfWork.Employee.isAdmin(employee);
 
         return View(employeeEdit);
     }
@@ -87,44 +130,16 @@ public class EmployeesController : Controller
 
         if (position is null)
         {
-            ModelState.AddModelError("Position", "Invalid position");
             return View(employee);
         }
 
-        var employeeEntity = await _unitOfWork.Employee.GetEmployeeById(id);
-
-        if (!ModelState.IsValid || employeeEntity is null)
+        if (!ModelState.IsValid)
         {
             return View(employee);
         }
 
-        var isAdmin = await _userManager.IsInRoleAsync(employeeEntity, nameof(Roles.Admin));
-
-        if (employee.MakeAdmin && !isAdmin)
-        {
-            await _userManager.AddToRoleAsync(employeeEntity, nameof(Roles.Admin));
-        }
-
-        if(!employee.MakeAdmin && isAdmin)
-        {
-            await _userManager.RemoveFromRoleAsync(employeeEntity, nameof(Roles.Admin));
-        }
-
-        employeeEntity.FirstName = employee.FirstName;
-        employeeEntity.LastName = employee.LastName;
-        employeeEntity.Address = employee.Address;
-        employeeEntity.IDNumber = employee.IDNumber;
-        employeeEntity.DaysOfNumber = employee.DaysOfNumber;
-        employeeEntity.EmployeeStartDate = employee.EmployeeStartDate;
-        employeeEntity.EmployeeEndDate = employee.EmployeeEndDate;
-        employeeEntity.Position = position;
-
-        if (employeeEntity.Email != employee.Email)
-        {
-            await _userManager.SetEmailAsync(employeeEntity, employee.Email);
-        }
-
-        var result = await _userManager.UpdateAsync(employeeEntity);
+        employee.Position = position;
+        var result = await _unitOfWork.Employee.Update(id, employee);
 
         if (!result.Succeeded)
         {
@@ -142,7 +157,7 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        var employee = await _unitOfWork.Employee.GetEmployeeById(id);
+        var employee = await _unitOfWork.Employee.GetById(id);
 
         if (employee is null)
         {
@@ -157,22 +172,7 @@ public class EmployeesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(string id)
     {
-        var employee = await _unitOfWork.Employee.GetEmployeeById(id);
-
-        if (employee is null)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        employee.DeleteDate = DateTime.Now;
-
-        var result = await _userManager.UpdateAsync(employee);
-
-        if (result.Succeeded)
-        {
-            await _userManager.SetLockoutEnabledAsync(employee, true);
-            await _userManager.SetLockoutEndDateAsync(employee, DateTime.Today.AddYears(10));
-        }
+        await _unitOfWork.Employee.Delete(id);
 
         return RedirectToAction(nameof(Index));
     }

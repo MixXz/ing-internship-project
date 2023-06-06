@@ -1,11 +1,17 @@
-﻿using VacaYAY.Business.Contracts;
+﻿using Microsoft.AspNetCore.Identity;
+using VacaYAY.Business.Contracts;
 using VacaYAY.Business.Repository;
 using VacaYAY.Data;
+using VacaYAY.Data.Entities;
 
 namespace VacaYAY.Business;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly Context _context;
+    private readonly UserManager<Employee> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IUserStore<Employee> _userStore;
+
     private EmployeeRepository? _employeeRepository;
     private RequestRepository? _requestRepository;
     private ResponseRepository? _responseRepository;
@@ -18,7 +24,10 @@ public class UnitOfWork : IUnitOfWork
         {
             if (_employeeRepository == null)
             {
-                _employeeRepository = new(_context);
+                _employeeRepository = new(_context,
+                                          _userManager,
+                                          _roleManager,
+                                          _userStore);
             }
 
             return _employeeRepository;
@@ -78,9 +87,17 @@ public class UnitOfWork : IUnitOfWork
     }
 
 
-    public UnitOfWork(Context context)
+    public UnitOfWork(
+        Context context,
+        UserManager<Employee> userManager,
+        RoleManager<IdentityRole> roleManager,
+        IUserStore<Employee> userStore
+        )
     {
         _context = context;
+        _roleManager = roleManager;
+        _userStore = userStore;
+        _userManager = userManager;
     }
     public Task SaveChangesAsync()
     {

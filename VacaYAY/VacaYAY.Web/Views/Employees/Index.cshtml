@@ -10,8 +10,13 @@
     <div class="d-flex justify-content-between">
         <div>
             <h2>Manage employees</h2>
-            <div>
-                <a class="btn btn-primary" id="register" asp-area="Identity" asp-page="/Account/Register">Register employee</a>
+            <div class="d-flex flex-column">
+                <div>
+                    <a class="btn btn-primary" id="register" asp-area="Identity" asp-page="/Account/Register">Register employee</a>
+                </div>
+                <div>
+                    <a class="btn btn-outline-primary mt-3" asp-controller="Employees" asp-action="LoadExistingEmployees">Load existing employees from the old system</a>
+                </div>
             </div>
         </div>
         <div class="d-flex flex-column w-25" style="margin-left:auto">

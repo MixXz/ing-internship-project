@@ -6,4 +6,5 @@ public interface IRepositoryBase<T>
     void Insert(T entity);
     void Update(T entity);
     void Delete(T entity);
+    List<T>? DeserializeList(string jsonString);
 }

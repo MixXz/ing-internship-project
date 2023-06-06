@@ -4,6 +4,7 @@ using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
 using Microsoft.AspNetCore.Identity;
 using VacaYAY.Data.Entities;
+using VacaYAY.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +18,12 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options => options.SignIn.R
         .AddDefaultUI()
         .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddHttpClient<IHttpClientService, HttpClientService>(client =>
+    client.BaseAddress = new Uri(builder.Configuration["APIUrl"]!));
+
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
