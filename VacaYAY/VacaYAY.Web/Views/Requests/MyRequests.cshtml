@@ -1,0 +1,49 @@
+﻿@model IEnumerable<VacaYAY.Data.Entities.Request>
+
+@{
+    ViewData["Title"] = "Manage vacation requests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>My vacation requests</h2>
+
+<p>
+    <a asp-action="CreateRequest" class="btn btn-primary">New request</a>
+</p>
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LeaveType.Caption)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

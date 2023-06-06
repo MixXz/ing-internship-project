@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Data.Entities;
+namespace VacaYAY.Data.DataTransferObjects;
 
-public class Request
+public class RequestEdit
 {
     [Key]
     public int ID { get; set; }
@@ -20,12 +21,5 @@ public class Request
     public string? Comment { get; set; }
 
     [Required]
-    [DisplayName("Leave type")]
     public LeaveType LeaveType { get; set; } = new();
-
-    [Required]
-    [DisplayName("Requested by")]
-    public Employee CreatedBy { get; set; } = new();
-
-    public Response? Response { get; set; }
 }

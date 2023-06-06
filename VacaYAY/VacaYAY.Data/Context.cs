@@ -29,5 +29,10 @@ public class Context : IdentityDbContext<Employee>
 
         modelBuilder.Entity<Employee>()
             .HasQueryFilter(e => e.DeleteDate == null);
+
+        modelBuilder.Entity<Response>()
+            .HasOne(v => v.ReviewedBy)
+            .WithMany()
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

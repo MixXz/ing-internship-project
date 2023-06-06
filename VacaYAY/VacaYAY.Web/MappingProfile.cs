@@ -10,5 +10,7 @@ public class MappingProfile : Profile
     {
         CreateMap<EmployeeEdit, Employee>();
         CreateMap<Employee, EmployeeEdit>();
+        CreateMap<Request, RequestEdit>();
+        CreateMap<RequestEdit, Request>();
     }
 }

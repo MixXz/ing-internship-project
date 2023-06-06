@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
@@ -36,6 +37,10 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                         .Include(e => e.Position)
                         .Where(e => e.Id == id)
                         .FirstOrDefaultAsync();
+    }
+    public async Task<Employee?> GetCurrent(ClaimsPrincipal claims)
+    {
+        return await _userManager.GetUserAsync(claims);
     }
 
     public override async Task<IEnumerable<Employee>> GetAll()
@@ -183,5 +188,17 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
     public Task<bool> isAdmin(Employee employee)
     {
         return _userManager.IsInRoleAsync(employee, nameof(Roles.Admin));
+    }
+
+    public async Task<bool> isAuthorized(ClaimsPrincipal claims)
+    {
+        var user = await GetCurrent(claims);
+
+        if(user is null)
+        {
+            return false;
+        }
+
+        return await isAdmin(user);
     }
 }
