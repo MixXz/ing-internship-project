@@ -8,7 +8,7 @@
 <h2>Manage vacation requests</h2>
 
 
-<table class="table table-bordered text-center mt-5">
+<table class="table table-bordered text-center align-middle mt-5">
     <thead>
         <tr>
             <th>
@@ -54,7 +54,7 @@
                         :
                         "Pending")
                 </td>
-                <td class="text-end">
+                <td class="text-end" style="white-space:nowrap; width:15%;">
                     @if (item.Response is null)
                     {
                         <a asp-action="CreateResponse" asp-route-id="@item.ID" class="btn btn-primary">Respond</a>

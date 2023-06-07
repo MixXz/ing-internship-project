@@ -29,6 +29,7 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                         .Include(r => r.LeaveType)
                         .Include(r => r.Response)
                         .Include(r => r.CreatedBy)
+                        .OrderByDescending(r => r.Response == null)
                         .ToListAsync();
     }
 
@@ -38,6 +39,7 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                         .Include(r => r.LeaveType)
                         .Include(r => r.Response)
                         .Where(r => r.CreatedBy.Id == userId)
+                        .OrderByDescending(r => r.Response == null)
                         .ToListAsync();
     }
 }

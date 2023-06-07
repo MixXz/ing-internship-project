@@ -23,14 +23,12 @@ public class RequestsController : Controller
         _mapper = mapper;
     }
 
-    // GET: Requests
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> AdminPanel()
     {
         return View(await _unitOfWork.Request.GetAll());
     }
 
-    // GET: Requests
     public async Task<IActionResult> MyRequests()
     {
         var user = await _unitOfWork.Employee.GetCurrent(User);
@@ -43,7 +41,6 @@ public class RequestsController : Controller
         return View(await _unitOfWork.Request.GetByUser(user.Id));
     }
 
-    // GET: Requests/Review/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id is null)
@@ -58,24 +55,14 @@ public class RequestsController : Controller
             return NotFound();
         }
 
-        var user = await _unitOfWork.Employee.GetCurrent(User);
-
-        if (user is null)
+        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
         {
             return Unauthorized();
-        }
-
-        var isAdmin = await _unitOfWork.Employee.isAdmin(user);
-
-        if (!isAdmin && request.CreatedBy.Id != user.Id)
-        {
-            return Forbid();
         }
 
         return View(request);
     }
 
-    // GET: Requests/Create
     public async Task<IActionResult> CreateRequest()
     {
         ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
@@ -83,7 +70,6 @@ public class RequestsController : Controller
         return View();
     }
 
-    // POST: Requests/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateRequest(RequestCreate requestData)
@@ -115,7 +101,7 @@ public class RequestsController : Controller
         _unitOfWork.Request.Insert(requestEntity);
         await _unitOfWork.SaveChangesAsync();
 
-        var isAdmin = await _unitOfWork.Employee.isAdmin(author);
+        var isAdmin = _unitOfWork.Employee.IsAdmin(User);
 
         return isAdmin ?
             RedirectToAction(nameof(AdminPanel))
@@ -123,35 +109,35 @@ public class RequestsController : Controller
             Redirect("~/");
     }
 
-    // GET: Requests/Create
+    [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> CreateResponse(int? id)
     {
-        if (!await _unitOfWork.Employee.isAuthorized(User))
-        {
-            return Unauthorized();
-        }
-
         if (id is null)
         {
             return NotFound();
         }
 
-        return View();
-    }
-
-    // POST: Requests/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateResponse(ResponseCreate responseData)
-    {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
-
-        if (user is null || !await _unitOfWork.Employee.isAdmin(user))
+        if (!await _unitOfWork.Employee.isAuthorized(User))
         {
             return Unauthorized();
         }
 
-        var request = await _unitOfWork.Request.GetById(responseData.ID);
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = nameof(Roles.Admin))]
+    public async Task<IActionResult> CreateResponse(int id, ResponseCreate responseData)
+    {
+        var user = await _unitOfWork.Employee.GetCurrent(User);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var request = await _unitOfWork.Request.GetById(id);
 
         if (request is null || request.Response is not null)
         {
@@ -176,7 +162,6 @@ public class RequestsController : Controller
         return RedirectToAction(nameof(AdminPanel));
     }
 
-    // GET: Requests/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id is null)
@@ -193,12 +178,16 @@ public class RequestsController : Controller
             return NotFound();
         }
 
+        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
+        {
+            return Unauthorized();
+        }
+
         var requestData = _mapper.Map<RequestEdit>(request);
 
         return View(requestData);
     }
 
-    // POST: Requests/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, RequestEdit requestData)
@@ -206,13 +195,6 @@ public class RequestsController : Controller
         if (id != requestData.ID)
         {
             return NotFound();
-        }
-
-        var user = await _unitOfWork.Employee.GetCurrent(User);
-
-        if (user is null)
-        {
-            return Unauthorized();
         }
 
         ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
@@ -230,11 +212,9 @@ public class RequestsController : Controller
             return View(requestData);
         }
 
-        var isAdmin = await _unitOfWork.Employee.isAdmin(user);
-
-        if (!isAdmin && requestEnitity.CreatedBy.Id != user.Id)
+        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, requestEnitity.CreatedBy.Id))
         {
-            return Forbid();
+            return Unauthorized();
         }
 
         _mapper.Map(requestData, requestEnitity);
@@ -243,36 +223,27 @@ public class RequestsController : Controller
         _unitOfWork.Request.Update(requestEnitity);
         await _unitOfWork.SaveChangesAsync();
 
-        return isAdmin ?
+        return _unitOfWork.Employee.IsAdmin(User) ?
             RedirectToAction(nameof(AdminPanel))
             :
             RedirectToAction(nameof(MyRequests));
     }
 
-    // GET: Requests/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
-
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-
         if (id is null)
         {
             return NotFound();
         }
 
         var request = await _unitOfWork.Request.GetById((int)id);
-        var isAdmin = await _unitOfWork.Employee.isAdmin(user);
 
         if (request is null)
         {
             return NotFound();
         }
 
-        if (!isAdmin && request.CreatedBy.Id != user.Id)
+        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
         {
             return Forbid();
         }
@@ -280,31 +251,25 @@ public class RequestsController : Controller
         return View(request);
     }
 
-    // POST: Requests/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
-
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-
-        var isAdmin = await _unitOfWork.Employee.isAdmin(user);
-        var request = await _unitOfWork.Request.GetById(id);
+        var isAdmin = _unitOfWork.Employee.IsAdmin(User);
 
         var redirect = RedirectToAction(isAdmin ?
                                         nameof(AdminPanel)
                                         :
                                         nameof(MyRequests));
+
+        var request = await _unitOfWork.Request.GetById(id);
+
         if (request is null)
         {
             return redirect;
         }
 
-        if (!isAdmin && request.CreatedBy.Id != user.Id)
+        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
         {
             return Forbid();
         }

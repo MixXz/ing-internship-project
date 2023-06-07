@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<VacaYAY.Data.Entities.Request>
 
 @{
-    ViewData["Title"] = "Manage vacation requests";
+    ViewData["Title"] = "My vacation requests";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -10,7 +10,7 @@
 <p>
     <a asp-action="CreateRequest" class="btn btn-primary">New request</a>
 </p>
-<table class="table table-bordered text-center">
+<table class="table table-bordered text-center align-middle">
     <thead>
         <tr>
             <th>
@@ -21,6 +21,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                Status
             </th>
             <th></th>
         </tr>
@@ -39,9 +42,21 @@
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary">Edit</a>
+                    @(item.Response is not null ?
+                        item.Response.IsApproved ?
+                        "Approved"
+                        :
+                        "Rejected"
+                        :
+                        "Pending")
+                </td>
+                <td class="text-end" style="white-space:nowrap; width:15%;">
                     <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-outline-danger">Delete</a>
+                    @if (item.Response is null)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-outline-danger">Delete</a>
+                    }
                 </td>
             </tr>
         }

@@ -38,9 +38,10 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                         .Where(e => e.Id == id)
                         .FirstOrDefaultAsync();
     }
-    public async Task<Employee?> GetCurrent(ClaimsPrincipal claims)
+
+    public async Task<Employee?> GetCurrent(ClaimsPrincipal userClaims)
     {
-        return await _userManager.GetUserAsync(claims);
+        return await _userManager.GetUserAsync(userClaims);
     }
 
     public override async Task<IEnumerable<Employee>> GetAll()
@@ -177,7 +178,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
             return await _userManager.AddToRoleAsync(employee, role);
         }
 
-        if (await isAdmin(employee))
+        if (await IsAdmin(employee))
         {
             return await _userManager.RemoveFromRoleAsync(employee, nameof(Roles.Admin));
         }
@@ -185,20 +186,41 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return IdentityResult.Failed();
     }
 
-    public Task<bool> isAdmin(Employee employee)
+    public Task<bool> IsAdmin(Employee employee)
     {
         return _userManager.IsInRoleAsync(employee, nameof(Roles.Admin));
     }
-
-    public async Task<bool> isAuthorized(ClaimsPrincipal claims)
+    public bool IsAdmin(ClaimsPrincipal userClaims)
     {
-        var user = await GetCurrent(claims);
+        return userClaims.IsInRole(nameof(Roles.Admin));
+    }
 
-        if(user is null)
+    public async Task<bool> isAuthorized(ClaimsPrincipal userClaims)
+    {
+        var user = await GetCurrent(userClaims);
+
+        if (user is null)
         {
             return false;
         }
 
-        return await isAdmin(user);
+        return await IsAdmin(user);
+    }
+
+    public async Task<bool> isAuthorizedToSee(ClaimsPrincipal userClaims, string authorId)
+    {
+        var user = await GetCurrent(userClaims);
+
+        if (user is null)
+        {
+            return false;
+        }
+
+        if(!IsAdmin(userClaims) && user.Id != authorId)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

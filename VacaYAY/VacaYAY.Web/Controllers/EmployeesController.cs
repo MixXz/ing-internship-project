@@ -114,7 +114,7 @@ public class EmployeesController : Controller
 
         var employeeEdit = _mapper.Map<EmployeeEdit>(employee);
 
-        employeeEdit.MakeAdmin = await _unitOfWork.Employee.isAdmin(employee);
+        employeeEdit.MakeAdmin = await _unitOfWork.Employee.IsAdmin(employee);
 
         return View(employeeEdit);
     }

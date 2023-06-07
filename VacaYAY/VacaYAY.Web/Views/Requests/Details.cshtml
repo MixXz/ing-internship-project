@@ -68,7 +68,7 @@
                         "Pending review"
                         )
                 </dd>
-                @if (Model.Response != null)
+                @if (Model.Response is not null)
                 {
                     @if (User.IsInRole(nameof(Roles.Admin)))
                     {
@@ -96,8 +96,7 @@
     <div class="d-flex mb-5 float-end">
         @if (Model.Response is null && User.IsInRole(nameof(Roles.Admin)))
         {
-            <form asp-action="CreateResponse">
-                <input type="hidden" asp-for="ID" />
+            <form asp-action="CreateResponse" asp-route-id="RequestId">
                 <input type="submit" value="Respond" class="btn btn-primary" style="margin-right:10px" />
             </form>
         }

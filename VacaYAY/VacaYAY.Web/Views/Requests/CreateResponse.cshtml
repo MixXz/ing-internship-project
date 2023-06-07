@@ -13,7 +13,6 @@
     <div class="row">
         <div class="col">
             <form asp-action="CreateResponse">
-                <input type="hidden" asp-for="ID" />
                 <div>
                     @Html.RadioButtonFor(m => m.IsApproved, true) Approve
                 </div>
