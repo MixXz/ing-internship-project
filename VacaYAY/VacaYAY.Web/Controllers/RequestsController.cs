@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
@@ -24,9 +26,13 @@ public class RequestsController : Controller
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
-    public async Task<IActionResult> AdminPanel()
+    public async Task<IActionResult> AdminPanel(RequestView filters)
     {
-        return View(await _unitOfWork.Request.GetAll());
+        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+
+        var requests = await _unitOfWork.Request.GetByFilters(filters);
+
+        return View(new RequestView { Requests = requests });
     }
 
     public async Task<IActionResult> MyRequests()
@@ -84,6 +90,12 @@ public class RequestsController : Controller
             return View(requestData);
         }
 
+        var errors = _unitOfWork.Request.ValidateOnCreate(requestData, author);
+        foreach (var error in errors)
+        {
+            ModelState.AddModelError(error.Property, error.Text);
+        }
+
         if (!ModelState.IsValid)
         {
             return View(requestData);
@@ -98,7 +110,11 @@ public class RequestsController : Controller
             Comment = requestData.Comment,
         };
 
+        author.DaysOfNumber -= (int)(requestData.EndDate - requestData.StartDate).TotalDays;
+
         _unitOfWork.Request.Insert(requestEntity);
+        _unitOfWork.Employee.Update(author);
+
         await _unitOfWork.SaveChangesAsync();
 
         var isAdmin = _unitOfWork.Employee.IsAdmin(User);

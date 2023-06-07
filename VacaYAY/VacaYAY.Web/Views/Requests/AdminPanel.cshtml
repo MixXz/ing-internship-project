@@ -1,27 +1,63 @@
-﻿@model IEnumerable<VacaYAY.Data.Entities.Request>
-
+﻿@using VacaYAY.Data.DataTransferObjects;
+@using VacaYAY.Data.Entities;
+@model RequestView
 @{
     ViewData["Title"] = "Manage vacation requests";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Manage vacation requests</h2>
+<form asp-controller="Requests" asp-action="AdminPanel" method="get">
+    <h2>Manage vacation requests</h2>
+    <div class="d-flex flex-column w-50">
+        <div class="row">
+            <div class="col">
+                <div class="d-flex justify-content-evenly">
+                    <input type="text" asp-for="SearchInput" class="form-control" placeholder="Search..." />
+                </div>
+                <div class="form-floating mb-3 mt-3">
+                    @Html.DropDownListFor(m => m.SelectedLeaveTypeID, new SelectList(ViewBag.LeaveTypes, nameof(LeaveType.ID), nameof(LeaveType.Caption)), "None",
+                    new {@class="form-control dropdown-toggle"})
+                    <label for="SelectedLeaveTypeID" class="col control-label">Leave type</label>
+                    <span asp-validation-for="SelectedLeaveTypeID" class="text-danger"></span>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" asp-for="ShowPendingOnly" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Show only pending requests
+                    </label>
 
+                </div>
+                <input type="submit" value="Select view" class="btn btn-primary mt-3" />
+            </div>
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input asp-for="StartDateFilter" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
+                    <label asp-for="StartDateFilter">Start date</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="EndDateFilter" type="date" class="form-control" aria-required="true" placeholder="End Date" />
+                    <label asp-for="EndDateFilter">End date</label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
 
 <table class="table table-bordered text-center align-middle mt-5">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedBy)
+                @Html.DisplayNameFor(model => model.Requests.First().CreatedBy)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LeaveType)
+                @Html.DisplayNameFor(model => model.Requests.First().LeaveType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartDate)
+                @Html.DisplayNameFor(model => model.Requests.First().StartDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EndDate)
+                @Html.DisplayNameFor(model => model.Requests.First().EndDate)
             </th>
             <th>
                 Status
@@ -30,7 +66,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Requests)
         {
             <tr class="@(item.Response is null ? "table-active" : "table-default")">
                 <td>

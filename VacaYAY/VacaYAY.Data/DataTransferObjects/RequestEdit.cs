@@ -11,10 +11,12 @@ public class RequestEdit
 
     [Required]
     [DisplayName("Start date")]
+    [DataType(DataType.Date)]
     public DateTime StartDate { get; set; }
 
     [Required]
     [DisplayName("End date")]
+    [DataType(DataType.Date)]
     public DateTime EndDate { get; set; }
 
     [MaxLength(256)]

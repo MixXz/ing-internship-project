@@ -6,6 +6,7 @@
 }
 
 <h2>My vacation requests</h2>
+<h4>Free days left: @(Model.First().CreatedBy.DaysOfNumber)</h4>
 
 <p>
     <a asp-action="CreateRequest" class="btn btn-primary">New request</a>
