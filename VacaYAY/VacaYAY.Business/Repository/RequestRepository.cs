@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
+using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;
 
 namespace VacaYAY.Business.Repository;
@@ -41,7 +43,7 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
             && filters.SelectedLeaveTypeID is null
             && filters.StartDateFilter is null
             && filters.EndDateFilter is null
-            && !filters.ShowPendingOnly)
+            && filters.Status is RequestStatus.All)
         {
             return await GetAll();
         }
@@ -72,10 +74,22 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                         .Where(r => r.LeaveType.ID == filters.SelectedLeaveTypeID);
         }
 
-        if (filters.ShowPendingOnly)
+        switch (filters.Status)
         {
-            requests = requests
+            case RequestStatus.Pending:
+                requests = requests
                         .Where(r => r.Response == null);
+                break;
+            case RequestStatus.Approved:
+                requests = requests
+                        .Where(r => (r.Response != null && r.Response.IsApproved == true));
+                break;
+            case RequestStatus.Rejected:
+                requests = requests
+                        .Where(r => (r.Response != null && r.Response.IsApproved == false));
+                break;
+            default:
+                break;
         }
 
         if (filters.StartDateFilter is not null)
@@ -105,50 +119,106 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                         .ToListAsync();
     }
 
-    public List<CustomValidationResult> ValidateOnCreate(RequestCreate regData, Employee user)
+    public async Task<List<CustomValidationResult>> ValidateOnCreate(RequestCreate reqData, Employee user)
     {
-        List<CustomValidationResult> errors = new();
-        var requestedLeaveDays = (regData.EndDate - regData.StartDate).TotalDays;
+        var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id);
+        var availableDays = user.DaysOfNumber - totalNumberOfDaysRequested;
 
-        if (user.DaysOfNumber is 0)
-        {
-            errors.Add(new()
-            {
-                Property = string.Empty,
-                Text = "You have no more free days left."
-            });
-        }
+        var errors = ValidateDates(reqData.StartDate, reqData.EndDate, reqData.NumOfDaysRequested, availableDays, totalNumberOfDaysRequested);
 
-        if (regData.StartDate <= DateTime.Now)
-        {
-            errors.Add(new()
-            {
-                Property = nameof(regData.StartDate),
-                Text = "The starting date cannot be in the past"
-            });
-        }
-
-        if (requestedLeaveDays > user.DaysOfNumber)
-        {
-            errors.Add(new()
-            {
-                Property = nameof(regData.EndDate),
-                Text = "The selected number of days exceeds the available number of free days."
-            });
-        }
-
-        var hasAnOverlappingRequest = _context.Requests
-                       .Include(r => r.CreatedBy)
-                       .Any(r => (r.StartDate <= regData.EndDate) 
-                                && (r.EndDate >= regData.StartDate)
-                                && (r.CreatedBy.Id == user.Id));
-
-        if(hasAnOverlappingRequest)
+        if (CheckForOverlappingRequest(reqData.StartDate, reqData.EndDate, user.Id))
         {
             errors.Add(new()
             {
                 Property = string.Empty,
                 Text = "You already have a request that overlaps with the defined scope."
+            });
+        }
+
+        return errors;
+    }
+
+    public async Task<List<CustomValidationResult>> ValidateOnEdit(RequestEdit reqData, Employee user)
+    {
+        var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id, reqData.ID);
+        var availableDays = user.DaysOfNumber - totalNumberOfDaysRequested;
+
+        var errors = ValidateDates(reqData.StartDate, reqData.EndDate, reqData.NumOfDaysRequested, availableDays, totalNumberOfDaysRequested);
+
+        if (CheckForOverlappingRequest(reqData.StartDate, reqData.EndDate, user.Id, reqData.ID))
+        {
+            errors.Add(new()
+            {
+                Property = string.Empty,
+                Text = "You already have a request that overlaps with the defined scope."
+            });
+        }
+
+        return errors;
+    }
+
+    private async Task<int> GetNumOfRequestedDays(string employeeId, int? requestIdToExclude = null)
+    {
+        var days = await _context.Requests
+                        .Where(r => (r.ID != requestIdToExclude)
+                                    && (r.CreatedBy.Id == employeeId)
+                                    && (r.Response == null))
+                        .SumAsync(r => EF.Functions.DateDiffDay(r.StartDate, r.EndDate));
+        return days;
+    }
+
+    private bool CheckForOverlappingRequest(DateTime start, DateTime end, string authorId, int? requestIdToExclude = null)
+    {
+        var result = _context.Requests
+                       .Any(r => (r.ID != requestIdToExclude)
+                                && (r.StartDate <= end)
+                                && (r.EndDate >= start)
+                                && (r.CreatedBy.Id == authorId));
+        return result;
+    }
+
+    private List<CustomValidationResult> ValidateDates(DateTime start, DateTime end, int requestedDays, int availableDays, int totalRequestedDays)
+    {
+        List<CustomValidationResult> errors = new();
+
+        if (availableDays is 0)
+        {
+            errors.Add(new()
+            {
+                Property = string.Empty,
+                Text = totalRequestedDays > 0 ?
+                    $"You have no more free days left, you have already requested {totalRequestedDays} days."
+                    :
+                    "You have no more free days left."
+            });
+
+            return errors;
+        }
+
+        if (requestedDays > availableDays)
+        {
+            errors.Add(new()
+            {
+                Property = string.Empty,
+                Text = "The selected number of days exceeds the available number of free days."
+            });
+        }
+
+        if (start <= DateTime.Now)
+        {
+            errors.Add(new()
+            {
+                Property = nameof(Request.StartDate),
+                Text = "The starting date cannot be in the past."
+            });
+        }
+
+        if (start >= end)
+        {
+            errors.Add(new()
+            {
+                Property = nameof(Request.EndDate),
+                Text = "The end date cannot be earlier than the start date."
             });
         }
 

@@ -44,6 +44,8 @@ public class RequestsController : Controller
             return Unauthorized();
         }
 
+        ViewBag.DaysOffNumber = user.DaysOfNumber;
+
         return View(await _unitOfWork.Request.GetByUser(user.Id));
     }
 
@@ -71,7 +73,14 @@ public class RequestsController : Controller
 
     public async Task<IActionResult> CreateRequest()
     {
+        var user = await _unitOfWork.Employee.GetCurrent(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        ViewBag.DaysOffNumber = user.DaysOfNumber;
 
         return View();
     }
@@ -80,17 +89,24 @@ public class RequestsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateRequest(RequestCreate requestData)
     {
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        var leaveTypes = await _unitOfWork.LeaveType.GetAll();
+        ViewBag.LeaveTypes = leaveTypes;
 
         var author = await _unitOfWork.Employee.GetCurrent(User);
-        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.LeaveTypeID);
+        if (author is null)
+        {
+            return Unauthorized();
+        }
 
-        if (leaveType is null || author is null)
+        ViewBag.DaysOffNumber = author.DaysOfNumber;
+
+        var leaveType = leaveTypes.FirstOrDefault(l => l.ID == requestData.LeaveTypeID);
+        if (leaveType is null)
         {
             return View(requestData);
         }
 
-        var errors = _unitOfWork.Request.ValidateOnCreate(requestData, author);
+        var errors = await _unitOfWork.Request.ValidateOnCreate(requestData, author);
         foreach (var error in errors)
         {
             ModelState.AddModelError(error.Property, error.Text);
@@ -110,11 +126,7 @@ public class RequestsController : Controller
             Comment = requestData.Comment,
         };
 
-        author.DaysOfNumber -= (int)(requestData.EndDate - requestData.StartDate).TotalDays;
-
         _unitOfWork.Request.Insert(requestEntity);
-        _unitOfWork.Employee.Update(author);
-
         await _unitOfWork.SaveChangesAsync();
 
         var isAdmin = _unitOfWork.Employee.IsAdmin(User);
@@ -122,13 +134,22 @@ public class RequestsController : Controller
         return isAdmin ?
             RedirectToAction(nameof(AdminPanel))
             :
-            Redirect("~/");
+            Redirect(nameof(MyRequests));
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> CreateResponse(int? id)
     {
+        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+
         if (id is null)
+        {
+            return NotFound();
+        }
+
+        var request = await _unitOfWork.Request.GetById((int)id);
+
+        if (request is null)
         {
             return NotFound();
         }
@@ -138,7 +159,7 @@ public class RequestsController : Controller
             return Unauthorized();
         }
 
-        return View();
+        return View(new ResponseCreate { LeaveType = request.LeaveType });
     }
 
     [HttpPost]
@@ -146,16 +167,22 @@ public class RequestsController : Controller
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> CreateResponse(int id, ResponseCreate responseData)
     {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
+        var reviewer = await _unitOfWork.Employee.GetCurrent(User);
 
-        if (user is null)
+        if (reviewer is null)
         {
             return Unauthorized();
         }
 
         var request = await _unitOfWork.Request.GetById(id);
+        var leaveTypes = await _unitOfWork.LeaveType.GetAll();
+        var leaveType = leaveTypes.FirstOrDefault(l => l.ID == responseData.LeaveType.ID);
 
-        if (request is null || request.Response is not null)
+        ViewBag.LeaveTypes = leaveTypes;
+
+        if (request is null
+            || leaveType is null
+            || request.Response is not null)
         {
             return NotFound();
         }
@@ -166,19 +193,28 @@ public class RequestsController : Controller
             Comment = responseData.Comment,
             RequstID = request.ID,
             Request = request,
-            ReviewedBy = user
+            ReviewedBy = reviewer
         };
 
-        request.Response = response;
-
         _unitOfWork.Response.Insert(response);
+
+        var seeker = request.CreatedBy;
+        if (response.IsApproved)
+        {
+            seeker.DaysOfNumber -= request.NumOfDaysRequested;
+            _unitOfWork.Employee.Update(seeker);
+        }
+
+        request.Response = response;
+        request.LeaveType = leaveType;
         _unitOfWork.Request.Update(request);
+
         await _unitOfWork.SaveChangesAsync();
 
         return RedirectToAction(nameof(AdminPanel));
     }
 
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> EditRequest(int? id)
     {
         if (id is null)
         {
@@ -206,21 +242,22 @@ public class RequestsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, RequestEdit requestData)
+    public async Task<IActionResult> EditRequest(int id, RequestEdit requestData)
     {
-        if (id != requestData.ID)
+        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+
+        var requestEntity = await _unitOfWork.Request.GetById(requestData.ID);
+        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.LeaveType.ID);
+
+        if (requestEntity is null || leaveType is null)
         {
             return NotFound();
         }
 
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-
-        var requestEnitity = await _unitOfWork.Request.GetById(requestData.ID);
-        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.LeaveType.ID);
-
-        if (requestEnitity is null || leaveType is null)
+        var errors = await _unitOfWork.Request.ValidateOnEdit(requestData, requestEntity.CreatedBy);
+        foreach (var error in errors)
         {
-            return NotFound();
+            ModelState.AddModelError(error.Property, error.Text);
         }
 
         if (!ModelState.IsValid)
@@ -228,21 +265,122 @@ public class RequestsController : Controller
             return View(requestData);
         }
 
-        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, requestEnitity.CreatedBy.Id))
+        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, requestEntity.CreatedBy.Id))
         {
             return Unauthorized();
         }
 
-        _mapper.Map(requestData, requestEnitity);
-        requestEnitity.LeaveType = leaveType;
+        var response = requestEntity.Response;
 
-        _unitOfWork.Request.Update(requestEnitity);
+        if (response is not null)
+        {
+            requestEntity.Response = null;
+            _unitOfWork.Response.Delete(response);
+        }
+
+        _mapper.Map(requestData, requestEntity);
+        requestEntity.LeaveType = leaveType;
+
+        _unitOfWork.Request.Update(requestEntity);
         await _unitOfWork.SaveChangesAsync();
 
         return _unitOfWork.Employee.IsAdmin(User) ?
             RedirectToAction(nameof(AdminPanel))
             :
             RedirectToAction(nameof(MyRequests));
+    }
+
+    [Authorize(Roles = nameof(Roles.Admin))]
+    public async Task<IActionResult> EditResponse(int? id)
+    {
+        if (id is null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+
+        var response = await _unitOfWork.Response.GetById((int)id);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        var request = await _unitOfWork.Request.GetById(response.RequstID);
+
+        if (!await _unitOfWork.Employee.isAuthorized(User))
+        {
+            return Unauthorized();
+        }
+
+        var responseData = _mapper.Map<ResponseEdit>(response);
+        responseData.LeaveType = request!.LeaveType;
+
+        return View(responseData);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = nameof(Roles.Admin))]
+    public async Task<IActionResult> EditResponse(int id, ResponseEdit responseData)
+    {
+        var reviewer = await _unitOfWork.Employee.GetCurrent(User);
+
+        if (reviewer is null
+            || !await _unitOfWork.Employee.IsAdmin(reviewer))
+        {
+            return Forbid();
+        }
+
+        var request = await _unitOfWork.Request.GetById(responseData.RequstID);
+
+        if (request is null)
+        {
+            return NotFound();
+        }
+
+        var seeker = request.CreatedBy;
+        var response = request.Response;
+        var leaveType = await _unitOfWork.LeaveType.GetById(responseData.LeaveType.ID);
+
+        if (response is null
+            || leaveType is null
+            || seeker is null
+            || id != response.ID)
+        {
+            return NotFound();
+        }
+
+        var oldStatus = response.Status;
+        var newStatus = responseData.Status;
+
+        if (oldStatus != newStatus)
+        {
+            if (oldStatus is RequestStatus.Rejected && newStatus is RequestStatus.Approved)
+            {
+                seeker.DaysOfNumber -= request.NumOfDaysRequested;
+            }
+
+            if (oldStatus is RequestStatus.Approved && newStatus is RequestStatus.Rejected)
+            {
+                seeker.DaysOfNumber += request.NumOfDaysRequested;
+            }
+
+            _unitOfWork.Employee.Update(seeker);
+        }
+
+        request.LeaveType = leaveType;
+        _unitOfWork.Request.Update(request);
+
+        response.IsApproved = responseData.IsApproved;
+        response.Comment = responseData.Comment;
+        response.ReviewedBy = reviewer;
+        _unitOfWork.Response.Update(response);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToAction(nameof(AdminPanel));
     }
 
     public async Task<IActionResult> Delete(int? id)

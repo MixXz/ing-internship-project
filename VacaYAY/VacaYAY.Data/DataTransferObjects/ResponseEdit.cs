@@ -1,17 +1,23 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 
-namespace VacaYAY.Data.Entities;
+namespace VacaYAY.Data.DataTransferObjects;
 
-public class Response
+public class ResponseEdit
 {
     [Key]
     public int ID { get; set; }
 
     [Required]
-    public bool IsApproved { get; set; } = true;
+    public int RequstID { get; set; }
+
+    [Required]
+    public LeaveType LeaveType { get; set; } = new();
+
+    [Required]
+    public bool IsApproved { get; set; } = false;
 
     [NotMapped]
     public RequestStatus Status
@@ -27,14 +33,4 @@ public class Response
 
     [MaxLength(256)]
     public string? Comment { get; set; }
-
-    [Required]
-    public int RequstID { get; set; }
-
-    [Required]
-    public Request Request { get; set; } = new();
-
-    [Required]
-    [DisplayName("Reviewed by")]
-    public Employee ReviewedBy { get; set; } = new();
 }

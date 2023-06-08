@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using VacaYAY.Data.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VacaYAY.Data.DataTransferObjects;
 
@@ -18,6 +19,15 @@ public class RequestEdit
     [DisplayName("End date")]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; }
+
+    [NotMapped]
+    public int NumOfDaysRequested
+    {
+        get
+        {
+            return (int)(EndDate - StartDate).TotalDays;
+        }
+    }
 
     [MaxLength(256)]
     public string? Comment { get; set; }

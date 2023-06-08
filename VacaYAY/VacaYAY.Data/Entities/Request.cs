@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VacaYAY.Data.Entities;
 
@@ -17,6 +18,15 @@ public class Request
     [DisplayName("End date")]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; }
+
+    [NotMapped]
+    public int NumOfDaysRequested
+    {
+        get
+        {
+            return (int)(EndDate - StartDate).TotalDays;
+        }
+    }
 
     [MaxLength(256)]
     public string? Comment { get; set; }

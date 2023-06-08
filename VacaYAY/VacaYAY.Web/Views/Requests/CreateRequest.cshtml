@@ -10,13 +10,14 @@
     <h2>Vacation request</h2>
     <h4>Create new vacation request</h4>
     <hr />
+    <h5>Number of free days left: @(ViewBag.DaysOffNumber)</h5>
     <div class="row">
         <div class="col">
             <form asp-action="CreateRequest">
                 @Html.ValidationSummary(true, null, new { @class = "text-danger" })
                 <div class="form-floating mb-3">
                     <select class="form-select" name="LeaveTypeID" asp-items="@(new SelectList(ViewBag.LeaveTypes, nameof(LeaveType.ID), nameof(LeaveType.Caption)))"></select>
-                    <label for="LeaveTypeID" class="col-sm-2 control-label"> Position </label>
+                    <label for="LeaveTypeID" class="col-sm-2 control-label"> Leave type </label>
                     <span asp-validation-for="LeaveTypeID" class="text-danger"></span>
                 </div>
                 <div class="form-floating mb-3">

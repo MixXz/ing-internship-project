@@ -6,11 +6,13 @@ namespace VacaYAY.Data;
 
 public class MappingProfile : Profile
 {
-    public MappingProfile() 
+    public MappingProfile()
     {
         CreateMap<EmployeeEdit, Employee>();
         CreateMap<Employee, EmployeeEdit>();
         CreateMap<Request, RequestEdit>();
         CreateMap<RequestEdit, Request>();
+        CreateMap<Response, ResponseEdit>();
+        CreateMap<ResponseEdit, Response>();
     }
 }

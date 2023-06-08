@@ -94,16 +94,21 @@
         </div>
     </div>
     <div class="d-flex mb-5 float-end">
-        @if (Model.Response is null && User.IsInRole(nameof(Roles.Admin)))
+        @if (User.IsInRole(nameof(Roles.Admin)) && Model.Response is null)
         {
             <form asp-action="CreateResponse" asp-route-id="RequestId">
                 <input type="submit" value="Respond" class="btn btn-primary" style="margin-right:10px" />
             </form>
         }
-        <form asp-action="Delete">
-            <input type="hidden" asp-for="ID" />
-            <input type="submit" value="Delete" class="btn btn-danger" />
-        </form>
 
+        <a asp-action="EditRequest" asp-route-id="@Model.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit request</a>
+
+        @if (Model.Response is null)
+        {
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="ID" />
+                <input type="submit" value="Delete request" class="btn btn-danger" />
+            </form>
+        }
     </div>
 </div>

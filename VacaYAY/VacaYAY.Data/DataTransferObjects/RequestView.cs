@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using VacaYAY.Data.Entities;
+using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Data.DataTransferObjects;
 
@@ -10,7 +11,7 @@ public class RequestView
 
     public int? SelectedLeaveTypeID { get; set; }
 
-    public bool ShowPendingOnly { get; set; }
+    public RequestStatus Status { get; set; }
 
     [DataType(DataType.Date)]
     public DateTime? StartDateFilter { get; set; }
