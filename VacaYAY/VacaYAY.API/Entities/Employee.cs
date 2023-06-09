@@ -3,28 +3,27 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VacaYAY.Data.Entities;
-public class Employee : IdentityUser
+namespace VacaYAY.API.Entities;
+public class Employee
 {
     [Required]
     [MaxLength(50)]
-    [DisplayName("First name")]
+    [DisplayName("First Name")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(50)]
-    [DisplayName("Last name")]
+    [DisplayName("Last Name")]
     public string LastName { get; set; } = string.Empty;
 
-    [NotMapped]
-    [DisplayName("Name")]
-    public string Name 
-    {
-        get
-        {
-            return $"{FirstName} {LastName}";
-        }
-     }
+    [Required]
+    [EmailAddress]
+    [MaxLength(50)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [PasswordPropertyText]
+    public string Password { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(512)]
@@ -43,21 +42,15 @@ public class Employee : IdentityUser
 
     [Required]
     [DisplayName("Start date")]
-    [DataType(DataType.Date)]
     public DateTime EmployeeStartDate { get; set; }
 
     [DisplayName("End date")]
-    [DataType(DataType.Date)]
     public DateTime? EmployeeEndDate { get; set; }
 
     [Required]
     [DisplayName("Insert date")]
     public DateTime InsertDate { get; set; }
 
-    public DateTime? DeleteDate { get; set; }
-
     [Required]
     public Position Position { get; set; } = new();
-
-    public List<Request> LeaveRequests { get; set; } = new();
 }

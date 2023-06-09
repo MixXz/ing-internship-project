@@ -130,7 +130,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         employeeEntity.LastName = employeeData.LastName;
         employeeEntity.Address = employeeData.Address;
         employeeEntity.IDNumber = employeeData.IDNumber;
-        employeeEntity.DaysOfNumber = employeeData.DaysOfNumber;
+        employeeEntity.DaysOffNumber = employeeData.DaysOffNumber;
         employeeEntity.EmployeeStartDate = employeeData.EmployeeStartDate;
         employeeEntity.EmployeeEndDate = employeeData.EmployeeEndDate;
         employeeEntity.Position = employeeData.Position;

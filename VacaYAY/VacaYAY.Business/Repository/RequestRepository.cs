@@ -122,7 +122,7 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
     public async Task<List<CustomValidationResult>> ValidateOnCreate(RequestCreate reqData, Employee user)
     {
         var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id);
-        var availableDays = user.DaysOfNumber - totalNumberOfDaysRequested;
+        var availableDays = user.DaysOffNumber - totalNumberOfDaysRequested;
 
         var errors = ValidateDates(reqData.StartDate, reqData.EndDate, reqData.NumOfDaysRequested, availableDays, totalNumberOfDaysRequested);
 
@@ -141,7 +141,7 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
     public async Task<List<CustomValidationResult>> ValidateOnEdit(RequestEdit reqData, Employee user)
     {
         var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id, reqData.ID);
-        var availableDays = user.DaysOfNumber - totalNumberOfDaysRequested;
+        var availableDays = user.DaysOffNumber - totalNumberOfDaysRequested;
 
         var errors = ValidateDates(reqData.StartDate, reqData.EndDate, reqData.NumOfDaysRequested, availableDays, totalNumberOfDaysRequested);
 

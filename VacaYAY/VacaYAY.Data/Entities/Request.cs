@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Data.Entities;
 
@@ -20,11 +21,30 @@ public class Request
     public DateTime EndDate { get; set; }
 
     [NotMapped]
+    [DisplayName("Number of days requested")]
     public int NumOfDaysRequested
     {
         get
         {
             return (int)(EndDate - StartDate).TotalDays;
+        }
+    }
+
+    [NotMapped]
+    public RequestStatus Status
+    {
+        get
+        {
+            if (Response is null)
+            {
+                return RequestStatus.Pending;
+            }
+            else if (Response.IsApproved)
+            {
+                return RequestStatus.Approved;
+            }
+
+            return RequestStatus.Rejected;
         }
     }
 

@@ -21,6 +21,7 @@ public class RequestEdit
     public DateTime EndDate { get; set; }
 
     [NotMapped]
+    [DisplayName("Number of days requested")]
     public int NumOfDaysRequested
     {
         get

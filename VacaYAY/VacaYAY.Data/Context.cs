@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using VacaYAY.Data.Entities;
 
@@ -22,13 +21,19 @@ public class Context : IdentityDbContext<Employee>
         modelBuilder.Entity<Request>()
             .HasOne(r => r.Response)
             .WithOne(r => r.Request)
-            .HasForeignKey<Response>(r => r.RequstID);
+            .HasForeignKey<Response>(r => r.RequestID);
 
         modelBuilder.Entity<Employee>()
-            .ToTable("Employes");
+            .ToTable("Employees");
 
         modelBuilder.Entity<Employee>()
             .HasQueryFilter(e => e.DeleteDate == null);
+
+        modelBuilder.Entity<Request>()
+            .HasQueryFilter(r => r.CreatedBy.DeleteDate == null);
+
+        modelBuilder.Entity<Response>()
+            .HasQueryFilter(r => r.Request.CreatedBy.DeleteDate == null);
 
         modelBuilder.Entity<Response>()
             .HasOne(v => v.ReviewedBy)

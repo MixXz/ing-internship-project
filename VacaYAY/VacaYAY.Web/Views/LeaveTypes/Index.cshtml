@@ -1,43 +1,43 @@
 ﻿@model IEnumerable<VacaYAY.Data.Entities.LeaveType>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Leave types";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Manage leave types</h1>
-
-<p>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
-</p>
-<table class="table table-bordered text-center">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Caption)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="container-sm w-75">
+    <h2>Manage leave types</h2>
+    <a asp-action="Create" class="btn btn-primary mb-2">Create New</a>
+    <table class="table table-bordered text-center">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Caption)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-outline-danger">Delete</a>
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.Caption)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Caption)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        <form asp-action="Delete" asp-route-id="@item.ID" method="post">
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
+                            <input type="hidden" asp-for="@item.ID" />
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

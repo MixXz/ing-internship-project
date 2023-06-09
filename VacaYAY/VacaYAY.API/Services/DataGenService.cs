@@ -1,6 +1,6 @@
 ﻿using Bogus;
 using VacaYAY.API.Contracts;
-using VacaYAY.Data.Entities;
+using VacaYAY.API.Entities;
 
 namespace VacaYAY.API.Services;
 
@@ -15,13 +15,11 @@ public class DataGenService : IDataGenService
                         .RuleFor(e => e.LastName, f => f.Person.LastName)
                         .RuleFor(e => e.Address, f => f.Address.FullAddress())
                         .RuleFor(e => e.IDNumber, f => f.Random.Number(100000, 999999).ToString())
-                        .RuleFor(e => e.DaysOfNumber, f => f.Random.Number(0, 100))
+                        .RuleFor(e => e.DaysOffNumber, f => f.Random.Number(0, 100))
                         .RuleFor(e => e.EmployeeStartDate, f => f.Date.Past())
                         .RuleFor(e => e.EmployeeEndDate, f => f.Date.Recent(30))
                         .RuleFor(e => e.InsertDate, f => f.Date.Past())
-                        .RuleFor(e => e.DeleteDate, f => null)
                         .RuleFor(e => e.Position, f => f.PickRandom(GeneratePositions(count)))
-                        .RuleFor(e => e.LeaveRequests, f => new List<Request>())
                         .RuleFor(e => e.Email, (f, e) => f.Internet.Email(e.FirstName.ToLower(), e.LastName.ToLower()));
 
         return faker.Generate(count);

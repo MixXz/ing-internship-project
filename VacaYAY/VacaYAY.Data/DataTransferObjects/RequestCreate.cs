@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Data.DataTransferObjects;
 
@@ -17,6 +18,7 @@ public class RequestCreate
     public DateTime EndDate { get; set; }
 
     [NotMapped]
+    [DisplayName("Number of days requested")]
     public int NumOfDaysRequested
     {
         get

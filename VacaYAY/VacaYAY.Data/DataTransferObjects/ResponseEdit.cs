@@ -11,25 +11,13 @@ public class ResponseEdit
     public int ID { get; set; }
 
     [Required]
-    public int RequstID { get; set; }
+    public int RequestID { get; set; }
 
     [Required]
     public LeaveType LeaveType { get; set; } = new();
 
     [Required]
     public bool IsApproved { get; set; } = false;
-
-    [NotMapped]
-    public RequestStatus Status
-    {
-        get
-        {
-            return IsApproved ?
-                RequestStatus.Approved
-                :
-                RequestStatus.Rejected;
-        }
-    }
 
     [MaxLength(256)]
     public string? Comment { get; set; }

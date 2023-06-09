@@ -11,12 +11,12 @@ public class EmployeeEdit
 
     [Required]
     [MaxLength(50)]
-    [DisplayName("First Name")]
+    [DisplayName("First name")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(50)]
-    [DisplayName("Last Name")]
+    [DisplayName("Last name")]
     public string LastName { get; set; } = string.Empty;
 
     [Required]
@@ -34,8 +34,8 @@ public class EmployeeEdit
 
     [Required]
     [Range(0, 100)]
-    [DisplayName("Days of number")]
-    public int DaysOfNumber { get; set; }
+    [DisplayName("Days off number")]
+    public int DaysOffNumber { get; set; }
 
     [Required]
     [DisplayName("Start date")]

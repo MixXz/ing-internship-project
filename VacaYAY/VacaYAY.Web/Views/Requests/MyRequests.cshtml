@@ -1,4 +1,5 @@
-﻿@model IEnumerable<VacaYAY.Data.Entities.Request>
+﻿@using VacaYAY.Data.Enums;
+@model IEnumerable<VacaYAY.Data.Entities.Request>
 
 @{
     ViewData["Title"] = "My vacation requests";
@@ -24,7 +25,7 @@
                 @Html.DisplayNameFor(model => model.EndDate)
             </th>
             <th>
-                Status
+                @Html.DisplayNameFor(model => model.Status)
             </th>
             <th></th>
         </tr>
@@ -43,21 +44,10 @@
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
                 <td>
-                    @(item.Response is not null ?
-                        item.Response.IsApproved ?
-                        "Approved"
-                        :
-                        "Rejected"
-                        :
-                        "Pending")
+                    @Html.DisplayFor(modelItem => item.Status)
                 </td>
-                <td class="text-end" style="white-space:nowrap; width:15%;">
-                    <a asp-action="EditRequest" asp-route-id="@item.ID" class="btn btn-outline-primary">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">Details</a>
-                    @if (item.Response is null)
-                    {
-                        <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-outline-danger">Delete</a>
-                    }
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">View more</a>
                 </td>
             </tr>
         }

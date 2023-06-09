@@ -32,11 +32,11 @@
             <div class="col">
                 <div class="form-floating mb-3 mt-3">
                     <input asp-for="StartDateFilter" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
-                    <label asp-for="StartDateFilter">Start date</label>
+                    <label asp-for="StartDateFilter"></label>
                 </div>
                 <div class="form-floating mb-3">
                     <input asp-for="EndDateFilter" type="date" class="form-control" aria-required="true" placeholder="End Date" />
-                    <label asp-for="EndDateFilter">End date</label>
+                    <label asp-for="EndDateFilter"></label>
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
                 @Html.DisplayNameFor(model => model.Requests.First().EndDate)
             </th>
             <th>
-                Status
+                @Html.DisplayNameFor(model => model.Status)
             </th>
             <th></th>
         </tr>
@@ -81,22 +81,12 @@
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
                 <td>
-                    @(item.Response is not null ?
-                        item.Response.IsApproved ?
-                        nameof(RequestStatus.Approved)
-                        :
-                        nameof(RequestStatus.Rejected)
-                        :
-                        nameof(RequestStatus.Pending))
+                    @Html.DisplayFor(modelItem => item.Status)
                 </td>
-                <td class="text-end" style="white-space:nowrap; width:15%;">
+                <td class="text-end" style="white-space:nowrap; width:10%;">
                     @if (item.Response is null)
                     {
                         <a asp-action="CreateResponse" asp-route-id="@item.ID" class="btn btn-primary">Respond</a>
-                    }
-                    else
-                    {
-                        <a asp-action="EditResponse" asp-route-id="@item.Response.ID" class="btn btn-outline-primary">Edit response</a>
                     }
                     <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">Details</a>
                 </td>

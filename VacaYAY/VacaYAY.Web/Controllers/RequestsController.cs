@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
@@ -29,7 +27,6 @@ public class RequestsController : Controller
     public async Task<IActionResult> AdminPanel(RequestView filters)
     {
         ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-
         var requests = await _unitOfWork.Request.GetByFilters(filters);
 
         return View(new RequestView { Requests = requests });
@@ -44,7 +41,7 @@ public class RequestsController : Controller
             return Unauthorized();
         }
 
-        ViewBag.DaysOffNumber = user.DaysOfNumber;
+        ViewBag.DaysOffNumber = user.DaysOffNumber;
 
         return View(await _unitOfWork.Request.GetByUser(user.Id));
     }
@@ -80,7 +77,7 @@ public class RequestsController : Controller
         }
 
         ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-        ViewBag.DaysOffNumber = user.DaysOfNumber;
+        ViewBag.DaysOffNumber = user.DaysOffNumber;
 
         return View();
     }
@@ -98,7 +95,7 @@ public class RequestsController : Controller
             return Unauthorized();
         }
 
-        ViewBag.DaysOffNumber = author.DaysOfNumber;
+        ViewBag.DaysOffNumber = author.DaysOffNumber;
 
         var leaveType = leaveTypes.FirstOrDefault(l => l.ID == requestData.LeaveTypeID);
         if (leaveType is null)
@@ -154,6 +151,8 @@ public class RequestsController : Controller
             return NotFound();
         }
 
+        ViewBag.Request = request;
+
         if (!await _unitOfWork.Employee.isAuthorized(User))
         {
             return Unauthorized();
@@ -191,7 +190,7 @@ public class RequestsController : Controller
         {
             IsApproved = responseData.IsApproved,
             Comment = responseData.Comment,
-            RequstID = request.ID,
+            RequestID = request.ID,
             Request = request,
             ReviewedBy = reviewer
         };
@@ -201,7 +200,7 @@ public class RequestsController : Controller
         var seeker = request.CreatedBy;
         if (response.IsApproved)
         {
-            seeker.DaysOfNumber -= request.NumOfDaysRequested;
+            seeker.DaysOffNumber -= request.NumOfDaysRequested;
             _unitOfWork.Employee.Update(seeker);
         }
 
@@ -307,7 +306,8 @@ public class RequestsController : Controller
             return NotFound();
         }
 
-        var request = await _unitOfWork.Request.GetById(response.RequstID);
+        var request = await _unitOfWork.Request.GetById(response.RequestID);
+        ViewBag.Request = request;
 
         if (!await _unitOfWork.Employee.isAuthorized(User))
         {
@@ -333,7 +333,7 @@ public class RequestsController : Controller
             return Forbid();
         }
 
-        var request = await _unitOfWork.Request.GetById(responseData.RequstID);
+        var request = await _unitOfWork.Request.GetById(responseData.RequestID);
 
         if (request is null)
         {
@@ -352,19 +352,24 @@ public class RequestsController : Controller
             return NotFound();
         }
 
-        var oldStatus = response.Status;
-        var newStatus = responseData.Status;
+        var oldStatus = request.Status;
+        var newStatus = responseData.IsApproved ? 
+                        RequestStatus.Approved 
+                        : 
+                        RequestStatus.Rejected;
 
         if (oldStatus != newStatus)
         {
-            if (oldStatus is RequestStatus.Rejected && newStatus is RequestStatus.Approved)
+            if (oldStatus is RequestStatus.Rejected 
+                && newStatus is RequestStatus.Approved)
             {
-                seeker.DaysOfNumber -= request.NumOfDaysRequested;
+                seeker.DaysOffNumber -= request.NumOfDaysRequested;
             }
 
-            if (oldStatus is RequestStatus.Approved && newStatus is RequestStatus.Rejected)
+            if (oldStatus is RequestStatus.Approved 
+                && newStatus is RequestStatus.Rejected)
             {
-                seeker.DaysOfNumber += request.NumOfDaysRequested;
+                seeker.DaysOffNumber += request.NumOfDaysRequested;
             }
 
             _unitOfWork.Employee.Update(seeker);

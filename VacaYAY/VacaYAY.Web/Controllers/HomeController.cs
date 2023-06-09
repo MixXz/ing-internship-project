@@ -6,9 +6,7 @@ namespace VacaYAY.Web.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    public HomeController()
-    {
-    }
+    public HomeController() { }
 
     public IActionResult Index()
     {

@@ -27,7 +27,6 @@ public class EmployeesController : Controller
         _httpClientService = httpClientService;
     }
 
-    // GET: Employees
     public async Task<IActionResult> Index(string? searchInput, DateTime? startDateFilter, DateTime? endDateFilter)
     {
         var employees = await _unitOfWork.Employee.GetByFilters(searchInput, startDateFilter, endDateFilter);
@@ -76,8 +75,6 @@ public class EmployeesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-
-    // GET: Employee/Details/5
     public async Task<IActionResult> Details(string? id)
     {
         if (id is null)
@@ -95,7 +92,6 @@ public class EmployeesController : Controller
         return View(employee);
     }
 
-    // GET: Employee/Edit/5
     public async Task<IActionResult> Edit(string? id)
     {
         ViewBag.Positions = await _unitOfWork.Position.GetAll();
@@ -119,7 +115,6 @@ public class EmployeesController : Controller
         return View(employeeEdit);
     }
 
-    // POST: Employee/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(string id, EmployeeEdit employee)
@@ -149,7 +144,6 @@ public class EmployeesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: Employee/Delete/5
     public async Task<IActionResult> Delete(string? id)
     {
         if (id is null)
@@ -167,7 +161,6 @@ public class EmployeesController : Controller
         return View(employee);
     }
 
-    // POST: Employee/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(string id)

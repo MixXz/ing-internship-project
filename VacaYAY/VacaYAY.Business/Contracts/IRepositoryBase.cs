@@ -1,4 +1,5 @@
 ﻿namespace VacaYAY.Business.Contracts;
+
 public interface IRepositoryBase<T>
 {
     Task<IEnumerable<T>> GetAll();
