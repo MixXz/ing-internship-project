@@ -18,13 +18,13 @@ public class Employee : IdentityUser
 
     [NotMapped]
     [DisplayName("Name")]
-    public string Name 
+    public string Name
     {
         get
         {
             return $"{FirstName} {LastName}";
         }
-     }
+    }
 
     [Required]
     [MaxLength(512)]

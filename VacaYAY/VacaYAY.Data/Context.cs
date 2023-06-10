@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 
 namespace VacaYAY.Data;
@@ -12,7 +15,16 @@ public class Context : IdentityDbContext<Employee>
     public DbSet<Request> Requests => Set<Request>();
     public DbSet<Response> Responses => Set<Response>();
 
-    public Context(DbContextOptions<Context> options) : base(options) { }
+    private readonly IConfiguration _config;
+    private readonly IPasswordHasher<Employee> _passwordHasher;
+    public Context(
+        DbContextOptions<Context> options,
+        IConfiguration config,
+        IPasswordHasher<Employee> passwordHasher) : base(options)
+    {
+        _config = config;
+        _passwordHasher = passwordHasher;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,7 +36,7 @@ public class Context : IdentityDbContext<Employee>
             .HasForeignKey<Response>(r => r.RequestID);
 
         modelBuilder.Entity<Employee>()
-            .ToTable("Employees");
+            .ToTable($"{nameof(Employee)}s");
 
         modelBuilder.Entity<Employee>()
             .HasQueryFilter(e => e.DeleteDate == null);
@@ -39,5 +51,69 @@ public class Context : IdentityDbContext<Employee>
             .HasOne(v => v.ReviewedBy)
             .WithMany()
             .OnDelete(DeleteBehavior.NoAction);
+
+        SeedRootUser(modelBuilder);
+    }
+
+    private void SeedRootUser(ModelBuilder builder)
+    {
+        var userId = Guid.NewGuid().ToString();
+        var email = _config["RootUser:Email"]!;
+        var hashedPassword = _passwordHasher.HashPassword(new()
+        {
+            Id = userId,
+            Email = email,
+        }, _config["RootUser:Password"]!);
+
+        builder.Entity<Position>()
+            .HasData(new Position()
+            {
+                ID = 1,
+                Caption = "HR",
+                Description = "HR"
+            });
+
+        builder.Entity<Employee>()
+            .HasData(new
+            {
+                Id = userId,
+                FirstName = "Root",
+                LastName = "Root",
+                UserName = email,
+                NormalizedUserName = email.ToUpper(),
+                Email = email,
+                PasswordHash = hashedPassword,
+                IDNumber = "000",
+                Address = "Root",
+                EmployeeStartDate = DateTime.Now,
+                InsertDate = DateTime.Now,
+                DaysOffNumber = 22,
+                PositionID = 1,
+                AccessFailedCount = 0,
+                EmailConfirmed = true,
+                LockoutEnabled = false,
+                PhoneNumberConfirmed = false,
+                TwoFactorEnabled = false,
+                SecurityStamp = Guid.NewGuid().ToString("D")
+            });
+
+        var roleId = Guid.NewGuid().ToString();
+        var roleName = nameof(Enums.Roles.Admin);
+
+        builder.Entity<IdentityRole>()
+            .HasData(new IdentityRole
+            {
+                Id = roleId,
+                Name = roleName,
+                NormalizedName = roleName.ToUpper(),
+                ConcurrencyStamp = Guid.NewGuid().ToString("D")
+            });
+
+        builder.Entity<IdentityUserRole<string>>()
+            .HasData(new IdentityUserRole<string>()
+            {
+                RoleId = roleId,
+                UserId = userId,
+            });
     }
 }
