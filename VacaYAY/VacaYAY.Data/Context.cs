@@ -59,6 +59,8 @@ public class Context : IdentityDbContext<Employee>
     {
         var userId = Guid.NewGuid().ToString();
         var email = _config["RootUser:Email"]!;
+        var placeholder = "Root";
+
         var hashedPassword = _passwordHasher.HashPassword(new()
         {
             Id = userId,
@@ -69,22 +71,22 @@ public class Context : IdentityDbContext<Employee>
             .HasData(new Position()
             {
                 ID = 1,
-                Caption = "HR",
-                Description = "HR"
+                Caption = _config["RootPosition:Caption"]!,
+                Description = _config["RootPosition:Description"]!
             });
 
         builder.Entity<Employee>()
             .HasData(new
             {
                 Id = userId,
-                FirstName = "Root",
-                LastName = "Root",
+                FirstName = _config["RootUser:FirstName"],
+                LastName = _config["RootUser:LastName"],
                 UserName = email,
                 NormalizedUserName = email.ToUpper(),
                 Email = email,
                 PasswordHash = hashedPassword,
-                IDNumber = "000",
-                Address = "Root",
+                IDNumber = _config["RootUser:IDNumber"],
+                Address = placeholder,
                 EmployeeStartDate = DateTime.Now,
                 InsertDate = DateTime.Now,
                 DaysOffNumber = 22,

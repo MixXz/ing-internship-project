@@ -141,7 +141,7 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
     public async Task<List<CustomValidationResult>> ValidateOnEdit(RequestEdit reqData, Employee user)
     {
         var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id, reqData.ID);
-        var availableDays = user.DaysOffNumber - totalNumberOfDaysRequested;
+        var availableDays = user.DaysOffNumber + reqData.NumOfDaysRequested - totalNumberOfDaysRequested;
 
         var errors = ValidateDates(reqData.StartDate, reqData.EndDate, reqData.NumOfDaysRequested, availableDays, totalNumberOfDaysRequested);
 

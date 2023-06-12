@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 
@@ -13,9 +14,11 @@ public class RequestView
 
     public RequestStatus Status { get; set; }
 
+    [DisplayName("Start date")]
     [DataType(DataType.Date)]
     public DateTime? StartDateFilter { get; set; }
 
+    [DisplayName("End date")]
     [DataType(DataType.Date)]
     public DateTime? EndDateFilter { get; set; }
 

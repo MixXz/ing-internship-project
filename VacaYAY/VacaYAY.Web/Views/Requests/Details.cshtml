@@ -88,9 +88,7 @@
         {
             @if (Model.Response is null)
             {
-                <form asp-action="CreateResponse" asp-route-id="RequestId">
-                    <button type="submit" class="btn btn-primary btn-block w-100 mb-3">Respond to request</button>
-                </form>
+                <a asp-action="CreateResponse" asp-route-id="@Model.ID" class="btn btn-primary btn-block w-100 mb-3">Respond to request</a>
             }
             else
             {

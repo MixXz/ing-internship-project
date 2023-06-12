@@ -12,7 +12,7 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230610120534_V10")]
+    [Migration("20230612062431_V10")]
     partial class V10
     {
         /// <inheritdoc />
@@ -54,8 +54,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "138a5f64-0d8b-4de0-a9c2-aee3ee19644f",
-                            ConcurrencyStamp = "67021ab6-bf64-4b20-b22b-eb29edab63b3",
+                            Id = "a9761be1-bf87-4536-afa7-bd714ac37b2d",
+                            ConcurrencyStamp = "6f73b364-41fc-4a4e-8af2-25dd5285a9ed",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -150,8 +150,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "bb51f6a2-5cc3-4211-bf29-179217797c0d",
-                            RoleId = "138a5f64-0d8b-4de0-a9c2-aee3ee19644f"
+                            UserId = "47880f16-74e9-4dd2-a185-20149f2e372f",
+                            RoleId = "a9761be1-bf87-4536-afa7-bd714ac37b2d"
                         });
                 });
 
@@ -281,23 +281,23 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "bb51f6a2-5cc3-4211-bf29-179217797c0d",
+                            Id = "47880f16-74e9-4dd2-a185-20149f2e372f",
                             AccessFailedCount = 0,
                             Address = "Root",
                             DaysOffNumber = 22,
                             Email = "root@root.com",
                             EmailConfirmed = true,
-                            EmployeeStartDate = new DateTime(2023, 6, 10, 14, 5, 34, 457, DateTimeKind.Local).AddTicks(6457),
+                            EmployeeStartDate = new DateTime(2023, 6, 12, 8, 24, 31, 37, DateTimeKind.Local).AddTicks(8155),
                             FirstName = "Root",
-                            IDNumber = "000",
-                            InsertDate = new DateTime(2023, 6, 10, 14, 5, 34, 457, DateTimeKind.Local).AddTicks(6519),
+                            IDNumber = "999999",
+                            InsertDate = new DateTime(2023, 6, 12, 8, 24, 31, 37, DateTimeKind.Local).AddTicks(8207),
                             LastName = "Root",
                             LockoutEnabled = false,
                             NormalizedUserName = "ROOT@ROOT.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAECSlxD0UvubhwNwzIwI5IkIecVevXYmmb9tIxoNiz2EEfrIlFV/s9OQh93qf7741jw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGg+rAiJF/F3N8wZOC9CavsmpmduFX+0GosFKeleatzJKDwSucd6yFdig9NbKujXNA==",
                             PhoneNumberConfirmed = false,
                             PositionID = 1,
-                            SecurityStamp = "cd9fd541-c0fc-4519-8d7d-760f3b997f94",
+                            SecurityStamp = "0c007a51-6e30-4db0-a320-e953ef95b66d",
                             TwoFactorEnabled = false,
                             UserName = "root@root.com"
                         });
@@ -352,8 +352,8 @@ namespace VacaYAY.Data.Migrations
                         new
                         {
                             ID = 1,
-                            Caption = "HR",
-                            Description = "HR"
+                            Caption = "HR Manager",
+                            Description = "Managing HR operations and employee relations."
                         });
                 });
 

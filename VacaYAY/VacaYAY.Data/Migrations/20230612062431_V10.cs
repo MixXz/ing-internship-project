@@ -14,22 +14,22 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "138a5f64-0d8b-4de0-a9c2-aee3ee19644f", "67021ab6-bf64-4b20-b22b-eb29edab63b3", "Admin", "ADMIN" });
+                values: new object[] { "a9761be1-bf87-4536-afa7-bd714ac37b2d", "6f73b364-41fc-4a4e-8af2-25dd5285a9ed", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "Positions",
                 columns: new[] { "ID", "Caption", "Description" },
-                values: new object[] { 1, "HR", "HR" });
+                values: new object[] { 1, "HR Manager", "Managing HR operations and employee relations." });
 
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "DaysOffNumber", "DeleteDate", "Email", "EmailConfirmed", "EmployeeEndDate", "EmployeeStartDate", "FirstName", "IDNumber", "InsertDate", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PositionID", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "bb51f6a2-5cc3-4211-bf29-179217797c0d", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 6, 10, 14, 5, 34, 457, DateTimeKind.Local).AddTicks(6457), "Root", "000", new DateTime(2023, 6, 10, 14, 5, 34, 457, DateTimeKind.Local).AddTicks(6519), "Root", false, null, null, "ROOT@ROOT.COM", "AQAAAAIAAYagAAAAECSlxD0UvubhwNwzIwI5IkIecVevXYmmb9tIxoNiz2EEfrIlFV/s9OQh93qf7741jw==", null, false, 1, "cd9fd541-c0fc-4519-8d7d-760f3b997f94", false, "root@root.com" });
+                values: new object[] { "47880f16-74e9-4dd2-a185-20149f2e372f", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 6, 12, 8, 24, 31, 37, DateTimeKind.Local).AddTicks(8155), "Root", "999999", new DateTime(2023, 6, 12, 8, 24, 31, 37, DateTimeKind.Local).AddTicks(8207), "Root", false, null, null, "ROOT@ROOT.COM", "AQAAAAIAAYagAAAAEGg+rAiJF/F3N8wZOC9CavsmpmduFX+0GosFKeleatzJKDwSucd6yFdig9NbKujXNA==", null, false, 1, "0c007a51-6e30-4db0-a320-e953ef95b66d", false, "root@root.com" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "138a5f64-0d8b-4de0-a9c2-aee3ee19644f", "bb51f6a2-5cc3-4211-bf29-179217797c0d" });
+                values: new object[] { "a9761be1-bf87-4536-afa7-bd714ac37b2d", "47880f16-74e9-4dd2-a185-20149f2e372f" });
         }
 
         /// <inheritdoc />
@@ -38,17 +38,17 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "138a5f64-0d8b-4de0-a9c2-aee3ee19644f", "bb51f6a2-5cc3-4211-bf29-179217797c0d" });
+                keyValues: new object[] { "a9761be1-bf87-4536-afa7-bd714ac37b2d", "47880f16-74e9-4dd2-a185-20149f2e372f" });
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "138a5f64-0d8b-4de0-a9c2-aee3ee19644f");
+                keyValue: "a9761be1-bf87-4536-afa7-bd714ac37b2d");
 
             migrationBuilder.DeleteData(
                 table: "Employees",
                 keyColumn: "Id",
-                keyValue: "bb51f6a2-5cc3-4211-bf29-179217797c0d");
+                keyValue: "47880f16-74e9-4dd2-a185-20149f2e372f");
 
             migrationBuilder.DeleteData(
                 table: "Positions",

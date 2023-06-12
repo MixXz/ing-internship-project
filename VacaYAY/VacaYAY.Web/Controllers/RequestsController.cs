@@ -271,10 +271,18 @@ public class RequestsController : Controller
 
         var response = requestEntity.Response;
 
+
         if (response is not null)
         {
-            requestEntity.Response = null;
+            var seeker = requestEntity.CreatedBy;
+
+            if (requestEntity.Status is RequestStatus.Approved)
+            {
+                seeker.DaysOffNumber += requestEntity.NumOfDaysRequested;
+            }
+
             _unitOfWork.Response.Delete(response);
+            _unitOfWork.Employee.Update(seeker);
         }
 
         _mapper.Map(requestData, requestEntity);
@@ -353,20 +361,20 @@ public class RequestsController : Controller
         }
 
         var oldStatus = request.Status;
-        var newStatus = responseData.IsApproved ? 
-                        RequestStatus.Approved 
-                        : 
+        var newStatus = responseData.IsApproved ?
+                        RequestStatus.Approved
+                        :
                         RequestStatus.Rejected;
 
         if (oldStatus != newStatus)
         {
-            if (oldStatus is RequestStatus.Rejected 
+            if (oldStatus is RequestStatus.Rejected
                 && newStatus is RequestStatus.Approved)
             {
                 seeker.DaysOffNumber -= request.NumOfDaysRequested;
             }
 
-            if (oldStatus is RequestStatus.Approved 
+            if (oldStatus is RequestStatus.Approved
                 && newStatus is RequestStatus.Rejected)
             {
                 seeker.DaysOffNumber += request.NumOfDaysRequested;
