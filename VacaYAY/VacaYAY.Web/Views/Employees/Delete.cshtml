@@ -45,7 +45,7 @@
             @Html.DisplayNameFor(model => model.EmployeeEndDate)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.EmployeeEndDate)
+            @(Model.EmployeeEndDate is null ? "Not set." : Html.DisplayFor(model => model.EmployeeEndDate))
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.InsertDate)

@@ -10,7 +10,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-sm w-50">
+<div class="container-sm w-25">
     <h1>Request details</h1>
     <hr />
     <h4>Request</h4>
@@ -92,7 +92,7 @@
             }
             else
             {
-                <a asp-action="EditResponse" asp-route-id="@Model.Response.ID" class="btn btn-outline-primary btn-block w-100 mb-3">Edit response</a>
+                <a asp-action="EditResponse" asp-route-id="@Model.Response.ID" class="btn btn-primary btn-block w-100 mb-3">Edit response</a>
             }
         }
 

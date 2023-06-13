@@ -4,40 +4,45 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-sm w-75">
+<div class="row">
     <h2>Manage positions</h2>
-    <a asp-action="Create" class="btn btn-primary mb-2">Create New</a>
-    <table class="table table-bordered text-center">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Caption)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Description)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    <hr />
+    <div class="col">
+        <a asp-action="Create" class="btn btn-success btn-block w-100">Create new position</a>
+    </div>
+    <div class="col-10">
+        <table class="table table-bordered text-center">
+            <thead>
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Caption)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        <form asp-action="Delete" asp-route-id="@item.ID" method="post">
-                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
-                            <input type="hidden" asp-for="@item.ID" />
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Caption)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Description)
+                    </th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Caption)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            <form asp-action="Delete" asp-route-id="@item.ID" method="post">
+                                <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
+                                <input type="hidden" asp-for="@item.ID" />
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

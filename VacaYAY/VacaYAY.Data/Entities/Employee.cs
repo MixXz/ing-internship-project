@@ -52,6 +52,7 @@ public class Employee : IdentityUser
 
     [Required]
     [DisplayName("Insert date")]
+    [DataType(DataType.Date)]
     public DateTime InsertDate { get; set; }
 
     public DateTime? DeleteDate { get; set; }

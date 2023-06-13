@@ -39,33 +39,24 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
 
     public async Task<IEnumerable<Request>> GetByFilters(RequestView filters)
     {
-        if ((string.IsNullOrEmpty(filters.SearchInput) || string.IsNullOrWhiteSpace(filters.SearchInput))
-            && filters.SelectedLeaveTypeID is null
-            && filters.StartDateFilter is null
-            && filters.EndDateFilter is null
-            && filters.Status is RequestStatus.All)
-        {
-            return await GetAll();
-        }
-
         var requests = _context.Requests
                         .Include(r => r.LeaveType)
                         .Include(r => r.Response)
                         .Include(r => r.CreatedBy)
                         .AsQueryable();
 
+        var query = requests.Where(q => false);
+
         if (!string.IsNullOrEmpty(filters.SearchInput))
         {
-            var tokens = filters.SearchInput.Split(' ');
+            var tokens = filters.SearchInput.Trim().Split(' ');
 
-            requests = requests
-                        .Where(r =>
-                            r.CreatedBy.FirstName.Contains(tokens[0])
-                            || (tokens.Count() > 1 && r.CreatedBy.FirstName.Contains(tokens[1]))
-                            || r.CreatedBy.LastName.Contains(tokens[0])
-                            || (tokens.Count() > 1 && r.CreatedBy.LastName.Contains(tokens[1]))
-                            || r.Comment != null && r.Comment.Contains(tokens[0])
-                            || (r.Comment != null && tokens.Count() > 1 && r.Comment.Contains(tokens[1])));
+            foreach (var token in tokens)
+            {
+                query = query
+                        .Union(requests.Where(r => r.CreatedBy.FirstName.Contains(token)
+                                                || r.CreatedBy.LastName.Contains(token)));
+            }
         }
 
         if (filters.SelectedLeaveTypeID is not null)
@@ -102,6 +93,11 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
         {
             requests = requests
                         .Where(r => r.EndDate <= filters.EndDateFilter);
+        }
+
+        if(query.Any())
+        {
+            requests = requests.Intersect(query);
         }
 
         return await requests

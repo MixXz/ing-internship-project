@@ -54,27 +54,22 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
 
     public async Task<IEnumerable<Employee>> GetByFilters(string? searchInput, DateTime? startDate, DateTime? endDate)
     {
-        if ((string.IsNullOrEmpty(searchInput) || string.IsNullOrWhiteSpace(searchInput))
-            && startDate is null
-            && endDate is null)
-        {
-            return await GetAll();
-        }
-
         var employees = _context.Employees
                         .Include(e => e.Position)
                         .AsQueryable();
+
+        var query = employees.Where(e => false);
 
         if (!string.IsNullOrEmpty(searchInput))
         {
             var tokens = searchInput.Split(' ');
 
-            employees = employees
-                        .Where(e =>
-                            e.FirstName.Contains(tokens[0])
-                            || (tokens.Count() > 1 && e.FirstName.Contains(tokens[1]))
-                            || e.LastName.Contains(tokens[0])
-                            || (tokens.Count() > 1 && e.LastName.Contains(tokens[1])));
+            foreach (var token in tokens)
+            {
+                query = query
+                        .Union(employees.Where(e => e.FirstName.Contains(token)
+                                                 || e.LastName.Contains(token)));
+            }
         }
 
         if (startDate is not null)
@@ -85,6 +80,11 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         if (endDate is not null)
         {
             employees = employees.Where(e => e.EmployeeEndDate <= endDate);
+        }
+
+        if (query.Any())
+        {
+            employees = employees.Intersect(query);
         }
 
         return await employees
@@ -216,7 +216,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
             return false;
         }
 
-        if(!IsAdmin(userClaims) && user.Id != authorId)
+        if (!IsAdmin(userClaims) && user.Id != authorId)
         {
             return false;
         }

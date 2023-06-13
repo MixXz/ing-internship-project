@@ -12,7 +12,7 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230612062431_V10")]
+    [Migration("20230612135655_V10")]
     partial class V10
     {
         /// <inheritdoc />
@@ -54,8 +54,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "a9761be1-bf87-4536-afa7-bd714ac37b2d",
-                            ConcurrencyStamp = "6f73b364-41fc-4a4e-8af2-25dd5285a9ed",
+                            Id = "765f1edd-f273-4d1c-9c02-273efa61040f",
+                            ConcurrencyStamp = "e1f51e25-648b-4232-b6e0-3bdab5cdccdc",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -150,8 +150,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "47880f16-74e9-4dd2-a185-20149f2e372f",
-                            RoleId = "a9761be1-bf87-4536-afa7-bd714ac37b2d"
+                            UserId = "5ddb61dd-5267-46b0-817a-1e55523ed08c",
+                            RoleId = "765f1edd-f273-4d1c-9c02-273efa61040f"
                         });
                 });
 
@@ -281,23 +281,23 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "47880f16-74e9-4dd2-a185-20149f2e372f",
+                            Id = "5ddb61dd-5267-46b0-817a-1e55523ed08c",
                             AccessFailedCount = 0,
                             Address = "Root",
                             DaysOffNumber = 22,
                             Email = "root@root.com",
                             EmailConfirmed = true,
-                            EmployeeStartDate = new DateTime(2023, 6, 12, 8, 24, 31, 37, DateTimeKind.Local).AddTicks(8155),
+                            EmployeeStartDate = new DateTime(2023, 6, 12, 15, 56, 55, 612, DateTimeKind.Local).AddTicks(4502),
                             FirstName = "Root",
                             IDNumber = "999999",
-                            InsertDate = new DateTime(2023, 6, 12, 8, 24, 31, 37, DateTimeKind.Local).AddTicks(8207),
+                            InsertDate = new DateTime(2023, 6, 12, 15, 56, 55, 612, DateTimeKind.Local).AddTicks(4559),
                             LastName = "Root",
                             LockoutEnabled = false,
                             NormalizedUserName = "ROOT@ROOT.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGg+rAiJF/F3N8wZOC9CavsmpmduFX+0GosFKeleatzJKDwSucd6yFdig9NbKujXNA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOZ5Z8D5ilxF+etfqyeoJ33bb1w5QY9VW5uk1Qror2durcTSubWB7CFzaUQlOxiypA==",
                             PhoneNumberConfirmed = false,
                             PositionID = 1,
-                            SecurityStamp = "0c007a51-6e30-4db0-a320-e953ef95b66d",
+                            SecurityStamp = "3d14748a-9e5f-4f86-a649-a27e828edd99",
                             TwoFactorEnabled = false,
                             UserName = "root@root.com"
                         });
@@ -324,6 +324,32 @@ namespace VacaYAY.Data.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("LeaveTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Caption = "Sick Leave",
+                            Description = "Neki opis"
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Caption = "Days off",
+                            Description = "Neki opis"
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Caption = "Paid leave",
+                            Description = "Neki opis"
+                        },
+                        new
+                        {
+                            ID = 4,
+                            Caption = "Unpaid leave",
+                            Description = "Neki opis"
+                        });
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Entities.Position", b =>
@@ -354,6 +380,18 @@ namespace VacaYAY.Data.Migrations
                             ID = 1,
                             Caption = "HR Manager",
                             Description = "Managing HR operations and employee relations."
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Caption = "Software Engineer",
+                            Description = "Responsible for developing software applications."
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Caption = "Project Manager",
+                            Description = "Leading project teams and ensuring project success."
                         });
                 });
 
