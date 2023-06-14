@@ -5,6 +5,7 @@ using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
+using VacaYAY.Data.Helpers;
 
 namespace VacaYAY.Web.Controllers;
 
@@ -12,14 +13,17 @@ namespace VacaYAY.Web.Controllers;
 public class RequestsController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IRequestNotifierSerivice _requestNotifier;
     private readonly IMapper _mapper;
 
     public RequestsController(
         IUnitOfWork unitOfWork,
+        IRequestNotifierSerivice requestNotifier,
         IMapper mapper
         )
     {
         _unitOfWork = unitOfWork;
+        _requestNotifier = requestNotifier;
         _mapper = mapper;
     }
 
@@ -125,6 +129,10 @@ public class RequestsController : Controller
 
         _unitOfWork.Request.Insert(requestEntity);
         await _unitOfWork.SaveChangesAsync();
+
+        RequestEmailTemplates templates = new(author, requestEntity);
+        bool isNotified = await _requestNotifier.NotifyEmployee(templates.Created);
+        await _requestNotifier.NotifyHRTeam(templates.HRCreated);
 
         var isAdmin = _unitOfWork.Employee.IsAdmin(User);
 

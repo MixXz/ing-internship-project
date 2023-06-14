@@ -91,6 +91,10 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                     .OrderByDescending(e => e.InsertDate)
                     .ToListAsync();
     }
+    public async Task<IEnumerable<Employee>> GetAdmins()
+    {
+        return await _userManager.GetUsersInRoleAsync(nameof(Roles.Admin));
+    }
 
     public async Task<IdentityResult> Insert(Employee employee, string password)
     {
