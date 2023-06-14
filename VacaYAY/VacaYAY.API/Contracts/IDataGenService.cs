@@ -1,4 +1,4 @@
-﻿using VacaYAY.Data.Entities;
+﻿using VacaYAY.API.Entities;
 
 namespace VacaYAY.API.Contracts;
 

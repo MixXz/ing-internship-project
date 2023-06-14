@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.API.Contracts;
-using VacaYAY.Data.Entities;
+using VacaYAY.API.Entities;
 
 namespace VacaYAY.API.Controllers;
 

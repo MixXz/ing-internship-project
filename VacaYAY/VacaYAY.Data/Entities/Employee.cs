@@ -8,23 +8,23 @@ public class Employee : IdentityUser
 {
     [Required]
     [MaxLength(50)]
-    [DisplayName("First Name")]
+    [DisplayName("First name")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(50)]
-    [DisplayName("Last Name")]
+    [DisplayName("Last name")]
     public string LastName { get; set; } = string.Empty;
 
     [NotMapped]
     [DisplayName("Name")]
-    public string Name 
+    public string Name
     {
         get
         {
             return $"{FirstName} {LastName}";
         }
-     }
+    }
 
     [Required]
     [MaxLength(512)]
@@ -38,18 +38,21 @@ public class Employee : IdentityUser
 
     [Required]
     [Range(0, 100)]
-    [DisplayName("Days of number")]
-    public int DaysOfNumber { get; set; }
+    [DisplayName("Days off number")]
+    public int DaysOffNumber { get; set; }
 
     [Required]
     [DisplayName("Start date")]
+    [DataType(DataType.Date)]
     public DateTime EmployeeStartDate { get; set; }
 
     [DisplayName("End date")]
+    [DataType(DataType.Date)]
     public DateTime? EmployeeEndDate { get; set; }
 
     [Required]
     [DisplayName("Insert date")]
+    [DataType(DataType.Date)]
     public DateTime InsertDate { get; set; }
 
     public DateTime? DeleteDate { get; set; }

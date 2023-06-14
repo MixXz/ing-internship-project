@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
@@ -38,6 +39,11 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                         .FirstOrDefaultAsync();
     }
 
+    public async Task<Employee?> GetCurrent(ClaimsPrincipal userClaims)
+    {
+        return await _userManager.GetUserAsync(userClaims);
+    }
+
     public override async Task<IEnumerable<Employee>> GetAll()
     {
         return await _context.Employees
@@ -48,27 +54,22 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
 
     public async Task<IEnumerable<Employee>> GetByFilters(string? searchInput, DateTime? startDate, DateTime? endDate)
     {
-        if ((string.IsNullOrEmpty(searchInput) || string.IsNullOrWhiteSpace(searchInput))
-            && startDate is null
-            && endDate is null)
-        {
-            return await GetAll();
-        }
-
         var employees = _context.Employees
                         .Include(e => e.Position)
                         .AsQueryable();
+
+        var query = employees.Where(e => false);
 
         if (!string.IsNullOrEmpty(searchInput))
         {
             var tokens = searchInput.Split(' ');
 
-            employees = employees
-                        .Where(e =>
-                            e.FirstName.Contains(tokens[0])
-                            || (tokens.Count() > 1 && e.FirstName.Contains(tokens[1]))
-                            || e.LastName.Contains(tokens[0])
-                            || (tokens.Count() > 1 && e.LastName.Contains(tokens[1])));
+            foreach (var token in tokens)
+            {
+                query = query
+                        .Union(employees.Where(e => e.FirstName.Contains(token)
+                                                 || e.LastName.Contains(token)));
+            }
         }
 
         if (startDate is not null)
@@ -79,6 +80,11 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         if (endDate is not null)
         {
             employees = employees.Where(e => e.EmployeeEndDate <= endDate);
+        }
+
+        if (query.Any())
+        {
+            employees = employees.Intersect(query);
         }
 
         return await employees
@@ -124,7 +130,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         employeeEntity.LastName = employeeData.LastName;
         employeeEntity.Address = employeeData.Address;
         employeeEntity.IDNumber = employeeData.IDNumber;
-        employeeEntity.DaysOfNumber = employeeData.DaysOfNumber;
+        employeeEntity.DaysOffNumber = employeeData.DaysOffNumber;
         employeeEntity.EmployeeStartDate = employeeData.EmployeeStartDate;
         employeeEntity.EmployeeEndDate = employeeData.EmployeeEndDate;
         employeeEntity.Position = employeeData.Position;
@@ -172,7 +178,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
             return await _userManager.AddToRoleAsync(employee, role);
         }
 
-        if (await isAdmin(employee))
+        if (await IsAdmin(employee))
         {
             return await _userManager.RemoveFromRoleAsync(employee, nameof(Roles.Admin));
         }
@@ -180,8 +186,41 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return IdentityResult.Failed();
     }
 
-    public Task<bool> isAdmin(Employee employee)
+    public Task<bool> IsAdmin(Employee employee)
     {
         return _userManager.IsInRoleAsync(employee, nameof(Roles.Admin));
+    }
+    public bool IsAdmin(ClaimsPrincipal userClaims)
+    {
+        return userClaims.IsInRole(nameof(Roles.Admin));
+    }
+
+    public async Task<bool> isAuthorized(ClaimsPrincipal userClaims)
+    {
+        var user = await GetCurrent(userClaims);
+
+        if (user is null)
+        {
+            return false;
+        }
+
+        return await IsAdmin(user);
+    }
+
+    public async Task<bool> isAuthorizedToSee(ClaimsPrincipal userClaims, string authorId)
+    {
+        var user = await GetCurrent(userClaims);
+
+        if (user is null)
+        {
+            return false;
+        }
+
+        if (!IsAdmin(userClaims) && user.Id != authorId)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

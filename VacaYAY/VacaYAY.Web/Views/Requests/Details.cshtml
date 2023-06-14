@@ -1,0 +1,112 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using VacaYAY.Data.Entities;
+@using VacaYAY.Data.Enums;
+@inject UserManager<Employee> userManager
+
+@model Request
+
+@{
+    ViewData["Title"] = "Request details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-sm w-25">
+    <h1>Request details</h1>
+    <hr />
+    <h4>Request</h4>
+    <hr />
+    <dl>
+        <dt>
+            @Html.DisplayNameFor(model => model.LeaveType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LeaveType.Caption)
+        </dd>
+        <dt>
+            Date range
+        </dt>
+        <dd>
+            @Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+        @if (User.IsInRole(nameof(Roles.Admin)))
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.CreatedBy.Name)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.Comment)
+        </dt>
+        <dd>
+            @(string.IsNullOrEmpty(Model.Comment) ?
+                "No comment provided."
+                :
+                @Html.DisplayFor(model => model.Comment)
+                )
+        </dd>
+    </dl>
+
+
+    @if (Model.Response is not null)
+    {
+        <h4>Response</h4>
+        <hr />
+        <dl>
+            @if (User.IsInRole(nameof(Roles.Admin)))
+            {
+                <dt>
+                    @Html.DisplayNameFor(model => model.Response!.ReviewedBy)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Response!.ReviewedBy.Name)
+                </dd>
+            }
+            <dt>
+                @Html.DisplayNameFor(model => model.Response!.Comment)
+            </dt>
+            <dd>
+                @(Model.Response.Comment is null ?
+                    "No comment provided."
+                    :
+                    @Html.DisplayFor(model => model.Response!.Comment)
+                    )
+            </dd>
+        </dl>
+    }
+
+    <div>
+        @if (User.IsInRole(nameof(Roles.Admin)))
+        {
+            @if (Model.Response is null)
+            {
+                <a asp-action="CreateResponse" asp-route-id="@Model.ID" class="btn btn-primary btn-block w-100 mb-3">Respond to request</a>
+            }
+            else
+            {
+                <a asp-action="EditResponse" asp-route-id="@Model.Response.ID" class="btn btn-primary btn-block w-100 mb-3">Edit response</a>
+            }
+        }
+
+        @if (userManager.GetUserId(User) == Model.CreatedBy.Id)
+        {
+            <a asp-action="EditRequest" asp-route-id="@Model.ID" class="btn btn-outline-primary btn-block w-100 mb-3">Edit request</a>
+        }
+
+        @if (Model.Response is null)
+        {
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="ID" />
+                <button type="submit" class="btn btn-outline-danger btn-block w-100">Delete request</button>
+            </form>
+        }
+    </div>
+</div>

@@ -16,5 +16,5 @@ public class LeaveType
     public string Description { get; set; } = string.Empty;
 
     [JsonIgnore]
-    public List<LeaveType> Responses { get; set; } = new();
+    public List<Request> Requests { get; set; } = new();
 }

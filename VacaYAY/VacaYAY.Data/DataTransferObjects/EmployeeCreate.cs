@@ -7,12 +7,12 @@ public class EmployeeCreate
 {
     [Required]
     [MaxLength(50)]
-    [DisplayName("First Name")]
+    [DisplayName("First name")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(50)]
-    [DisplayName("Last Name")]
+    [DisplayName("Last name")]
     public string LastName { get; set; } = string.Empty;
 
     [Required]
@@ -27,8 +27,8 @@ public class EmployeeCreate
 
     [Required]
     [Range(0, 100)]
-    [DisplayName("Days of number")]
-    public int DaysOfNumber { get; set; }
+    [DisplayName("Days off number")]
+    public int DaysOffNumber { get; set; }
 
     [Required]
     [DisplayName("Start date")]
@@ -45,12 +45,11 @@ public class EmployeeCreate
     [Required]
     [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
     [DataType(DataType.Password)]
-    [Display(Name = "Password")]
+    [DisplayName("Password")]
     public string Password { get; set; } = string.Empty;
 
     [DataType(DataType.Password)]
-    [Display(Name = "Confirm password")]
-    [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+    [DisplayName("Confirm password")]
     public string ConfirmPassword { get; set; } = string.Empty;
 
     [Required]

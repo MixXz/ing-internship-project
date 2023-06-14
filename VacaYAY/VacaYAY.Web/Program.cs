@@ -18,7 +18,6 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options => options.SignIn.R
         .AddDefaultUI()
         .AddDefaultTokenProviders();
 
-
 builder.Services.AddHttpClient<IHttpClientService, HttpClientService>(client =>
     client.BaseAddress = new Uri(builder.Configuration["APIUrl"]!));
 

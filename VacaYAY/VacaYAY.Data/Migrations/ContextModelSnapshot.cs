@@ -47,6 +47,15 @@ namespace VacaYAY.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "765f1edd-f273-4d1c-9c02-273efa61040f",
+                            ConcurrencyStamp = "e1f51e25-648b-4232-b6e0-3bdab5cdccdc",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -134,6 +143,13 @@ namespace VacaYAY.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "5ddb61dd-5267-46b0-817a-1e55523ed08c",
+                            RoleId = "765f1edd-f273-4d1c-9c02-273efa61040f"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -172,7 +188,7 @@ namespace VacaYAY.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DaysOfNumber")
+                    b.Property<int>("DaysOffNumber")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("DeleteDate")
@@ -257,7 +273,31 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasIndex("PositionID");
 
-                    b.ToTable("Employes", (string)null);
+                    b.ToTable("Employees", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "5ddb61dd-5267-46b0-817a-1e55523ed08c",
+                            AccessFailedCount = 0,
+                            Address = "Root",
+                            DaysOffNumber = 22,
+                            Email = "root@root.com",
+                            EmailConfirmed = true,
+                            EmployeeStartDate = new DateTime(2023, 6, 12, 15, 56, 55, 612, DateTimeKind.Local).AddTicks(4502),
+                            FirstName = "Root",
+                            IDNumber = "999999",
+                            InsertDate = new DateTime(2023, 6, 12, 15, 56, 55, 612, DateTimeKind.Local).AddTicks(4559),
+                            LastName = "Root",
+                            LockoutEnabled = false,
+                            NormalizedUserName = "ROOT@ROOT.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOZ5Z8D5ilxF+etfqyeoJ33bb1w5QY9VW5uk1Qror2durcTSubWB7CFzaUQlOxiypA==",
+                            PhoneNumberConfirmed = false,
+                            PositionID = 1,
+                            SecurityStamp = "3d14748a-9e5f-4f86-a649-a27e828edd99",
+                            TwoFactorEnabled = false,
+                            UserName = "root@root.com"
+                        });
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Entities.LeaveType", b =>
@@ -278,14 +318,35 @@ namespace VacaYAY.Data.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<int?>("LeaveTypeID")
-                        .HasColumnType("int");
-
                     b.HasKey("ID");
 
-                    b.HasIndex("LeaveTypeID");
-
                     b.ToTable("LeaveTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Caption = "Sick Leave",
+                            Description = "Neki opis"
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Caption = "Days off",
+                            Description = "Neki opis"
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Caption = "Paid leave",
+                            Description = "Neki opis"
+                        },
+                        new
+                        {
+                            ID = 4,
+                            Caption = "Unpaid leave",
+                            Description = "Neki opis"
+                        });
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Entities.Position", b =>
@@ -309,6 +370,26 @@ namespace VacaYAY.Data.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Positions");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Caption = "HR Manager",
+                            Description = "Managing HR operations and employee relations."
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Caption = "Software Engineer",
+                            Description = "Responsible for developing software applications."
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Caption = "Project Manager",
+                            Description = "Leading project teams and ensuring project success."
+                        });
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Entities.Request", b =>
@@ -320,7 +401,8 @@ namespace VacaYAY.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("CreatedById")
                         .IsRequired()
@@ -329,12 +411,17 @@ namespace VacaYAY.Data.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("LeaveTypeID")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("LeaveTypeID");
 
                     b.ToTable("Requests");
                 });
@@ -348,25 +435,22 @@ namespace VacaYAY.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("LeaveTypeID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RequstID")
+                    b.Property<int>("RequestID")
                         .HasColumnType("int");
 
                     b.Property<string>("ReviewedById")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("LeaveTypeID");
-
-                    b.HasIndex("RequstID")
+                    b.HasIndex("RequestID")
                         .IsUnique();
 
                     b.HasIndex("ReviewedById");
@@ -436,13 +520,6 @@ namespace VacaYAY.Data.Migrations
                     b.Navigation("Position");
                 });
 
-            modelBuilder.Entity("VacaYAY.Data.Entities.LeaveType", b =>
-                {
-                    b.HasOne("VacaYAY.Data.Entities.LeaveType", null)
-                        .WithMany("Responses")
-                        .HasForeignKey("LeaveTypeID");
-                });
-
             modelBuilder.Entity("VacaYAY.Data.Entities.Request", b =>
                 {
                     b.HasOne("VacaYAY.Data.Entities.Employee", "CreatedBy")
@@ -451,26 +528,30 @@ namespace VacaYAY.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("VacaYAY.Data.Entities.LeaveType", "LeaveType")
+                        .WithMany("Requests")
+                        .HasForeignKey("LeaveTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("LeaveType");
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Entities.Response", b =>
                 {
-                    b.HasOne("VacaYAY.Data.Entities.LeaveType", "LeaveType")
-                        .WithMany()
-                        .HasForeignKey("LeaveTypeID");
-
                     b.HasOne("VacaYAY.Data.Entities.Request", "Request")
                         .WithOne("Response")
-                        .HasForeignKey("VacaYAY.Data.Entities.Response", "RequstID")
+                        .HasForeignKey("VacaYAY.Data.Entities.Response", "RequestID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VacaYAY.Data.Entities.Employee", "ReviewedBy")
                         .WithMany()
-                        .HasForeignKey("ReviewedById");
-
-                    b.Navigation("LeaveType");
+                        .HasForeignKey("ReviewedById")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Request");
 
@@ -484,7 +565,7 @@ namespace VacaYAY.Data.Migrations
 
             modelBuilder.Entity("VacaYAY.Data.Entities.LeaveType", b =>
                 {
-                    b.Navigation("Responses");
+                    b.Navigation("Requests");
                 });
 
             modelBuilder.Entity("VacaYAY.Data.Entities.Position", b =>

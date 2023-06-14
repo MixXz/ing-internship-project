@@ -42,7 +42,7 @@ namespace VacaYAY.Web.Areas.Identity.Pages.Account
                     LastName = Input.LastName,
                     Address = Input.Address,
                     IDNumber = Input.IDNumber,
-                    DaysOfNumber = Input.DaysOfNumber,
+                    DaysOffNumber = Input.DaysOffNumber,
                     EmployeeStartDate = Input.EmployeeStartDate,
                     EmployeeEndDate = Input.EmployeeEndDate,
                     InsertDate = DateTime.Now,

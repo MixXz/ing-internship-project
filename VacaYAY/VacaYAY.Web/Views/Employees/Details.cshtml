@@ -6,63 +6,63 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
-
-<div>
+<div class="container-sm w-25">
+    <h2>Details</h2>
     <h4>Employee</h4>
     <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
+    <dl>
+        <dt>
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class="col-sm-10">
+        <dd>
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class="col-sm-2">
+        <dt>
             @Html.DisplayNameFor(model => model.Email)
         </dt>
-        <dd class="col-sm-10">
+        <dd>
             @Html.DisplayFor(model => model.Email)
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DaysOfNumber)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DaysOfNumber)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.EmployeeStartDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.EmployeeStartDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.EmployeeEndDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.EmployeeEndDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.InsertDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.InsertDate)
-        </dd>
-        <dt class="col-sm-2">
+        <dt>
             @Html.DisplayNameFor(model => model.Position)
         </dt>
-        <dd class="col-sm-10">
+        <dd>
             @Html.DisplayFor(model => model.Position.Caption)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DaysOffNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DaysOffNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployeeStartDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EmployeeStartDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployeeEndDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EmployeeEndDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.InsertDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.InsertDate)
+        </dd>
     </dl>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary w-100 mb-3">Edit</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger w-100">Delete</a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Edit</a>
-    <a asp-action="Delete" asp-route-id="@Model?.Id" class="btn btn-danger">Delete</a>
-</div>
+
