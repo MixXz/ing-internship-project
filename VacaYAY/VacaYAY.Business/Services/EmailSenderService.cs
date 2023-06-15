@@ -27,7 +27,7 @@ public class EmailSenderService : IEmailSenderService
         {
             From = new EmailAddress(fromEmail, fromName),
             Subject = subject,
-            PlainTextContent = content
+            HtmlContent = content
         };
         message.AddTo(emailTo);
 

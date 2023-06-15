@@ -5,11 +5,11 @@ using VacaYAY.Data.Helpers;
 
 namespace VacaYAY.Business.Services;
 
-public class RequestNotifierService : IRequestNotifierSerivice
+public class NotifierService : INotifierSerivice
 {
     private readonly IEmailSenderService _emailSender;
     private readonly IUnitOfWork _unitOfWork;
-    public RequestNotifierService(
+    public NotifierService(
         IEmailSenderService emailSender,
         IUnitOfWork unitOfWork)
     {

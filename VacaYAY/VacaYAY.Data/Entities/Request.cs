@@ -52,6 +52,9 @@ public class Request
     public string? Comment { get; set; }
 
     [Required]
+    public NotificationStatus NotificationStatus { get; set; } = NotificationStatus.Unnotified;
+
+    [Required]
     [DisplayName("Leave type")]
     public LeaveType LeaveType { get; set; } = new();
 

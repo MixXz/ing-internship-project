@@ -13,17 +13,17 @@ namespace VacaYAY.Web.Controllers;
 public class RequestsController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRequestNotifierSerivice _requestNotifier;
+    private readonly INotifierSerivice _notifierService;
     private readonly IMapper _mapper;
 
     public RequestsController(
         IUnitOfWork unitOfWork,
-        IRequestNotifierSerivice requestNotifier,
+        INotifierSerivice notifierService,
         IMapper mapper
         )
     {
         _unitOfWork = unitOfWork;
-        _requestNotifier = requestNotifier;
+        _notifierService = notifierService;
         _mapper = mapper;
     }
 
@@ -131,15 +131,16 @@ public class RequestsController : Controller
         await _unitOfWork.SaveChangesAsync();
 
         RequestEmailTemplates templates = new(author, requestEntity);
-        bool isNotified = await _requestNotifier.NotifyEmployee(templates.Created);
-        await _requestNotifier.NotifyHRTeam(templates.HRCreated);
 
-        var isAdmin = _unitOfWork.Employee.IsAdmin(User);
+        bool isNotified = await _notifierService.NotifyEmployee(templates.Created);
+        await _notifierService.NotifyHRTeam(templates.HRCreated);
 
-        return isAdmin ?
-            RedirectToAction(nameof(AdminPanel))
+        requestEntity.NotificationStatus = isNotified ?
+            NotificationStatus.Notified
             :
-            Redirect(nameof(MyRequests));
+            NotificationStatus.NotNotifiedOfCreation;
+
+        return Redirect(nameof(MyRequests));
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
@@ -214,6 +215,16 @@ public class RequestsController : Controller
 
         request.Response = response;
         request.LeaveType = leaveType;
+
+        RequestEmailTemplates templates = new(seeker, request);
+        var isNotified = await _notifierService
+            .NotifyEmployee(response.IsApproved ? templates.Approved : templates.Rejected);
+
+        request.NotificationStatus = isNotified ?
+            NotificationStatus.Notified
+            :
+            NotificationStatus.NotNotifiedOfReponse;
+
         _unitOfWork.Request.Update(request);
 
         await _unitOfWork.SaveChangesAsync();
@@ -278,12 +289,10 @@ public class RequestsController : Controller
         }
 
         var response = requestEntity.Response;
-
+        var seeker = requestEntity.CreatedBy;
 
         if (response is not null)
         {
-            var seeker = requestEntity.CreatedBy;
-
             if (requestEntity.Status is RequestStatus.Approved)
             {
                 seeker.DaysOffNumber += requestEntity.NumOfDaysRequested;
@@ -295,6 +304,16 @@ public class RequestsController : Controller
 
         _mapper.Map(requestData, requestEntity);
         requestEntity.LeaveType = leaveType;
+
+        RequestEmailTemplates templates = new(seeker, requestEntity);
+
+        var isNotified = await _notifierService.NotifyEmployee(templates.Edited);
+        await _notifierService.NotifyHRTeam(templates.HREdited);
+
+        requestEntity.NotificationStatus = isNotified ?
+            NotificationStatus.Notified
+            :
+            NotificationStatus.NotNotifiedOfChange;
 
         _unitOfWork.Request.Update(requestEntity);
         await _unitOfWork.SaveChangesAsync();
@@ -430,6 +449,12 @@ public class RequestsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        var author = await _unitOfWork.Employee.GetCurrent(User);
+        if (author is null)
+        {
+            return Unauthorized();
+        }
+
         var isAdmin = _unitOfWork.Employee.IsAdmin(User);
 
         var redirect = RedirectToAction(isAdmin ?
@@ -451,6 +476,10 @@ public class RequestsController : Controller
 
         _unitOfWork.Request.Delete(request);
         await _unitOfWork.SaveChangesAsync();
+
+        RequestEmailTemplates templates = new(author, request);
+        await _notifierService.NotifyEmployee(templates.Deleted);
+        await _notifierService.NotifyHRTeam(templates.HRDeleted);
 
         return redirect;
     }
