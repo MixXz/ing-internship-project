@@ -95,7 +95,7 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                         .Where(r => r.EndDate <= filters.EndDateFilter);
         }
 
-        if(query.Any())
+        if (query.Any())
         {
             requests = requests.Intersect(query);
         }
@@ -112,6 +112,14 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                         .Include(r => r.Response)
                         .Where(r => r.CreatedBy.Id == userId)
                         .OrderByDescending(r => r.Response == null)
+                        .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Request>> GetRequestsWhereAuthorIsntNotified()
+    {
+        return await _context.Requests
+                        .Include(r => r.CreatedBy)
+                        .Where(r => r.NotificationStatus != NotificationStatus.Notified)
                         .ToListAsync();
     }
 

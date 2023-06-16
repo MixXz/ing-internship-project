@@ -10,6 +10,7 @@ public interface IEmployeeRepository : IRepositoryBase<Employee>
     Task<Employee?> GetById(string id);
     Task<IEnumerable<Employee>> GetByFilters(string? searchInput, DateTime? startDate, DateTime? endDate);
     Task<Employee?> GetCurrent(ClaimsPrincipal userClaims);
+    Task<IEnumerable<Employee>> GetAdmins();
     Task<IdentityResult> Insert(Employee employee, string password);
     Task<IdentityResult> Update(string id, EmployeeEdit employeeData);
     Task<IdentityResult> Delete(string id);
