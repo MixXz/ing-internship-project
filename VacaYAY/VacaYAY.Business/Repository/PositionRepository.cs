@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using VacaYAY.Business.Contracts;
+using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.Entities;
 

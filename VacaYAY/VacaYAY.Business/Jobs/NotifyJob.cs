@@ -1,5 +1,6 @@
 ﻿using Quartz;
 using VacaYAY.Business.Contracts;
+using VacaYAY.Business.Contracts.ServiceContracts;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;
 

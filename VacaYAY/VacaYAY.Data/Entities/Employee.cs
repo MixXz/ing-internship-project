@@ -60,5 +60,7 @@ public class Employee : IdentityUser
     [Required]
     public Position Position { get; set; } = new();
 
+    public Contract? Contract { get; set; }
+
     public List<Request> LeaveRequests { get; set; } = new();
 }

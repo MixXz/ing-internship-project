@@ -1,0 +1,55 @@
+﻿@using VacaYAY.Data.Entities;
+@model IEnumerable<Contract>
+@{
+    ViewData["Title"] = "Contracts";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-md">
+    <h2>Manage employee contracts</h2>
+    <hr />
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.ContractNumber)
+                </th>
+                <th>
+                    Employee name
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StartDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EndDate)
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ContractNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Employee.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndDate)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-info" style="margin-right:10px">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

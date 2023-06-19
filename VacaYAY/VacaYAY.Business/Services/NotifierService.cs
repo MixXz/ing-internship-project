@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using VacaYAY.Business.Contracts;
+using VacaYAY.Business.Contracts.ServiceContracts;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 

@@ -4,6 +4,8 @@ using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
 using AutoMapper;
 using VacaYAY.Data.Enums;
+using VacaYAY.Data.Entities;
+using VacaYAY.Business.Contracts.ServiceContracts;
 
 namespace VacaYAY.Web.Controllers;
 
@@ -32,6 +34,76 @@ public class EmployeesController : Controller
         var employees = await _unitOfWork.Employee.GetByFilters(searchInput, startDateFilter, endDateFilter);
 
         return View(new EmployeeView { Employees = employees });
+    }
+
+    public async Task<IActionResult> Register()
+    {
+        ViewBag.Positions = await _unitOfWork.Position.GetAll();
+
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Register(EmployeeCreate employeeData)
+    {
+        ViewBag.Positions = await _unitOfWork.Position.GetAll();
+
+        if (!ModelState.IsValid)
+        {
+            return View(employeeData);
+        }
+
+        var position = await _unitOfWork.Position.GetById(employeeData.SelectedPositionID);
+
+        Employee employeeEntity = new()
+        {
+            FirstName = employeeData.FirstName,
+            LastName = employeeData.LastName,
+            Address = employeeData.Address,
+            IDNumber = employeeData.IDNumber,
+            DaysOffNumber = employeeData.DaysOffNumber,
+            EmployeeStartDate = employeeData.EmployeeStartDate,
+            EmployeeEndDate = employeeData.EmployeeEndDate,
+            InsertDate = DateTime.Now,
+            Email = employeeData.Email,
+            Position = position!
+        };
+
+        var contractResult = await _unitOfWork.Contract.Create(employeeData.Contract, employeeEntity);
+        if (contractResult.Entity is null)
+        {
+            foreach (var error in contractResult.Errors)
+            {
+                ModelState.AddModelError(error.Property, error.Text);
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(employeeData);
+        }
+
+        employeeEntity.Contract = contractResult.Entity;
+        var result = await _unitOfWork.Employee.Insert(employeeEntity, employeeData.Password);
+
+        foreach(var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(employeeData);
+        }
+
+        if (employeeData.MakeAdmin && result.Succeeded)
+        {
+            await _unitOfWork.Employee.SetAdminPrivileges(employeeEntity, true);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> LoadExistingEmployees()

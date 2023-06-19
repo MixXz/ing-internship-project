@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
+using VacaYAY.Business.Contracts.ServiceContracts;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;

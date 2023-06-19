@@ -8,6 +8,7 @@ using VacaYAY.Business.Services;
 using SendGrid.Extensions.DependencyInjection;
 using Quartz;
 using VacaYAY.Business.Jobs;
+using VacaYAY.Business.Contracts.ServiceContracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,7 @@ builder.Services.AddIdentity<Employee, IdentityRole>(options => options.SignIn.R
 builder.Services.AddHttpClient<IHttpClientService, HttpClientService>(client =>
     client.BaseAddress = new Uri(builder.Configuration["APIUrl"]!));
 
-builder.Services.AddSendGrid(options => 
+builder.Services.AddSendGrid(options =>
     options.ApiKey = builder.Configuration.GetSection("EmailSenderSettings").GetValue<string>("APIKey"));
 
 builder.Services.AddQuartz(q =>
@@ -36,8 +37,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("NotifyJob-trigger")
-        .WithCronSchedule("0 0 */1 * * ?")); //run every 1 hour.
-        //.WithCronSchedule("0/5 * * * * ?")); //run every 5 second.
+        .WithCronSchedule("0 0 */1 * * ?"));
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
@@ -46,6 +46,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
 builder.Services.AddScoped<INotifierSerivice, NotifierService>();
+builder.Services.AddScoped<IBlobService, BlobService>();
 
 var app = builder.Build();
 

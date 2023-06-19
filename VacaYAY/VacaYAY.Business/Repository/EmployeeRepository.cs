@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using VacaYAY.Business.Contracts;
+using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
@@ -56,6 +56,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
     {
         var employees = _context.Employees
                         .Include(e => e.Position)
+                        .Include(e => e.Contract)
                         .AsQueryable();
 
         var query = employees.Where(e => false);

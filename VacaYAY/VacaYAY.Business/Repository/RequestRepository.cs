@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using VacaYAY.Business.Contracts;
+using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;

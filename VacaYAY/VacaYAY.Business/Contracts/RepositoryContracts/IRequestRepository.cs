@@ -3,7 +3,7 @@ using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 
-namespace VacaYAY.Business.Contracts;
+namespace VacaYAY.Business.Contracts.RepositoryContracts;
 
 public interface IRequestRepository : IRepositoryBase<Request>
 {

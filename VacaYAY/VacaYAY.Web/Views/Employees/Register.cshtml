@@ -1,0 +1,121 @@
+﻿@using VacaYAY.Data.DataTransferObjects;
+@using VacaYAY.Data.Entities;
+@using VacaYAY.Data.Enums;
+@model EmployeeCreate
+@{
+    ViewData["Title"] = "Register employee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-sm w-50">
+    <form asp-action="Register" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col">
+                <h4>Register employee</h4>
+                <p>Create a new user account.</p>
+                <hr />
+                <div class="row">
+                    @Html.ValidationSummary(true, null, new { @class = "text-danger" })
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <input asp-for="FirstName" class="form-control" placeholder="Frist Name" />
+                            <label asp-for="FirstName"></label>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="LastName" class="form-control" aria-required="true" placeholder="Last Name" />
+                            <label asp-for="LastName"></label>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                            <label asp-for="Email"></label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Password" class="form-control" placeholder="password" />
+                            <label asp-for="Password"></label>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="password" />
+                            <label asp-for="ConfirmPassword">Confirm password</label>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Address" class="form-control" aria-required="true" placeholder="Address" />
+                            <label asp-for="Address">Address</label>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <input asp-for="IDNumber" class="form-control" aria-required="true" placeholder="ID Number" />
+                            <label asp-for="IDNumber">ID Number</label>
+                            <span asp-validation-for="IDNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="DaysOffNumber" class="form-control" aria-required="true" placeholder="Days Of Number" />
+                            <label asp-for="DaysOffNumber"></label>
+                            <span asp-validation-for="DaysOffNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" name="SelectedPositionID" asp-items="@(new SelectList(ViewBag.Positions, nameof(Position.ID), nameof(Position.Caption)))"></select>
+                            <label for="SelectedPositionID" class="col-sm-2 control-label"> Position </label>
+                            <span asp-validation-for="SelectedPositionID" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="EmployeeStartDate" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
+                            <label asp-for="EmployeeStartDate"></label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="EmployeeEndDate" type="date" class="form-control" aria-required="true" placeholder="End Date" />
+                            <label asp-for="EmployeeEndDate"></label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" asp-for="MakeAdmin" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                                Administrator privileges
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <h4>Add contract</h4>
+                <p>Enter contract data and upload document.</p>
+                <hr />
+                <div class="form-floating mb-3">
+                    <input asp-for="Contract.ContractNumber" class="form-control" aria-required="true" placeholder="Contract Number" />
+                    <label asp-for="Contract.ContractNumber"></label>
+                    <span asp-validation-for="Contract.ContractNumber" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Contract.StartDate" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
+                    <label asp-for="Contract.StartDate"></label>
+                    <span asp-validation-for="Contract.StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Contract.EndDate" type="date" class="form-control" aria-required="true" placeholder="End Date" />
+                    <label asp-for="Contract.EndDate"></label>
+                    <span asp-validation-for="Contract.EndDate" class="text-danger"></span>
+
+                </div>
+                <div class="form-floating mb-3">
+                    @Html.DropDownListFor(m => m.Contract.ContractType, Html.GetEnumSelectList<ContractType>(),
+                    new {@class="form-control dropdown-toggle"})
+                    <label asp-for="Contract.ContractType"></label>
+                    <span asp-validation-for="Contract.ContractType" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Contract.Document"></label>
+                    <input asp-for="Contract.Document" class="form-control" type="file" id="formFile">
+                    <span asp-validation-for="Contract.Document" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Register employee</button>
+        </div>
+    </form>
+</div>
