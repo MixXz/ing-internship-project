@@ -56,7 +56,6 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
     {
         var employees = _context.Employees
                         .Include(e => e.Position)
-                        .Include(e => e.Contract)
                         .AsQueryable();
 
         var query = employees.Where(e => false);

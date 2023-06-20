@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Business.Contracts.ServiceContracts;
@@ -8,7 +8,6 @@ using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VacaYAY.Business.Repository;
 
@@ -25,31 +24,48 @@ public class ContractRepository : RepositoryBase<Contract>, IContractRepository
         _blobService = blobService;
     }
 
-    public override async Task<IEnumerable<Contract>> GetAll()
+    public async Task<IEnumerable<Contract>> GetByEmployeeId(string employeeId)
     {
         return await _context.Contracts
-                       .Include(c => c.Employee)
-                       .ToListAsync();
+                      .Include(e => e.Employee)
+                      .Where(e => e.Employee.Id == employeeId)
+                      .ToListAsync();
+    }
+
+    public async Task<string?> GetDocumentUrlByContractId(int contractId)
+    {
+        return await _context.Contracts
+                      .Where(c => c.ID == contractId)
+                      .Select(c => c.DocumentURL)
+                      .FirstOrDefaultAsync();
     }
 
     public async Task<ServiceResult<Contract>> Create(ContractCreate data, Employee employee)
     {
         ServiceResult<Contract> result = new();
 
-        result.Errors = Validate(data);
+        result.Errors = Validate(data.ContractNumber,
+                                 data.ContractType,
+                                 data.StartDate,
+                                 data.EndDate,
+                                 data.Document);
+
+        if (result.Errors.Any())
+        {
+            return result;
+        }
 
         var fileUrl = await _blobService.UploadFile(data.Document);
 
-        if (fileUrl is null
-            || result.Errors.Any())
+        if (fileUrl is null)
         {
-            result.Entity = null;
             return result;
         }
 
         Contract contract = new()
         {
             ContractNumber = data.ContractNumber,
+            ContractType = data.ContractType,
             StartDate = data.StartDate,
             EndDate = data.EndDate,
             DocumentURL = fileUrl,
@@ -62,53 +78,111 @@ public class ContractRepository : RepositoryBase<Contract>, IContractRepository
         return result;
     }
 
-    private List<CustomValidationResult> Validate(ContractCreate data)
+
+    public async Task<ServiceResult<Contract>> Update(ContractEdit data)
+    {
+        ServiceResult<Contract> result = new();
+
+        result.Errors = Validate(data.ContractNumber,
+                                 data.ContractType,
+                                 data.StartDate,
+                                 data.EndDate,
+                                 data.Document);
+
+        var contract = await GetById(data.ID);
+        if (contract is null || result.Errors.Any())
+        {
+            return result;
+        }
+
+        contract.ContractNumber = data.ContractNumber;
+        contract.ContractType = data.ContractType;
+        contract.StartDate = data.StartDate;
+        contract.EndDate = data.EndDate;
+
+        if (data.Document is not null)
+        {
+            await _blobService.DeleteFile(data.DocumentUrl);
+            var url = await _blobService.UploadFile(data.Document);
+
+            if (url is null)
+            {
+                return result;
+            }
+
+            contract.DocumentURL = url;
+        }
+
+        result.Entity = contract;
+        _context.Contracts.Update(contract);
+
+        return result;
+    }
+
+    private List<CustomValidationResult> Validate(string contractNumber,
+                                                  ContractType type,
+                                                  DateTime startDate,
+                                                  DateTime? endDate,
+                                                  IFormFile? file)
     {
         List<CustomValidationResult> errors = new();
-        if (!Regex.IsMatch(data.ContractNumber, @"^\d+$"))
+        if (!Regex.IsMatch(contractNumber, @"^\d+$"))
         {
             errors.Add(new()
             {
-                Property = $"{nameof(Contract)}.{nameof(ContractCreate.ContractNumber)}",
+                Property = $"{nameof(Contract.ContractNumber)}",
                 Text = "The contract number must consist of numbers only."
             });
         }
 
-        if (data.ContractType is not ContractType.OpenEnded
-            && data.EndDate is null)
+        if (type is not ContractType.OpenEnded
+            && endDate is null)
         {
             errors.Add(new()
             {
-                Property = $"{nameof(Contract)}.{nameof(ContractCreate.EndDate)}",
+                Property = $"{nameof(Contract.EndDate)}",
                 Text = "The end date is mandatory if the contract type isn't open-ended."
             });
         }
 
-        string fileExt = Path.GetExtension(data.Document.FileName);
+        if (startDate > endDate)
+        {
+            errors.Add(new()
+            {
+                Property = $"{nameof(Contract.StartDate)}",
+                Text = "The end date cannot be earlier than the start date."
+            });
+        }
+
+        if (file is not null)
+        {
+            errors = errors.Concat(ValidateDocument(file)).ToList();
+        }
+
+        return errors;
+    }
+
+    private List<CustomValidationResult> ValidateDocument(IFormFile file)
+    {
+        List<CustomValidationResult> errors = new();
+
+        string fileExt = Path.GetExtension(file.FileName);
+        int maxFileSizeInBytes = 10 * 1024 * 1024;
+
         if (fileExt != ".pdf" && fileExt != ".doc" && fileExt != ".docx")
         {
             errors.Add(new()
             {
-                Property = $"{nameof(Contract)}.{nameof(ContractCreate.Document)}",
+                Property = $"{nameof(ContractCreate.Document)}",
                 Text = "Supported files are PDF and Word."
             });
         }
 
-        if (data.StartDate > data.EndDate)
+        if (file.Length > maxFileSizeInBytes)
         {
             errors.Add(new()
             {
-                Property = $"{nameof(Contract)}.{nameof(ContractCreate.StartDate)}",
-                Text = "The end date cannot be earlier than the start date."
-            });
-        }
-        
-        int maxFileSizeInBytes = 10 * 1024 * 1024;
-        if (data.Document.Length > maxFileSizeInBytes)
-        {
-            errors.Add(new()
-            {
-                Property = $"{nameof(Contract)}.{nameof(ContractCreate.Document)}",
+                Property = $"{nameof(ContractCreate.Document)}",
                 Text = "The maximum allowed file size is 10MB."
             });
         }

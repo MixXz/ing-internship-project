@@ -48,11 +48,6 @@ public class EmployeesController : Controller
     {
         ViewBag.Positions = await _unitOfWork.Position.GetAll();
 
-        if (!ModelState.IsValid)
-        {
-            return View(employeeData);
-        }
-
         var position = await _unitOfWork.Position.GetById(employeeData.SelectedPositionID);
 
         Employee employeeEntity = new()
@@ -69,24 +64,9 @@ public class EmployeesController : Controller
             Position = position!
         };
 
-        var contractResult = await _unitOfWork.Contract.Create(employeeData.Contract, employeeEntity);
-        if (contractResult.Entity is null)
-        {
-            foreach (var error in contractResult.Errors)
-            {
-                ModelState.AddModelError(error.Property, error.Text);
-            }
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return View(employeeData);
-        }
-
-        employeeEntity.Contract = contractResult.Entity;
         var result = await _unitOfWork.Employee.Insert(employeeEntity, employeeData.Password);
 
-        foreach(var error in result.Errors)
+        foreach (var error in result.Errors)
         {
             ModelState.AddModelError(string.Empty, error.Description);
         }
@@ -103,7 +83,7 @@ public class EmployeesController : Controller
 
         await _unitOfWork.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction("Create", "Contracts", new { employeeEntity.Id });
     }
 
     public async Task<IActionResult> LoadExistingEmployees()

@@ -37,14 +37,14 @@ namespace VacaYAY.Data.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ContractType = table.Column<int>(type: "int", nullable: false),
                     DocumentURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EmployeeID = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Contracts", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Contracts_Employees_EmployeeID",
-                        column: x => x.EmployeeID,
+                        name: "FK_Contracts_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
                         principalTable: "Employees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -53,23 +53,22 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "88c3dd0a-80eb-4112-806b-1757b0902cd7", "abcdf04d-41d2-40f3-b1e5-04ece9c0f3c6", "Admin", "ADMIN" });
+                values: new object[] { "c4a9a388-0fdd-4a27-bc99-9cfa4c1f594e", "5007fdc1-6c8a-4585-8a1b-1a4638a3ba39", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "DaysOffNumber", "DeleteDate", "Email", "EmailConfirmed", "EmployeeEndDate", "EmployeeStartDate", "FirstName", "IDNumber", "InsertDate", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PositionID", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "8205c01e-d38f-4e4f-adb8-283817d7d4c0", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 6, 19, 8, 20, 52, 397, DateTimeKind.Local).AddTicks(4292), "Root", "999999", new DateTime(2023, 6, 19, 8, 20, 52, 397, DateTimeKind.Local).AddTicks(4360), "Root", false, null, null, "ROOT@ROOT.COM", "AQAAAAIAAYagAAAAEMlARDChGfVm25654m04q1ohU4wEJLST6/DR0MvtLwJWgE7oqz6t4eWUFVT/r9F7qg==", null, false, 1, "e0af7edd-fed8-4cae-8a0a-9423b18c8e0f", false, "root@root.com" });
+                values: new object[] { "f8afb56c-8a05-49b7-a494-8b14812f8244", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 6, 20, 13, 57, 42, 456, DateTimeKind.Local).AddTicks(632), "Root", "999999", new DateTime(2023, 6, 20, 13, 57, 42, 456, DateTimeKind.Local).AddTicks(696), "Root", false, null, null, "ROOT@ROOT.COM", "AQAAAAIAAYagAAAAEGawDavfC1M2HxKg6x7n2C/b4jnHFRfsYGlXgVkBQMt0QxCJzY/ThI3JulxFDYlSUg==", null, false, 1, "01a59995-d983-4cc4-83f0-74fa1a8863b2", false, "root@root.com" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "88c3dd0a-80eb-4112-806b-1757b0902cd7", "8205c01e-d38f-4e4f-adb8-283817d7d4c0" });
+                values: new object[] { "c4a9a388-0fdd-4a27-bc99-9cfa4c1f594e", "f8afb56c-8a05-49b7-a494-8b14812f8244" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Contracts_EmployeeID",
+                name: "IX_Contracts_EmployeeId",
                 table: "Contracts",
-                column: "EmployeeID",
-                unique: true);
+                column: "EmployeeId");
         }
 
         /// <inheritdoc />
@@ -81,17 +80,17 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "88c3dd0a-80eb-4112-806b-1757b0902cd7", "8205c01e-d38f-4e4f-adb8-283817d7d4c0" });
+                keyValues: new object[] { "c4a9a388-0fdd-4a27-bc99-9cfa4c1f594e", "f8afb56c-8a05-49b7-a494-8b14812f8244" });
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "88c3dd0a-80eb-4112-806b-1757b0902cd7");
+                keyValue: "c4a9a388-0fdd-4a27-bc99-9cfa4c1f594e");
 
             migrationBuilder.DeleteData(
                 table: "Employees",
                 keyColumn: "Id",
-                keyValue: "8205c01e-d38f-4e4f-adb8-283817d7d4c0");
+                keyValue: "f8afb56c-8a05-49b7-a494-8b14812f8244");
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",

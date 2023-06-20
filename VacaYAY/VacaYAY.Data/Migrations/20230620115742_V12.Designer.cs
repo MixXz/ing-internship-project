@@ -12,7 +12,7 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230619062052_V12")]
+    [Migration("20230620115742_V12")]
     partial class V12
     {
         /// <inheritdoc />
@@ -54,8 +54,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "88c3dd0a-80eb-4112-806b-1757b0902cd7",
-                            ConcurrencyStamp = "abcdf04d-41d2-40f3-b1e5-04ece9c0f3c6",
+                            Id = "c4a9a388-0fdd-4a27-bc99-9cfa4c1f594e",
+                            ConcurrencyStamp = "5007fdc1-6c8a-4585-8a1b-1a4638a3ba39",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -150,8 +150,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "8205c01e-d38f-4e4f-adb8-283817d7d4c0",
-                            RoleId = "88c3dd0a-80eb-4112-806b-1757b0902cd7"
+                            UserId = "f8afb56c-8a05-49b7-a494-8b14812f8244",
+                            RoleId = "c4a9a388-0fdd-4a27-bc99-9cfa4c1f594e"
                         });
                 });
 
@@ -194,7 +194,7 @@ namespace VacaYAY.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EmployeeID")
+                    b.Property<string>("EmployeeId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -206,8 +206,7 @@ namespace VacaYAY.Data.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("EmployeeID")
-                        .IsUnique();
+                    b.HasIndex("EmployeeId");
 
                     b.ToTable("Contracts");
                 });
@@ -319,23 +318,23 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "8205c01e-d38f-4e4f-adb8-283817d7d4c0",
+                            Id = "f8afb56c-8a05-49b7-a494-8b14812f8244",
                             AccessFailedCount = 0,
                             Address = "Root",
                             DaysOffNumber = 22,
                             Email = "root@root.com",
                             EmailConfirmed = true,
-                            EmployeeStartDate = new DateTime(2023, 6, 19, 8, 20, 52, 397, DateTimeKind.Local).AddTicks(4292),
+                            EmployeeStartDate = new DateTime(2023, 6, 20, 13, 57, 42, 456, DateTimeKind.Local).AddTicks(632),
                             FirstName = "Root",
                             IDNumber = "999999",
-                            InsertDate = new DateTime(2023, 6, 19, 8, 20, 52, 397, DateTimeKind.Local).AddTicks(4360),
+                            InsertDate = new DateTime(2023, 6, 20, 13, 57, 42, 456, DateTimeKind.Local).AddTicks(696),
                             LastName = "Root",
                             LockoutEnabled = false,
                             NormalizedUserName = "ROOT@ROOT.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMlARDChGfVm25654m04q1ohU4wEJLST6/DR0MvtLwJWgE7oqz6t4eWUFVT/r9F7qg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGawDavfC1M2HxKg6x7n2C/b4jnHFRfsYGlXgVkBQMt0QxCJzY/ThI3JulxFDYlSUg==",
                             PhoneNumberConfirmed = false,
                             PositionID = 1,
-                            SecurityStamp = "e0af7edd-fed8-4cae-8a0a-9423b18c8e0f",
+                            SecurityStamp = "01a59995-d983-4cc4-83f0-74fa1a8863b2",
                             TwoFactorEnabled = false,
                             UserName = "root@root.com"
                         });
@@ -556,8 +555,8 @@ namespace VacaYAY.Data.Migrations
             modelBuilder.Entity("VacaYAY.Data.Entities.Contract", b =>
                 {
                     b.HasOne("VacaYAY.Data.Entities.Employee", "Employee")
-                        .WithOne("Contract")
-                        .HasForeignKey("VacaYAY.Data.Entities.Contract", "EmployeeID")
+                        .WithMany("Contracts")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -615,7 +614,7 @@ namespace VacaYAY.Data.Migrations
 
             modelBuilder.Entity("VacaYAY.Data.Entities.Employee", b =>
                 {
-                    b.Navigation("Contract");
+                    b.Navigation("Contracts");
 
                     b.Navigation("LeaveRequests");
                 });

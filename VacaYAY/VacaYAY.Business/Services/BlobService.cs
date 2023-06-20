@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Aspose.Words;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -38,5 +39,49 @@ public class BlobService : IBlobService
         }
 
         return blobClient.Uri.ToString();
+    }
+
+    public async Task<bool> DeleteFile(string blobUrl)
+    {
+        var blobClient = GetBlobClientFromBlobUrl(blobUrl);
+
+        var response = await blobClient.DeleteAsync();
+
+        if (response.IsError)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Task<Stream> DownloadToPdfStream(string blobUrl)
+    {
+        var extension = Path.GetExtension(blobUrl);
+        var blobClient = GetBlobClientFromBlobUrl(blobUrl);
+
+        var stream = await blobClient.OpenReadAsync();
+
+        if (extension == ".pdf")
+        {
+            return stream;
+        }
+
+        Document doc = new Document(stream);
+        MemoryStream pdfStream = new();
+
+        doc.Save(pdfStream, SaveFormat.Pdf);
+
+        pdfStream.Position = 0;
+
+        return pdfStream;
+    }
+
+    private BlobClient GetBlobClientFromBlobUrl(string blobUrl)
+    {
+        var blobUri = new Uri(blobUrl);
+
+        string fileName = Path.GetFileName(blobUri.LocalPath);
+        return _blobContainerClient.GetBlobClient(fileName);
     }
 }

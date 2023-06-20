@@ -43,12 +43,7 @@ public class Context : IdentityDbContext<Employee>
         modelBuilder.Entity<Response>()
             .HasOne(v => v.ReviewedBy)
             .WithMany()
-            .OnDelete(DeleteBehavior.NoAction);;
-
-        modelBuilder.Entity<Employee>()
-            .HasOne(e => e.Contract)
-            .WithOne(c => c.Employee)
-            .HasForeignKey<Contract>(c => c.EmployeeID);
+            .OnDelete(DeleteBehavior.NoAction);
 
         SeedData(modelBuilder);
     }

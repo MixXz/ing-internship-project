@@ -31,8 +31,5 @@ public class Contract
     public string DocumentURL { get; set; } = string.Empty;
 
     [Required]
-    public string EmployeeID { get; set; } = string.Empty;
-
-    [Required]
     public Employee Employee { get; set; } = new();
 }

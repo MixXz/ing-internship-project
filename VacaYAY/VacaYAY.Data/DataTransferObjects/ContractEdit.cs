@@ -1,14 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using VacaYAY.Data.Enums;
-using Microsoft.AspNetCore.Http;
 
 namespace VacaYAY.Data.DataTransferObjects;
 
-public class ContractCreate
+public class ContractEdit
 {
-    [Required]
-    public string EmployeeId { get; set; } = string.Empty;
+    [Key]
+    public int ID { get; set; }
 
     [Required]
     [MaxLength(100)]
@@ -28,6 +28,7 @@ public class ContractCreate
     [DisplayName("Contract type")]
     public ContractType ContractType { get; set; }
 
-    [Required]
-    public IFormFile Document { get; set; } = null!;
+    public string DocumentUrl { get; set; } = string.Empty;
+
+    public IFormFile? Document { get; set; }
 }

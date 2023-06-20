@@ -56,7 +56,4 @@ public class EmployeeCreate
     public int SelectedPositionID { get; set; }
 
     public bool MakeAdmin { get; set; } = false;
-
-    [Required]
-    public ContractCreate Contract { get; set; } = new();
 }

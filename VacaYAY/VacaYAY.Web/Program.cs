@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using VacaYAY.Business;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
 using Microsoft.AspNetCore.Identity;

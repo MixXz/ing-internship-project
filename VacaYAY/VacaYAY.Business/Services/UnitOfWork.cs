@@ -6,7 +6,7 @@ using VacaYAY.Business.Repository;
 using VacaYAY.Data;
 using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Business;
+namespace VacaYAY.Business.Services;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly Context _context;
