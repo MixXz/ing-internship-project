@@ -10,6 +10,7 @@
     <h4>Create new position</h4>
     <hr />
     <form asp-action="Create">
+        @Html.ValidationSummary(true, null, new { @class = "text-danger" })
         <div class="form-floating mb-3">
             <input asp-for="Caption" class="form-control" aria-required="true" placeholder="Captions" />
             <label asp-for="Caption"></label>

@@ -14,6 +14,7 @@
     <hr />
     <div class="row">
         <form asp-action="Edit">
+            @Html.ValidationSummary(true, null, new { @class = "text-danger" })
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="Position.Caption" />
             <input type="hidden" asp-for="Position.Description" />
@@ -54,10 +55,12 @@
                     <div class="form-floating mb-3">
                         <input asp-for="EmployeeStartDate" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
                         <label asp-for="EmployeeStartDate"></label>
+                        <span asp-validation-for="EmployeeStartDate" class="text-danger"></span>
                     </div>
                     <div class="form-floating mb-3">
                         <input asp-for="EmployeeEndDate" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
                         <label asp-for="EmployeeEndDate"></label>
+                        <span asp-validation-for="EmployeeEndDate" class="text-danger"></span>
                     </div>
                     <div class="form-floating mb-3">
                         @Html.DropDownListFor(model => model.Position.ID,

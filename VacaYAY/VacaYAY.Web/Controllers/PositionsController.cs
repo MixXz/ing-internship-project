@@ -47,6 +47,13 @@ public class PositionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Position position)
     {
+        var errors = _unitOfWork.Position.Validate(position);
+
+        foreach (var error in errors)
+        {
+            ModelState.AddModelError(error.Property, error.Text);
+        }
+
         if (!ModelState.IsValid)
         {
             return View(position);
@@ -82,6 +89,13 @@ public class PositionsController : Controller
         if (id != position.ID)
         {
             return NotFound();
+        }
+
+        var errors = _unitOfWork.Position.Validate(position);
+
+        foreach (var error in errors)
+        {
+            ModelState.AddModelError(error.Property, error.Text);
         }
 
         if (!ModelState.IsValid)
