@@ -1,6 +1,6 @@
 ﻿@using VacaYAY.Data.DataTransferObjects;
+@using VacaYAY.Data.Entities;
 @model EmployeeView
-
 @{
     ViewData["Title"] = "Manage employees";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -27,6 +27,23 @@
                 <div class="form-floating mb-3">
                     <input asp-for="EndDateFilter" type="date" class="form-control" aria-required="true" placeholder="End Date" />
                     <label asp-for="EndDateFilter"></label>
+                </div>
+                <div class="mb-3">
+                    <label for="Positions" class="col control-label">Select positions</label>
+                    <select id="Positions" name="Positions" multiple="multiple" class="form-control dropdown-toggle">
+                        @foreach (var position in ViewBag.Positions)
+                        {
+                            @if (Model.Positions.Contains(@position.ID))
+                            {
+                                <option value="@position.ID" selected>@position.Caption</option>
+                            }
+                            else
+                            {
+                                <option value="@position.ID">@position.Caption</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="Positions" class="text-danger"></span>
                 </div>
                 <input type="submit" value="Search" class="btn btn-primary" />
             </div>
@@ -86,3 +103,14 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('#Positions').select2();
+        });
+    </script>
+}

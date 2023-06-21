@@ -57,7 +57,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                         .ToListAsync();
     }
 
-    public async Task<IEnumerable<Employee>> GetByFilters(string? searchInput, DateTime? startDate, DateTime? endDate)
+    public async Task<IEnumerable<Employee>> GetByFilters(EmployeeView filters)
     {
         var employees = _context.Employees
                         .Include(e => e.Position)
@@ -65,9 +65,9 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
 
         var query = employees.Where(e => false);
 
-        if (!string.IsNullOrEmpty(searchInput))
+        if (!string.IsNullOrEmpty(filters.SearchInput))
         {
-            var tokens = searchInput.Split(' ');
+            var tokens = filters.SearchInput.Split(' ');
 
             foreach (var token in tokens)
             {
@@ -77,14 +77,19 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
             }
         }
 
-        if (startDate is not null)
+        if (filters.StartDateFilter is not null)
         {
-            employees = employees.Where(e => e.EmployeeStartDate >= startDate);
+            employees = employees.Where(e => e.EmployeeStartDate >= filters.StartDateFilter);
         }
 
-        if (endDate is not null)
+        if (filters.EndDateFilter is not null)
         {
-            employees = employees.Where(e => e.EmployeeEndDate <= endDate);
+            employees = employees.Where(e => e.EmployeeEndDate <= filters.EndDateFilter);
+        }
+
+        if (filters.Positions.Any())
+        {
+            employees = employees.Where(e => filters.Positions.Contains(e.Position.ID));
         }
 
         if (query.Any())
