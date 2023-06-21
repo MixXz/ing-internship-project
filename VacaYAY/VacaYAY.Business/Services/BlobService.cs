@@ -55,6 +55,14 @@ public class BlobService : IBlobService
         return true;
     }
 
+    public async Task<(Stream data, string contentType)> DownloadDocument(string blobUrl)
+    {
+        var blobClient = GetBlobClientFromBlobUrl(blobUrl);
+        var result = await blobClient.DownloadAsync();
+
+        return (result.Value.Content,  result.Value.ContentType);
+    }
+
     public async Task<Stream> DownloadToPdfStream(string blobUrl)
     {
         var extension = Path.GetExtension(blobUrl);

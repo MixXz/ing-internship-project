@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
@@ -58,6 +59,27 @@ public class ContractsController : Controller
         return File(stream, "application/pdf");
     }
 
+    public async Task<IActionResult> DownloadDocument(int? id)
+    {
+        if (id is null)
+        {
+            return NotFound();
+        }
+        var blobUrl = await _unitOfWork.Contract.GetDocumentUrlByContractId((int)id);
+
+        if (blobUrl is null)
+        {
+            return NotFound();
+        }
+
+        (Stream data, string contentType) = await _blobService.DownloadDocument(blobUrl);
+
+        Response.ContentType = contentType;
+        Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{Path.GetFileName(blobUrl)}\"");
+
+        return File(data, contentType);
+    }
+
     public async Task<IActionResult> Create(string id)
     {
         var employee = await _unitOfWork.Employee.GetById(id);
@@ -67,9 +89,7 @@ public class ContractsController : Controller
             return NotFound();
         }
 
-        ViewBag.Id = employee.Id;
-
-        return View();
+        return View(new ContractCreate() { EmployeeId = employee.Id });
     }
 
     [HttpPost]
@@ -146,7 +166,7 @@ public class ContractsController : Controller
 
         await _unitOfWork.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { result.Entity.Employee.Id });
     }
 
 }

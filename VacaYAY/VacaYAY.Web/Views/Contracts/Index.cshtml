@@ -47,6 +47,7 @@
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
                             <a asp-action="PreviewDocument" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">View</a>
+                            <a asp-action="DownloadDocument" asp-route-id="@item.ID" class="btn btn-outline-success" style="margin-right:10px">Download</a>
                         </td>
                     </tr>
                 }

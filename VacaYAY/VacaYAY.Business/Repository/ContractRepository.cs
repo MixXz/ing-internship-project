@@ -24,6 +24,14 @@ public class ContractRepository : RepositoryBase<Contract>, IContractRepository
         _blobService = blobService;
     }
 
+    public override Task<Contract?> GetById(int id)
+    {
+        return _context.Contracts
+                      .Include(e => e.Employee)
+                      .Where(e => e.ID == id)
+                      .FirstOrDefaultAsync();
+    }
+
     public async Task<IEnumerable<Contract>> GetByEmployeeId(string employeeId)
     {
         return await _context.Contracts
