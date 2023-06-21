@@ -29,11 +29,13 @@ public class EmployeesController : Controller
         _httpClientService = httpClientService;
     }
 
-    public async Task<IActionResult> Index(string? searchInput, DateTime? startDateFilter, DateTime? endDateFilter)
+    public async Task<IActionResult> Index(EmployeeView filters)
     {
-        var employees = await _unitOfWork.Employee.GetByFilters(searchInput, startDateFilter, endDateFilter);
+        ViewBag.Positions = await _unitOfWork.Position.GetAll();
 
-        return View(new EmployeeView { Employees = employees });
+        var employees = await _unitOfWork.Employee.GetByFilters(filters);
+
+        return View(new EmployeeView { Employees = employees, Positions = filters.Positions });
     }
 
     public async Task<IActionResult> Register()
