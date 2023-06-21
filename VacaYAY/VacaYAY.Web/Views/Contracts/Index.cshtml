@@ -1,0 +1,57 @@
+﻿@using VacaYAY.Data.Entities;
+@model IEnumerable<Contract>
+@{
+    ViewData["Title"] = "Contracts";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var employee = ViewBag.Employee;
+}
+
+<div class="row">
+    <h2>Manage employee contracts</h2>
+    <span>Employee: <strong>@employee.Name </strong></span>
+    <hr />
+    <div class="col">
+        <a asp-action="Create" asp-route-id="@employee.Id" class="btn btn-success btn-block w-100">Add new contract</a>
+    </div>
+    <div class="col-10">
+        <table class="table table-bordered text-center">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ContractNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.StartDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.EndDate)
+                    </th>
+                    <th>
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ContractNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.StartDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.EndDate)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
+                            <a asp-action="PreviewDocument" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">View</a>
+                            <a asp-action="DownloadDocument" asp-route-id="@item.ID" class="btn btn-outline-success" style="margin-right:10px">Download</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

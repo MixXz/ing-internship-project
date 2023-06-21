@@ -14,5 +14,7 @@ public class MappingProfile : Profile
         CreateMap<RequestEdit, Request>();
         CreateMap<Response, ResponseEdit>();
         CreateMap<ResponseEdit, Response>();
+        CreateMap<Contract, ContractEdit>();
+        CreateMap<ContractEdit, Contract>();
     }
 }

@@ -3,7 +3,7 @@ using System.Security.Claims;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Business.Contracts;
+namespace VacaYAY.Business.Contracts.RepositoryContracts;
 
 public interface IEmployeeRepository : IRepositoryBase<Employee>
 {

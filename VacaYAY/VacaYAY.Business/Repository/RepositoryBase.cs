@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using VacaYAY.Business.Contracts;
+using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 
 namespace VacaYAY.Business.Repository;

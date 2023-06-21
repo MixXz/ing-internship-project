@@ -1,4 +1,4 @@
-﻿namespace VacaYAY.Business.Contracts;
+﻿namespace VacaYAY.Business.Contracts.RepositoryContracts;
 
 public interface IRepositoryBase<T>
 {

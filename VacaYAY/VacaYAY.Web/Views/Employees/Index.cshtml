@@ -11,7 +11,7 @@
     <hr />
     <div class="col">
         <div class="d-flex flex-column">
-            <a class="btn btn-success" id="register" asp-area="Identity" asp-page="/Account/Register">Register new employee</a>
+            <a class="btn btn-success" id="register" asp-controller="Employees" asp-action="Register">Register new employee</a>
             <a class="btn btn-outline-primary mt-3" asp-controller="Employees" asp-action="LoadExistingEmployees">Load existing employees</a>
         </div>
         <hr />
@@ -51,7 +51,9 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Employees.First().InsertDate)
                     </th>
-                    <th></th>
+                    <th>
+                        Actions
+                    </th>
                 </tr>
             </thead>
             <tbody>

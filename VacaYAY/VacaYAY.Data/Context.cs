@@ -12,6 +12,7 @@ public class Context : IdentityDbContext<Employee>
     public DbSet<LeaveType> LeaveTypes => Set<LeaveType>();
     public DbSet<Request> Requests => Set<Request>();
     public DbSet<Response> Responses => Set<Response>();
+    public DbSet<Contract> Contracts => Set<Contract>();
 
     public Context(DbContextOptions<Context> options) : base(options) { }
 
@@ -36,11 +37,19 @@ public class Context : IdentityDbContext<Employee>
         modelBuilder.Entity<Response>()
             .HasQueryFilter(r => r.Request.CreatedBy.DeleteDate == null);
 
+        modelBuilder.Entity<Contract>()
+            .HasQueryFilter(c => c.Employee.DeleteDate == null);
+
         modelBuilder.Entity<Response>()
             .HasOne(v => v.ReviewedBy)
             .WithMany()
             .OnDelete(DeleteBehavior.NoAction);
 
+        SeedData(modelBuilder);
+    }
+
+    private void SeedData(ModelBuilder modelBuilder)
+    {
         DataSeeder.SeedRootUser(modelBuilder);
 
         DataSeeder.SeedLeaveType(modelBuilder, 1, "Sick Leave", "Neki opis");

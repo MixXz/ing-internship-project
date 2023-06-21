@@ -1,6 +1,6 @@
 ﻿using SendGrid;
 
-namespace VacaYAY.Business.Contracts;
+namespace VacaYAY.Business.Contracts.ServiceContracts;
 
 public interface IEmailSenderService
 {

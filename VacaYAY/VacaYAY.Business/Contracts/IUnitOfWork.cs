@@ -1,4 +1,6 @@
-﻿namespace VacaYAY.Business.Contracts;
+﻿using VacaYAY.Business.Contracts.RepositoryContracts;
+
+namespace VacaYAY.Business.Contracts;
 public interface IUnitOfWork
 {
     IEmployeeRepository Employee { get; }
@@ -6,5 +8,6 @@ public interface IUnitOfWork
     IResponseRepository Response { get; }
     IPositionRepository Position { get; }
     ILeaveTypeRepository LeaveType { get; }
+    IContractRepository Contract { get; }
     Task SaveChangesAsync();
 }

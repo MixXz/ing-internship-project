@@ -47,5 +47,8 @@ public class EmployeeEdit
     [Required]
     public Position Position { get; set; } = new();
 
+    [Required]
+    public Contract Contract { get; set; } = new();
+
     public bool MakeAdmin { get; set; } = false;
 }

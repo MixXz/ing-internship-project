@@ -1,4 +1,4 @@
-﻿using VacaYAY.Business.Contracts;
+﻿using VacaYAY.Business.Contracts.ServiceContracts;
 
 namespace VacaYAY.Business.Services;
 
