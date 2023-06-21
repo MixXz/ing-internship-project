@@ -65,10 +65,12 @@
                 <div class="form-floating mb-3">
                     <input asp-for="EmployeeStartDate" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
                     <label asp-for="EmployeeStartDate"></label>
+                    <span asp-validation-for="EmployeeStartDate" class="text-danger"></span>
                 </div>
                 <div class="form-floating mb-3">
                     <input asp-for="EmployeeEndDate" type="date" class="form-control" aria-required="true" placeholder="End Date" />
                     <label asp-for="EmployeeEndDate"></label>
+                    <span asp-validation-for="EmployeeEndDate" class="text-danger"></span>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" asp-for="MakeAdmin" id="flexCheckDefault">

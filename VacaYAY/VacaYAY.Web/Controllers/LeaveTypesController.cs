@@ -47,6 +47,13 @@ public class LeaveTypesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(LeaveType leaveType)
     {
+        var errors = _unitOfWork.LeaveType.Validate(leaveType);
+
+        foreach (var error in errors)
+        {
+            ModelState.AddModelError(error.Property, error.Text);
+        }
+
         if (!ModelState.IsValid)
         {
             return View(leaveType);
@@ -81,6 +88,13 @@ public class LeaveTypesController : Controller
         if (id != leaveType.ID)
         {
             return NotFound();
+        }
+
+        var errors = _unitOfWork.LeaveType.Validate(leaveType);
+
+        foreach (var error in errors)
+        {
+            ModelState.AddModelError(error.Property, error.Text);
         }
 
         if (!ModelState.IsValid)

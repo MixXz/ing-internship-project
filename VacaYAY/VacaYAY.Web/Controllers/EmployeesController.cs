@@ -50,40 +50,26 @@ public class EmployeesController : Controller
 
         var position = await _unitOfWork.Position.GetById(employeeData.SelectedPositionID);
 
-        Employee employeeEntity = new()
+        if (position is null)
         {
-            FirstName = employeeData.FirstName,
-            LastName = employeeData.LastName,
-            Address = employeeData.Address,
-            IDNumber = employeeData.IDNumber,
-            DaysOffNumber = employeeData.DaysOffNumber,
-            EmployeeStartDate = employeeData.EmployeeStartDate,
-            EmployeeEndDate = employeeData.EmployeeEndDate,
-            InsertDate = DateTime.Now,
-            Email = employeeData.Email,
-            Position = position!
-        };
-
-        var result = await _unitOfWork.Employee.Insert(employeeEntity, employeeData.Password);
-
-        foreach (var error in result.Errors)
-        {
-            ModelState.AddModelError(string.Empty, error.Description);
+            return NotFound();
         }
 
-        if (!ModelState.IsValid)
+        var result = await _unitOfWork.Employee.Insert(employeeData, position);
+
+        if (result.Entity is null)
         {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Property, error.Text);
+            }
+
             return View(employeeData);
-        }
-
-        if (employeeData.MakeAdmin && result.Succeeded)
-        {
-            await _unitOfWork.Employee.SetAdminPrivileges(employeeEntity, true);
         }
 
         await _unitOfWork.SaveChangesAsync();
 
-        return RedirectToAction("Create", "Contracts", new { employeeEntity.Id });
+        return RedirectToAction("Create", "Contracts", new { result.Entity.Id });
     }
 
     public async Task<IActionResult> LoadExistingEmployees()
@@ -96,32 +82,33 @@ public class EmployeesController : Controller
         }
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        var employees = _unitOfWork.Employee.DeserializeList(jsonResponse);
+        var oldEmployees = _unitOfWork.Employee.ExtractEmployeeData(jsonResponse);
 
-        if (employees is null)
+        if (oldEmployees is null)
         {
             return NotFound();
         }
 
-        foreach (var employee in employees)
+        foreach (var oldEmployee in oldEmployees)
         {
-            var position = await _unitOfWork.Position.GetByCaption(employee.Position.Caption);
+            var position = await _unitOfWork.Position.GetByCaption(oldEmployee.Position.Caption);
 
             if (position is null)
             {
                 position = new()
                 {
-                    Caption = employee.Position.Caption,
-                    Description = employee.Position.Description
+                    Caption = oldEmployee.Position.Caption,
+                    Description = oldEmployee.Position.Description
                 };
 
                 _unitOfWork.Position.Insert(position);
                 await _unitOfWork.SaveChangesAsync();
             }
 
-            employee.Position = position;
+            var employeeData = _mapper.Map<EmployeeCreate>(oldEmployee);
+            employeeData.Password = $"{oldEmployee.FirstName}123!";
 
-            await _unitOfWork.Employee.Insert(employee, $"{employee.FirstName}123!");
+            await _unitOfWork.Employee.Insert(employeeData, position);
         }
 
         return RedirectToAction(nameof(Index));
@@ -180,16 +167,15 @@ public class EmployeesController : Controller
             return View(employee);
         }
 
-        if (!ModelState.IsValid)
-        {
-            return View(employee);
-        }
-
         employee.Position = position;
         var result = await _unitOfWork.Employee.Update(id, employee);
 
-        if (!result.Succeeded)
+        if (result.Entity is null)
         {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Property, error.Text);
+            }
             return View(employee);
         }
 

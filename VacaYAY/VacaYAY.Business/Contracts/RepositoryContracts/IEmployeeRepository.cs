@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
+using VacaYAY.Data.Helpers;
 
 namespace VacaYAY.Business.Contracts.RepositoryContracts;
 
@@ -11,12 +12,13 @@ public interface IEmployeeRepository : IRepositoryBase<Employee>
     Task<IEnumerable<Employee>> GetByFilters(string? searchInput, DateTime? startDate, DateTime? endDate);
     Task<Employee?> GetCurrent(ClaimsPrincipal userClaims);
     Task<IEnumerable<Employee>> GetAdmins();
-    Task<IdentityResult> Insert(Employee employee, string password);
-    Task<IdentityResult> Update(string id, EmployeeEdit employeeData);
+    Task<ServiceResult<Employee>> Insert(EmployeeCreate data, Position position);
+    Task<ServiceResult<Employee>> Update(string id, EmployeeEdit employeeData);
     Task<IdentityResult> Delete(string id);
     Task<bool> IsAdmin(Employee employee);
     bool IsAdmin(ClaimsPrincipal userClaims);
     Task<bool> isAuthorized(ClaimsPrincipal userClaims);
     Task<bool> isAuthorizedToSee(ClaimsPrincipal userClaims, string authorId);
     Task<IdentityResult> SetAdminPrivileges(Employee employee, bool makeAdmin);
+    List<EmployeeOld>? ExtractEmployeeData(string jsonResponse);
 }

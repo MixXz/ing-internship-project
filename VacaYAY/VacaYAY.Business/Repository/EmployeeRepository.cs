@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
+using System.Threading;
 using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
+using VacaYAY.Data.Helpers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VacaYAY.Business.Repository;
 
@@ -96,38 +101,83 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return await _userManager.GetUsersInRoleAsync(nameof(Roles.Admin));
     }
 
-    public async Task<IdentityResult> Insert(Employee employee, string password)
+    public async Task<ServiceResult<Employee>> Insert(EmployeeCreate data, Position position)
     {
-        if (employee is null || string.IsNullOrEmpty(password))
+        ServiceResult<Employee> result = new();
+
+        result.Errors = Validate(data.FirstName, data.LastName, data.EmployeeStartDate, data.EmployeeEndDate);
+
+        if (result.Errors.Any())
         {
-            return IdentityResult.Failed();
+            return result;
         }
 
-        var employeeInDb = await _userManager.FindByEmailAsync(employee.Email!);
-
-        if (employeeInDb is not null)
+        Employee employee = new()
         {
-            return IdentityResult.Failed();
-        }
+            FirstName = data.FirstName,
+            LastName = data.LastName,
+            Address = data.Address,
+            IDNumber = data.IDNumber,
+            DaysOffNumber = data.DaysOffNumber,
+            EmployeeStartDate = data.EmployeeStartDate,
+            EmployeeEndDate = data.EmployeeEndDate,
+            InsertDate = DateTime.Now,
+            Email = data.Email,
+            Position = position
+        };
 
         await _userStore.SetUserNameAsync(employee, employee.Email, CancellationToken.None);
         await _emailStore.SetEmailAsync(employee, employee.Email, CancellationToken.None);
 
-        return await _userManager.CreateAsync(employee, password);
+        var res = await _userManager.CreateAsync(employee, data.Password);
+
+        foreach (var error in res.Errors)
+        {
+            result.Errors.Add(new()
+            {
+                Property = string.Empty,
+                Text = error.Description
+            });
+
+            return result;
+        }
+
+        if (data.MakeAdmin)
+        {
+            await SetAdminPrivileges(employee, true);
+        }
+
+        result.Entity = employee;
+
+        return result;
     }
 
-    public async Task<IdentityResult> Update(string id, EmployeeEdit employeeData)
+    public async Task<ServiceResult<Employee>> Update(string id, EmployeeEdit employeeData)
     {
+        ServiceResult<Employee> result = new();
+
+        result.Errors = Validate(employeeData.FirstName, employeeData.LastName, employeeData.EmployeeStartDate, employeeData.EmployeeEndDate);
+
         var employeeEntity = await GetById(id);
 
         if (employeeEntity is null)
         {
-            return IdentityResult.Failed();
+            return result;
         }
 
-        if (employeeEntity.Email != employeeData.Email)
+        if (employeeEntity.Email != employeeData.Email
+            && _context.Users.Any(u => u.Email == employeeData.Email))
         {
-            await _userManager.SetEmailAsync(employeeEntity, employeeData.Email);
+            result.Errors.Add(new()
+            {
+                Property = nameof(Employee.Email),
+                Text = "Entered email is already registered."
+            });
+        }
+
+        if (result.Errors.Any())
+        {
+            return result;
         }
 
         employeeEntity.FirstName = employeeData.FirstName;
@@ -140,8 +190,62 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         employeeEntity.Position = employeeData.Position;
 
         await SetAdminPrivileges(employeeEntity, employeeData.MakeAdmin);
+        await _userManager.SetEmailAsync(employeeEntity, employeeData.Email);
 
-        return await _userManager.UpdateAsync(employeeEntity);
+        var res = await _userManager.UpdateAsync(employeeEntity);
+
+        foreach (var error in res.Errors)
+        {
+            result.Errors.Add(new()
+            {
+                Property = string.Empty,
+                Text = error.Description
+            });
+
+            return result;
+        }
+
+        result.Entity = employeeEntity;
+
+        return result;
+    }
+
+    private List<CustomValidationResult> Validate(
+        string firstName,
+        string lastName,
+        DateTime startDate,
+        DateTime? endDate)
+    {
+        List<CustomValidationResult> errors = new();
+
+        if (!Regex.IsMatch(firstName, @"^[a-zA-Z]+$"))
+        {
+            errors.Add(new()
+            {
+                Property = nameof(Employee.FirstName),
+                Text = "First name can only consist of letters."
+            });
+        }
+
+        if (!Regex.IsMatch(lastName, @"^[a-zA-Z]+$"))
+        {
+            errors.Add(new()
+            {
+                Property = nameof(Employee.LastName),
+                Text = "Last name can only consist of letters."
+            });
+        }
+
+        if (endDate is not null
+            && startDate > endDate)
+        {
+            errors.Add(new()
+            {
+                Property = nameof(Employee.EmployeeStartDate),
+                Text = "The end date cannot be earlier than the start date."
+            });
+        }
+        return errors;
     }
 
     public async Task<IdentityResult> Delete(string id)
@@ -226,5 +330,10 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         }
 
         return true;
+    }
+
+    public List<EmployeeOld>? ExtractEmployeeData(string jsonResponse)
+    {
+        return JsonConvert.DeserializeObject<List<EmployeeOld>>(jsonResponse);
     }
 }
