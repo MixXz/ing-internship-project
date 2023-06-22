@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using VacaYAY.Business.Contracts;
+﻿using VacaYAY.Business.Contracts;
 using VacaYAY.Business.Contracts.ServiceContracts;
-using VacaYAY.Data.Entities;
-using VacaYAY.Data.Helpers;
 
 namespace VacaYAY.Business.Services;
 
@@ -18,7 +15,7 @@ public class NotifierService : INotifierSerivice
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<bool> NotifyEmployee((string? email, string subject, string content) message)
+    public async Task<bool> NotifyEmployee((string? email, string subject, string content) message, bool withPdf = false)
     {
         (string? email, string subject, string content) = message;
 
@@ -27,7 +24,10 @@ public class NotifierService : INotifierSerivice
             return false;
         }
 
-        var response = await _emailSender.SendEmail(email, subject, content);
+        var response = withPdf ?
+            await _emailSender.SendEmailWithPdf(email, subject, content)
+            :
+            await _emailSender.SendEmail(email, subject, content);
 
         if (response is null)
         {

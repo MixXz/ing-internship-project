@@ -196,6 +196,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
 
         await SetAdminPrivileges(employeeEntity, employeeData.MakeAdmin);
         await _userManager.SetEmailAsync(employeeEntity, employeeData.Email);
+        await _userStore.SetUserNameAsync(employeeEntity, employeeEntity.Email, CancellationToken.None);
 
         var res = await _userManager.UpdateAsync(employeeEntity);
 
