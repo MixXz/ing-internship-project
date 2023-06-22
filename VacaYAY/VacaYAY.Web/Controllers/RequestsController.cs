@@ -219,7 +219,7 @@ public class RequestsController : Controller
 
         RequestEmailTemplates templates = new(seeker, request);
         var isNotified = await _notifierService
-            .NotifyEmployee(response.IsApproved ? templates.Approved : templates.Rejected);
+            .NotifyEmployee(response.IsApproved ? templates.Approved : templates.Rejected, true);
 
         request.NotificationStatus = isNotified ?
             NotificationStatus.Notified

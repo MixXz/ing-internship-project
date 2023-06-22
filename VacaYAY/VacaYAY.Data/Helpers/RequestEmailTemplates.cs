@@ -1,4 +1,5 @@
-﻿using VacaYAY.Data.Entities;
+﻿using System;
+using VacaYAY.Data.Entities;
 
 namespace VacaYAY.Data.Helpers;
 
@@ -47,7 +48,7 @@ public class RequestEmailTemplates
             string subject = "Leave Request Response";
             string message = "We wanted to inform you that your leave request has been approved by HR team.";
 
-            return (_employee.Email, subject, GetEmployeeTemplate(message));
+            return (_employee.Email, subject, GetResponseTemplate(message));
         }
     }
 
@@ -58,7 +59,7 @@ public class RequestEmailTemplates
             string subject = "Leave Request Response";
             string message = "We wanted to inform you that your leave request has been rejected by HR team.";
 
-            return (_employee.Email, subject, GetEmployeeTemplate(message));
+            return (_employee.Email, subject, GetResponseTemplate(message));
         }
     }
 
@@ -192,6 +193,71 @@ public class RequestEmailTemplates
             </body>
             </html>
             ";
+    }
+
+    public string GetResponseTemplate(string message)
+    {
+        return $@"
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            font-size: 14px;
+                        }}
+                        table {{
+                            border-collapse: collapse;
+                            width: 100%;
+                        }}
+                        th, td {{
+                            padding: 8px;
+                            text-align: left;
+                            border-bottom: 1px solid #ddd;
+                        }}
+                        th {{
+                            background-color: #f2f2f2;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class=""container"">
+                    <h2>Response for submitted leave request</h2>
+                    <div class=""message"">
+                        <p>Dear {_employee.Name},</p>
+                        <p>{message}</p>
+                    <table>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td>Leave start date</td>
+                            <td>{_request.StartDate.ToString("dd.MM.yyyy")}</td>
+                        </tr>
+                        <tr>
+                            <td>Leave end date</td>
+                            <td>{_request.EndDate.ToString("dd.MM.yyyy")}</td>
+                        </tr>
+                        <tr>
+                            <td>Number of leave days requested</td>
+                            <td>{_request.NumOfDaysRequested}</td>
+                        </tr>
+                        <tr>
+                            <td>Leave type</td>
+                            <td>{_request.LeaveType.Caption}</td>
+                        </tr>
+                    </table>
+                    <div class=""message"">
+                        <p> You have <strong>{_employee.DaysOffNumber}</strong> free days left. </p>
+                        <p>If you have any further questions or require assistance, please don't hesitate to reach out to our HR department.</p>
+                        <p>Best regards,</p>
+                        <p>Your HR team</p>
+                    </div>
+                    </div>
+                </body>
+                </html>
+                ";
     }
 
     public RequestEmailTemplates(
