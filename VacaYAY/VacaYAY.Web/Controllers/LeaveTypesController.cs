@@ -108,26 +108,7 @@ public class LeaveTypesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var leaveType = await _unitOfWork.LeaveType.GetById((int)id);
-
-        if (leaveType is null)
-        {
-            return NotFound();
-        }
-
-        return View(leaveType);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var leaveType = await _unitOfWork.LeaveType.GetById(id);
 

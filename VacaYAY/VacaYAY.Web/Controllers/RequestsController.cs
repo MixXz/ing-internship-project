@@ -424,31 +424,7 @@ public class RequestsController : Controller
         return RedirectToAction(nameof(AdminPanel));
     }
 
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var request = await _unitOfWork.Request.GetById((int)id);
-
-        if (request is null)
-        {
-            return NotFound();
-        }
-
-        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
-        {
-            return Forbid();
-        }
-
-        return View(request);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var author = await _unitOfWork.Employee.GetCurrent(User);
         if (author is null)

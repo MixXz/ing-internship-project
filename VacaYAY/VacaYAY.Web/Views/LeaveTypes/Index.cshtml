@@ -34,11 +34,14 @@
                             @Html.DisplayFor(modelItem => item.Description)
                         </td>
                         <td>
-                            <form asp-action="Delete" asp-route-id="@item.ID" method="post">
-                                <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
-                                <input type="hidden" asp-for="@item.ID" />
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
+                            <a class="btn btn-danger open-confirm-modal"
+                               data-id="@item.ID"
+                               data-controller="LeaveTypes"
+                               data-action="Delete"
+                               data-body-message="Are you sure u want to delete this leave type?">
+                                Delete
+                            </a>
                         </td>
                     </tr>
                 }
