@@ -2,12 +2,13 @@ $((function () {
     var url;
     var target;
     var redirectUrl;
+    var title;
     $('body').append(`
             <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Confirmation dialog</h4>
+                    <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <div class="modal-body confirm-dialog-body">
                 </div>
@@ -28,9 +29,11 @@ $((function () {
         var action = $(target).data('action');
         var bodyMessage = $(target).data('body-message');
         redirectUrl = $(target).data('redirect-url');
+        var title = $(target).data('title');
 
         url = `/${controller}/${action}?Id=${Id}`;
-        $(".confirm-dialog-body").text(bodyMessage);
+        $(".confirm-dialog-body").html(bodyMessage);
+        $(".modal-title").text(title);
         $("#confirmModal").modal('show');
     });
 

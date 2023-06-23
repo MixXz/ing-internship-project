@@ -67,8 +67,8 @@
            data-id="@Model.Id"
            data-controller="Employees"
            data-action="Delete"
-           data-redirect-url="/Employees/Index"
-           data-body-message="Are you sure u want to delete this employee?">
+           data-title="Confirm employee deletion"
+           data-body-message="Are you sure you want to delete the employee <strong> @Model.Name</strong>?">
             Delete
         </a>
     </div>
