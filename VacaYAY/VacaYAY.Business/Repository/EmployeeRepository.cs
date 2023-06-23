@@ -106,6 +106,13 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return await _userManager.GetUsersInRoleAsync(nameof(Roles.Admin));
     }
 
+    public async Task<IEnumerable<Employee>> GetWithRemainingDaysOff()
+    {
+        return await _context.Employees
+                    .Where(e => e.DaysOffNumber > 0)
+                    .ToListAsync();
+    }
+
     public async Task<ServiceResult<Employee>> Insert(EmployeeCreate data, Position position)
     {
         ServiceResult<Employee> result = new();
@@ -214,6 +221,14 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         result.Entity = employeeEntity;
 
         return result;
+    }
+
+    public void RemoveOldDaysOff()
+    {
+        _context.Employees
+               .Where(e => e.DaysOffNumber > 0)
+               .ExecuteUpdate(p => p.SetProperty(
+                   e => e.DaysOffNumber, 0));
     }
 
     private List<CustomValidationResult> Validate(
