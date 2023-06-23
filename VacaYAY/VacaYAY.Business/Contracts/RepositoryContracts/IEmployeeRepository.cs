@@ -12,8 +12,10 @@ public interface IEmployeeRepository : IRepositoryBase<Employee>
     Task<IEnumerable<Employee>> GetByFilters(EmployeeView filters);
     Task<Employee?> GetCurrent(ClaimsPrincipal userClaims);
     Task<IEnumerable<Employee>> GetAdmins();
+    Task<IEnumerable<Employee>> GetWithRemainingDaysOff();
     Task<ServiceResult<Employee>> Insert(EmployeeCreate data, Position position);
     Task<ServiceResult<Employee>> Update(string id, EmployeeEdit employeeData);
+    void RemoveOldDaysOff();
     Task<IdentityResult> Delete(string id);
     Task<bool> IsAdmin(Employee employee);
     bool IsAdmin(ClaimsPrincipal userClaims);
