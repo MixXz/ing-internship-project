@@ -42,6 +42,11 @@ public class Employee : IdentityUser
     public int DaysOffNumber { get; set; }
 
     [Required]
+    [Range(0, 100)]
+    [DisplayName("Old days off number")]
+    public int OldDaysOffNumber { get; set; }
+
+    [Required]
     [DisplayName("Start date")]
     [DataType(DataType.Date)]
     public DateTime EmployeeStartDate { get; set; }

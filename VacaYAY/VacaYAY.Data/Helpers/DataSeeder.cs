@@ -38,6 +38,7 @@ public static class DataSeeder
                EmployeeStartDate = DateTime.Now,
                InsertDate = DateTime.Now,
                DaysOffNumber = 22,
+               OldDaysOffNumber = 0,
                PositionID = positionId,
                AccessFailedCount = 0,
                EmailConfirmed = true,

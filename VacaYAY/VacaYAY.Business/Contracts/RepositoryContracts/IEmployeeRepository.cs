@@ -16,6 +16,7 @@ public interface IEmployeeRepository : IRepositoryBase<Employee>
     Task<ServiceResult<Employee>> Insert(EmployeeCreate data, Position position);
     Task<ServiceResult<Employee>> Update(string id, EmployeeEdit employeeData);
     void RemoveOldDaysOff();
+    void AddNewDaysOff(int numOfDays);
     Task<IdentityResult> Delete(string id);
     Task<bool> IsAdmin(Employee employee);
     bool IsAdmin(ClaimsPrincipal userClaims);

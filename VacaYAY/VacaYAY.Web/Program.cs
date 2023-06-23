@@ -34,6 +34,7 @@ builder.Services.AddQuartz(q =>
     q.AddJobAndTrigger<NotifyOfRequestStatusJob>(builder.Configuration);
     q.AddJobAndTrigger<NotifyOfRemainingDaysOffJob>(builder.Configuration);
     q.AddJobAndTrigger<RemoveOldDaysOffJob>(builder.Configuration);
+    q.AddJobAndTrigger<AddNewDaysOffJob>(builder.Configuration);
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
