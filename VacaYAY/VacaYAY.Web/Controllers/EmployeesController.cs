@@ -184,26 +184,7 @@ public class EmployeesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Delete(string? id)
-    {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var employee = await _unitOfWork.Employee.GetById(id);
-
-        if (employee is null)
-        {
-            return NotFound();
-        }
-
-        return View(employee);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string id)
+    public async Task<IActionResult> Delete(string id)
     {
         await _unitOfWork.Employee.Delete(id);
 

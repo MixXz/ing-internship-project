@@ -109,26 +109,7 @@ public class PositionsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var position = await _unitOfWork.Position.GetById((int)id);
-
-        if (position is null)
-        {
-            return NotFound();
-        }
-
-        return View(position);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var position = await _unitOfWork.Position.GetById(id);
 

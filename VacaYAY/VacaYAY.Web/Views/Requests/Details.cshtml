@@ -103,10 +103,15 @@
 
         @if (Model.Response is null)
         {
-            <form asp-action="Delete">
-                <input type="hidden" asp-for="ID" />
-                <button type="submit" class="btn btn-outline-danger btn-block w-100">Delete request</button>
-            </form>
+            <a class="btn btn-outline-danger btn-block w-100 open-confirm-modal"
+               data-id="@Model.ID"
+               data-controller="Requests"
+               data-action="Delete"
+               data-redirect-url="/"
+               data-title="Confirm vacation request deletion"
+               data-body-message="Are you sure you want to delete this vacation request?">
+                Delete
+            </a>
         }
     </div>
 </div>
