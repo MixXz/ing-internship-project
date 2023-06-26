@@ -27,6 +27,20 @@ namespace VacaYAY.Data.Migrations
                 keyValue: "f8afb56c-8a05-49b7-a494-8b14812f8244");
 
             migrationBuilder.AddColumn<int>(
+                name: "NumOfDaysRemovedFromNewDaysOff",
+                table: "Responses",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "NumOfDaysRemovedFromOldDaysOff",
+                table: "Responses",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
                 name: "OldDaysOffNumber",
                 table: "Employees",
                 type: "int",
@@ -36,17 +50,17 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "2fcc7a3b-69ef-4055-992b-d4223f8664b2", "6bd28a78-dbef-4aa8-840f-66f04c6f9fb2", "Admin", "ADMIN" });
+                values: new object[] { "a6b6aaa4-a62d-4d7c-b183-c359946abb3b", "43355af8-d0c1-488e-b031-81ca7bb60fa0", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "DaysOffNumber", "DeleteDate", "Email", "EmailConfirmed", "EmployeeEndDate", "EmployeeStartDate", "FirstName", "IDNumber", "InsertDate", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "OldDaysOffNumber", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PositionID", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "4013e13a-dab2-4ed2-8254-34b486cd79e2", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 6, 23, 13, 58, 16, 59, DateTimeKind.Local).AddTicks(5196), "Root", "999999", new DateTime(2023, 6, 23, 13, 58, 16, 59, DateTimeKind.Local).AddTicks(5259), "Root", false, null, null, "ROOT@ROOT.COM", 0, "AQAAAAIAAYagAAAAEHwpIZptZrGG18bzndcBG/mFDfppJS53+zZmYVxNiERdqYkrK1cs0NmHZry95jpw4g==", null, false, 1, "d9d96939-95e4-4ef9-938e-dbaede3b45b5", false, "root@root.com" });
+                values: new object[] { "ace61721-7b40-4bf1-bead-af8cb24468fe", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 6, 26, 10, 32, 26, 480, DateTimeKind.Local).AddTicks(295), "Root", "999999", new DateTime(2023, 6, 26, 10, 32, 26, 480, DateTimeKind.Local).AddTicks(355), "Root", false, null, null, "ROOT@ROOT.COM", 0, "AQAAAAIAAYagAAAAEBUQqIFA0KloOQJ9y50KFIP/3yfFT9b8up35nZk609TvPP7b4bu7GoJjM492sWVG2A==", null, false, 1, "42bbdbc0-69f5-48f9-a2c7-8a2732fadc95", false, "root@root.com" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "2fcc7a3b-69ef-4055-992b-d4223f8664b2", "4013e13a-dab2-4ed2-8254-34b486cd79e2" });
+                values: new object[] { "a6b6aaa4-a62d-4d7c-b183-c359946abb3b", "ace61721-7b40-4bf1-bead-af8cb24468fe" });
         }
 
         /// <inheritdoc />
@@ -55,17 +69,25 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "2fcc7a3b-69ef-4055-992b-d4223f8664b2", "4013e13a-dab2-4ed2-8254-34b486cd79e2" });
+                keyValues: new object[] { "a6b6aaa4-a62d-4d7c-b183-c359946abb3b", "ace61721-7b40-4bf1-bead-af8cb24468fe" });
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "2fcc7a3b-69ef-4055-992b-d4223f8664b2");
+                keyValue: "a6b6aaa4-a62d-4d7c-b183-c359946abb3b");
 
             migrationBuilder.DeleteData(
                 table: "Employees",
                 keyColumn: "Id",
-                keyValue: "4013e13a-dab2-4ed2-8254-34b486cd79e2");
+                keyValue: "ace61721-7b40-4bf1-bead-af8cb24468fe");
+
+            migrationBuilder.DropColumn(
+                name: "NumOfDaysRemovedFromNewDaysOff",
+                table: "Responses");
+
+            migrationBuilder.DropColumn(
+                name: "NumOfDaysRemovedFromOldDaysOff",
+                table: "Responses");
 
             migrationBuilder.DropColumn(
                 name: "OldDaysOffNumber",

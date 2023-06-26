@@ -12,7 +12,7 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230623115816_V13")]
+    [Migration("20230626083226_V13")]
     partial class V13
     {
         /// <inheritdoc />
@@ -54,8 +54,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2fcc7a3b-69ef-4055-992b-d4223f8664b2",
-                            ConcurrencyStamp = "6bd28a78-dbef-4aa8-840f-66f04c6f9fb2",
+                            Id = "a6b6aaa4-a62d-4d7c-b183-c359946abb3b",
+                            ConcurrencyStamp = "43355af8-d0c1-488e-b031-81ca7bb60fa0",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -150,8 +150,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "4013e13a-dab2-4ed2-8254-34b486cd79e2",
-                            RoleId = "2fcc7a3b-69ef-4055-992b-d4223f8664b2"
+                            UserId = "ace61721-7b40-4bf1-bead-af8cb24468fe",
+                            RoleId = "a6b6aaa4-a62d-4d7c-b183-c359946abb3b"
                         });
                 });
 
@@ -321,24 +321,24 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "4013e13a-dab2-4ed2-8254-34b486cd79e2",
+                            Id = "ace61721-7b40-4bf1-bead-af8cb24468fe",
                             AccessFailedCount = 0,
                             Address = "Root",
                             DaysOffNumber = 22,
                             Email = "root@root.com",
                             EmailConfirmed = true,
-                            EmployeeStartDate = new DateTime(2023, 6, 23, 13, 58, 16, 59, DateTimeKind.Local).AddTicks(5196),
+                            EmployeeStartDate = new DateTime(2023, 6, 26, 10, 32, 26, 480, DateTimeKind.Local).AddTicks(295),
                             FirstName = "Root",
                             IDNumber = "999999",
-                            InsertDate = new DateTime(2023, 6, 23, 13, 58, 16, 59, DateTimeKind.Local).AddTicks(5259),
+                            InsertDate = new DateTime(2023, 6, 26, 10, 32, 26, 480, DateTimeKind.Local).AddTicks(355),
                             LastName = "Root",
                             LockoutEnabled = false,
                             NormalizedUserName = "ROOT@ROOT.COM",
                             OldDaysOffNumber = 0,
-                            PasswordHash = "AQAAAAIAAYagAAAAEHwpIZptZrGG18bzndcBG/mFDfppJS53+zZmYVxNiERdqYkrK1cs0NmHZry95jpw4g==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBUQqIFA0KloOQJ9y50KFIP/3yfFT9b8up35nZk609TvPP7b4bu7GoJjM492sWVG2A==",
                             PhoneNumberConfirmed = false,
                             PositionID = 1,
-                            SecurityStamp = "d9d96939-95e4-4ef9-938e-dbaede3b45b5",
+                            SecurityStamp = "42bbdbc0-69f5-48f9-a2c7-8a2732fadc95",
                             TwoFactorEnabled = false,
                             UserName = "root@root.com"
                         });
@@ -487,6 +487,12 @@ namespace VacaYAY.Data.Migrations
 
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
+
+                    b.Property<int>("NumOfDaysRemovedFromNewDaysOff")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumOfDaysRemovedFromOldDaysOff")
+                        .HasColumnType("int");
 
                     b.Property<int>("RequestID")
                         .HasColumnType("int");

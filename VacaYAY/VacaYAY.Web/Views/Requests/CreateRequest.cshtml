@@ -10,7 +10,12 @@
     <h2>Vacation request</h2>
     <h4>Create new vacation request</h4>
     <hr />
-    <p>You have <strong> @(ViewBag.DaysOffNumber)</strong> free days left.</p>
+    <p>
+        You have <strong> @(ViewBag.DaysOffNumber + ViewBag.OldDaysOffNumber)</strong> free days left. 
+        <br />
+        <strong> @(ViewBag.DaysOffNumber)</strong> new days off and
+        <strong> @(ViewBag.OldDaysOffNumber)</strong> old days off.
+    </p>
     <form asp-action="CreateRequest">
         @Html.ValidationSummary(true, null, new { @class = "text-danger" })
         <div class="form-floating mb-3">
@@ -19,12 +24,12 @@
             <span asp-validation-for="LeaveTypeID" class="text-danger"></span>
         </div>
         <div class="form-floating mb-3">
-            <input asp-for="StartDate" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" aria-required="true" placeholder="Start Date" />
+            <input asp-for="StartDate" type="date"  class="form-control" aria-required="true" placeholder="Start Date" />
             <label asp-for="StartDate"></label>
             <span asp-validation-for="StartDate" class="text-danger"></span>
         </div>
         <div class="form-floating mb-3">
-            <input asp-for="EndDate" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" aria-required="true" placeholder="End Date" />
+            <input asp-for="EndDate" type="date"  class="form-control" aria-required="true" placeholder="End Date" />
             <label asp-for="EndDate"></label>
             <span asp-validation-for="EndDate" class="text-danger"></span>
         </div>

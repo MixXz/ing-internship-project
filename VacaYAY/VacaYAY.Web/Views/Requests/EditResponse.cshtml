@@ -7,7 +7,7 @@
     Request req = ViewBag.Request;
 }
 
-<div class="container-sm w-50">
+<div class="container-sm w-25">
     <h2>Edit response</h2>
     <h4>Edit response for vacation request</h4>
     <hr />
@@ -31,7 +31,7 @@
             nameof(LeaveType.Caption), Model.LeaveType.ID),
             new { @class = "form-control" })
             @Html.ValidationMessageFor(x => x.LeaveType)
-            <label for="Model.LeaveType.ID" class="col-sm-2 control-label"> Leave Type </label>
+            <label for="Model.LeaveType.ID" class="control-label"> Leave Type </label>
         </div>
         <div>
             @Html.RadioButtonFor(m => m.IsApproved, true) Approve

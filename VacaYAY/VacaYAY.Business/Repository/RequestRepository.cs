@@ -123,12 +123,53 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                         .ToListAsync();
     }
 
+    public (int removeFromOldDays, int removeFromNewDays) GetDaysOffDistribution(int empOldDays, int empNewDays, Request request)
+    {
+        int requestedDays = request.NumOfDaysRequested;
+        int removeFromOldDays = 0;
+        int removeFromNewDays = 0;
+
+        var jan1st = new DateTime(request.StartDate.Year, 1, 1);
+        var june30th = new DateTime(request.StartDate.Year, 6, 30);
+
+        var isInOldDaysSpan = request.StartDate >= jan1st && request.EndDate <= june30th;
+
+        if (isInOldDaysSpan && requestedDays <= empOldDays)
+        {
+            removeFromOldDays = requestedDays;
+            return (removeFromOldDays, removeFromNewDays);
+        }
+
+        if (request.StartDate > june30th)
+        {
+            removeFromNewDays = requestedDays;
+            return (removeFromOldDays, removeFromNewDays);
+        }
+
+        if (request.StartDate >= jan1st && request.StartDate <= june30th)
+        {
+            var daysInOldDaysSpan = (june30th - request.StartDate).Days + 1;
+            removeFromOldDays = Math.Min(empOldDays, daysInOldDaysSpan);
+            removeFromNewDays = requestedDays - removeFromOldDays;
+            return (removeFromOldDays, removeFromNewDays);
+        }
+
+        return (removeFromOldDays, removeFromNewDays);
+    }
+
     public async Task<List<CustomValidationResult>> ValidateOnCreate(RequestCreate reqData, Employee user)
     {
         var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id);
-        var availableDays = user.DaysOffNumber - totalNumberOfDaysRequested;
+        var availableDays = user.OldDaysOffNumber + user.DaysOffNumber - totalNumberOfDaysRequested;
 
-        var errors = ValidateDates(reqData.StartDate, reqData.EndDate, reqData.NumOfDaysRequested, availableDays, totalNumberOfDaysRequested);
+        var errors = ValidateDates(
+            reqData.StartDate,
+            reqData.EndDate,
+            user.OldDaysOffNumber,
+            user.DaysOffNumber,
+            availableDays,
+            reqData.NumOfDaysRequested,
+            totalNumberOfDaysRequested);
 
         if (CheckForOverlappingRequest(reqData.StartDate, reqData.EndDate, user.Id))
         {
@@ -145,9 +186,16 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
     public async Task<List<CustomValidationResult>> ValidateOnEdit(RequestEdit reqData, Employee user)
     {
         var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id, reqData.ID);
-        var availableDays = user.DaysOffNumber + reqData.NumOfDaysRequested - totalNumberOfDaysRequested;
+        var availableDays = user.OldDaysOffNumber + user.DaysOffNumber + reqData.NumOfDaysRequested - totalNumberOfDaysRequested;
 
-        var errors = ValidateDates(reqData.StartDate, reqData.EndDate, reqData.NumOfDaysRequested, availableDays, totalNumberOfDaysRequested);
+        var errors = ValidateDates(
+            reqData.StartDate,
+            reqData.EndDate,
+            user.OldDaysOffNumber,
+            user.DaysOffNumber,
+            availableDays,
+            reqData.NumOfDaysRequested,
+            totalNumberOfDaysRequested);
 
         if (CheckForOverlappingRequest(reqData.StartDate, reqData.EndDate, user.Id, reqData.ID))
         {
@@ -181,7 +229,14 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
         return result;
     }
 
-    private List<CustomValidationResult> ValidateDates(DateTime start, DateTime end, int requestedDays, int availableDays, int totalRequestedDays)
+    private List<CustomValidationResult> ValidateDates(
+        DateTime start,
+        DateTime end,
+        int oldDays,
+        int newDays,
+        int availableDays,
+        int requestedDays,
+        int totalRequestedDays)
     {
         List<CustomValidationResult> errors = new();
 
@@ -206,6 +261,8 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                 Property = string.Empty,
                 Text = "The selected number of days exceeds the available number of free days."
             });
+
+            return errors;
         }
 
         if (start <= DateTime.Now)
@@ -224,6 +281,20 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                 Property = nameof(Request.EndDate),
                 Text = "The end date cannot be earlier than the start date."
             });
+        }
+
+        var june30th = new DateTime(end.Year, 6, 30);
+
+        if (start >= june30th)
+        {
+            if (newDays < requestedDays)
+            {
+                errors.Add(new()
+                {
+                    Property = string.Empty,
+                    Text = "The selected number of days exceeds the available number of free days, your old days off expire after June 30th."
+                });
+            }
         }
 
         return errors;

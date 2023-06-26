@@ -12,5 +12,6 @@ public interface IRequestRepository : IRepositoryBase<Request>
     Task<IEnumerable<Request>> GetRequestsWhereAuthorIsntNotified();
     Task<List<CustomValidationResult>> ValidateOnCreate(RequestCreate reqData, Employee user);
     Task<List<CustomValidationResult>> ValidateOnEdit(RequestEdit reqData, Employee user);
+    (int removeFromOldDays, int removeFromNewDays) GetDaysOffDistribution(int empOldDays, int empNewDays, Request request);
 }
 

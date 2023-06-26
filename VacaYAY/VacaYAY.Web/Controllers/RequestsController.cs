@@ -47,6 +47,7 @@ public class RequestsController : Controller
         }
 
         ViewBag.DaysOffNumber = user.DaysOffNumber;
+        ViewBag.OldDaysOffNumber = user.OldDaysOffNumber;
 
         return View(await _unitOfWork.Request.GetByUser(user.Id));
     }
@@ -83,6 +84,7 @@ public class RequestsController : Controller
 
         ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
         ViewBag.DaysOffNumber = user.DaysOffNumber;
+        ViewBag.OldDaysOffNumber = user.OldDaysOffNumber;
 
         return View();
     }
@@ -101,6 +103,7 @@ public class RequestsController : Controller
         }
 
         ViewBag.DaysOffNumber = author.DaysOffNumber;
+        ViewBag.OldDaysOffNumber = author.OldDaysOffNumber;
 
         var leaveType = leaveTypes.FirstOrDefault(l => l.ID == requestData.LeaveTypeID);
         if (leaveType is null)
@@ -210,7 +213,17 @@ public class RequestsController : Controller
         var seeker = request.CreatedBy;
         if (response.IsApproved)
         {
-            seeker.DaysOffNumber -= request.NumOfDaysRequested;
+            var distrib = _unitOfWork.Request.GetDaysOffDistribution(
+                seeker.OldDaysOffNumber,
+                seeker.DaysOffNumber,
+                request);
+
+            seeker.OldDaysOffNumber -= distrib.removeFromOldDays;
+            seeker.DaysOffNumber -= distrib.removeFromNewDays;
+
+            response.NumOfDaysRemovedFromNewDaysOff = distrib.removeFromNewDays;
+            response.NumOfDaysRemovedFromOldDaysOff = distrib.removeFromOldDays;
+
             _unitOfWork.Employee.Update(seeker);
         }
 
@@ -399,13 +412,23 @@ public class RequestsController : Controller
             if (oldStatus is RequestStatus.Rejected
                 && newStatus is RequestStatus.Approved)
             {
-                seeker.DaysOffNumber -= request.NumOfDaysRequested;
+                var distrib = _unitOfWork.Request.GetDaysOffDistribution(
+                    seeker.OldDaysOffNumber,
+                    seeker.DaysOffNumber,
+                    request);
+
+                seeker.OldDaysOffNumber -= distrib.removeFromOldDays;
+                seeker.DaysOffNumber -= distrib.removeFromNewDays;
+
+                response.NumOfDaysRemovedFromNewDaysOff = distrib.removeFromNewDays;
+                response.NumOfDaysRemovedFromOldDaysOff = distrib.removeFromOldDays;
             }
 
             if (oldStatus is RequestStatus.Approved
                 && newStatus is RequestStatus.Rejected)
             {
-                seeker.DaysOffNumber += request.NumOfDaysRequested;
+                seeker.DaysOffNumber += response.NumOfDaysRemovedFromNewDaysOff;
+                seeker.OldDaysOffNumber += response.NumOfDaysRemovedFromOldDaysOff;
             }
 
             _unitOfWork.Employee.Update(seeker);
