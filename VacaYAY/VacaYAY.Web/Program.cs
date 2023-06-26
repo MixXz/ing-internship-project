@@ -30,13 +30,10 @@ builder.Services.AddSendGrid(options =>
 builder.Services.AddQuartz(q =>
 {
     q.UseMicrosoftDependencyInjectionJobFactory();
-    var jobKey = new JobKey("NotifyJob");
-    q.AddJob<NotifyJob>(opts => opts.WithIdentity(new JobKey("NotifyJob")));
 
-    q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithIdentity("NotifyJob-trigger")
-        .WithCronSchedule("0 0 */1 * * ?"));
+    q.AddJobAndTrigger<NotifyOfRequestStatusJob>(builder.Configuration);
+    q.AddJobAndTrigger<NotifyOfRemainingDaysOffJob>(builder.Configuration);
+    q.AddJobAndTrigger<RemoveOldDaysOffJob>(builder.Configuration);
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

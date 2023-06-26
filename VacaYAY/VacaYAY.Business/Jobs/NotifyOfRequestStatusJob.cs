@@ -6,12 +6,12 @@ using VacaYAY.Data.Helpers;
 
 namespace VacaYAY.Business.Jobs;
 
-public class NotifyJob : IJob
+public class NotifyOfRequestStatusJob : IJob
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotifierSerivice _notifierService;
 
-    public NotifyJob(
+    public NotifyOfRequestStatusJob(
         IUnitOfWork unitOfWork,
         INotifierSerivice notifierSerivice)
     {
