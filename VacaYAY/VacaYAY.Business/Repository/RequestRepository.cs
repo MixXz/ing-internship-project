@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
@@ -188,11 +189,20 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
         var totalNumberOfDaysRequested = await GetNumOfRequestedDays(user.Id, reqData.ID);
         var availableDays = user.OldDaysOffNumber + user.DaysOffNumber + reqData.NumOfDaysRequested - totalNumberOfDaysRequested;
 
+        var oldDays = user.OldDaysOffNumber;
+        var newDays = user.DaysOffNumber;
+
+        if (reqData.Response is not null)
+        {
+            oldDays += reqData.Response.NumOfDaysRemovedFromOldDaysOff;
+            newDays += reqData.Response.NumOfDaysRemovedFromNewDaysOff;
+        }
+
         var errors = ValidateDates(
             reqData.StartDate,
             reqData.EndDate,
-            user.OldDaysOffNumber,
-            user.DaysOffNumber,
+            oldDays,
+            newDays,
             availableDays,
             reqData.NumOfDaysRequested,
             totalNumberOfDaysRequested);

@@ -33,6 +33,8 @@ public class RequestEdit
     [MaxLength(256)]
     public string? Comment { get; set; }
 
+    public Response? Response { get; set; }
+
     [Required]
     public LeaveType LeaveType { get; set; } = new();
 }

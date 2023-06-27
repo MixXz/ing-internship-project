@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using VacaYAY.Data.Enums;
+using VacaYAY.Data.Entities;
 
 namespace VacaYAY.Data.DataTransferObjects;
 
@@ -32,4 +33,18 @@ public class RequestCreate
 
     [Required]
     public int LeaveTypeID { get; set; }
+
+    public IEnumerable<LeaveType> LeaveTypes { get; set; } = Enumerable.Empty<LeaveType>();
+
+    public int OldDaysOff { get; set; }
+
+    public int NewDaysOff { get; set; }
+
+    public int AllDaysOff
+    {
+        get
+        {
+            return OldDaysOff + NewDaysOff;
+        }
+    }
 }
