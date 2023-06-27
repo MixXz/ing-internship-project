@@ -226,9 +226,18 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
     public void RemoveOldDaysOff()
     {
         _context.Employees
-               .Where(e => e.DaysOffNumber > 0)
-               .ExecuteUpdate(p => p.SetProperty(
-                   e => e.DaysOffNumber, 0));
+                .Where(e => e.DaysOffNumber > 0)
+                .ExecuteUpdate(setters => setters
+                    .SetProperty(p => p.OldDaysOffNumber, 0));
+    }
+
+    public void AddNewDaysOff(int numOfDays)
+    {
+        _context.Employees
+                .Where(e => e.DaysOffNumber > 0)
+                .ExecuteUpdate(setters => setters
+                    .SetProperty(p => p.OldDaysOffNumber, p => p.DaysOffNumber)
+                    .SetProperty(p => p.DaysOffNumber, numOfDays));
     }
 
     private List<CustomValidationResult> Validate(

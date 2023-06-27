@@ -47,6 +47,7 @@ public class RequestsController : Controller
         }
 
         ViewBag.DaysOffNumber = user.DaysOffNumber;
+        ViewBag.OldDaysOffNumber = user.OldDaysOffNumber;
 
         return View(await _unitOfWork.Request.GetByUser(user.Id));
     }
@@ -81,28 +82,33 @@ public class RequestsController : Controller
             return Unauthorized();
         }
 
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-        ViewBag.DaysOffNumber = user.DaysOffNumber;
+        RequestCreate model = new()
+        {
+            LeaveTypes = await _unitOfWork.LeaveType.GetAll(),
+            NewDaysOff = user.DaysOffNumber,
+            OldDaysOff = user.OldDaysOffNumber,
+            StartDate = DateTime.Now.AddDays(1),
+            EndDate = DateTime.Now.AddDays(2)
+        };
 
-        return View();
+        return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateRequest(RequestCreate requestData)
     {
-        var leaveTypes = await _unitOfWork.LeaveType.GetAll();
-        ViewBag.LeaveTypes = leaveTypes;
-
         var author = await _unitOfWork.Employee.GetCurrent(User);
         if (author is null)
         {
             return Unauthorized();
         }
 
-        ViewBag.DaysOffNumber = author.DaysOffNumber;
+        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        requestData.NewDaysOff = author.DaysOffNumber;
+        requestData.OldDaysOff = author.OldDaysOffNumber;
 
-        var leaveType = leaveTypes.FirstOrDefault(l => l.ID == requestData.LeaveTypeID);
+        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.LeaveTypeID);
         if (leaveType is null)
         {
             return View(requestData);
@@ -210,7 +216,17 @@ public class RequestsController : Controller
         var seeker = request.CreatedBy;
         if (response.IsApproved)
         {
-            seeker.DaysOffNumber -= request.NumOfDaysRequested;
+            var distrib = _unitOfWork.Request.GetDaysOffDistribution(
+                seeker.OldDaysOffNumber,
+                seeker.DaysOffNumber,
+                request);
+
+            seeker.OldDaysOffNumber -= distrib.removeFromOldDays;
+            seeker.DaysOffNumber -= distrib.removeFromNewDays;
+
+            response.NumOfDaysRemovedFromNewDaysOff = distrib.removeFromNewDays;
+            response.NumOfDaysRemovedFromOldDaysOff = distrib.removeFromOldDays;
+
             _unitOfWork.Employee.Update(seeker);
         }
 
@@ -273,6 +289,7 @@ public class RequestsController : Controller
             return NotFound();
         }
 
+        requestData.Response = requestEntity.Response;
         var errors = await _unitOfWork.Request.ValidateOnEdit(requestData, requestEntity.CreatedBy);
         foreach (var error in errors)
         {
@@ -296,7 +313,8 @@ public class RequestsController : Controller
         {
             if (requestEntity.Status is RequestStatus.Approved)
             {
-                seeker.DaysOffNumber += requestEntity.NumOfDaysRequested;
+                seeker.DaysOffNumber += response.NumOfDaysRemovedFromNewDaysOff;
+                seeker.OldDaysOffNumber += response.NumOfDaysRemovedFromOldDaysOff;
             }
 
             _unitOfWork.Response.Delete(response);
@@ -399,13 +417,23 @@ public class RequestsController : Controller
             if (oldStatus is RequestStatus.Rejected
                 && newStatus is RequestStatus.Approved)
             {
-                seeker.DaysOffNumber -= request.NumOfDaysRequested;
+                var distrib = _unitOfWork.Request.GetDaysOffDistribution(
+                    seeker.OldDaysOffNumber,
+                    seeker.DaysOffNumber,
+                    request);
+
+                seeker.OldDaysOffNumber -= distrib.removeFromOldDays;
+                seeker.DaysOffNumber -= distrib.removeFromNewDays;
+
+                response.NumOfDaysRemovedFromNewDaysOff = distrib.removeFromNewDays;
+                response.NumOfDaysRemovedFromOldDaysOff = distrib.removeFromOldDays;
             }
 
             if (oldStatus is RequestStatus.Approved
                 && newStatus is RequestStatus.Rejected)
             {
-                seeker.DaysOffNumber += request.NumOfDaysRequested;
+                seeker.DaysOffNumber += response.NumOfDaysRemovedFromNewDaysOff;
+                seeker.OldDaysOffNumber += response.NumOfDaysRemovedFromOldDaysOff;
             }
 
             _unitOfWork.Employee.Update(seeker);

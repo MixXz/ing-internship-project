@@ -10,7 +10,8 @@
     <h2>My vacation requests</h2>
     <hr />
     <div class="col">
-        <p>You have <strong> @(ViewBag.DaysOffNumber)</strong> free days left.</p>
+        <p class="mb-0">New days off: <strong> @(ViewBag.DaysOffNumber)</strong></p>
+        <p>Old days off: <strong> @(ViewBag.OldDaysOffNumber)</strong></p>
         <a asp-action="CreateRequest" class="btn btn-success btn-block w-100">Create new request</a>
     </div>
     <div class="col-10">

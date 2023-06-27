@@ -21,6 +21,12 @@ public class Response
     public Request Request { get; set; } = new();
 
     [Required]
+    public int NumOfDaysRemovedFromNewDaysOff { get; set; }
+
+    [Required]
+    public int NumOfDaysRemovedFromOldDaysOff { get; set; }
+
+    [Required]
     [DisplayName("Reviewed by")]
     public Employee ReviewedBy { get; set; } = new();
 }

@@ -42,6 +42,12 @@
             @Html.DisplayFor(model => model.DaysOffNumber)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.OldDaysOffNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OldDaysOffNumber)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.EmployeeStartDate)
         </dt>
         <dd>
@@ -51,7 +57,7 @@
             @Html.DisplayNameFor(model => model.EmployeeEndDate)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.EmployeeEndDate)
+            @(Model.EmployeeEndDate is null ? "Not set." : @Html.DisplayFor(model => model.EmployeeEndDate))
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.InsertDate)
