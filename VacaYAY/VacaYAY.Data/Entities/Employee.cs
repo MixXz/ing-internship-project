@@ -49,17 +49,21 @@ public class Employee : IdentityUser
     [Required]
     [DisplayName("Start date")]
     [DataType(DataType.Date)]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime EmployeeStartDate { get; set; }
 
     [DisplayName("End date")]
     [DataType(DataType.Date)]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime? EmployeeEndDate { get; set; }
 
     [Required]
     [DisplayName("Insert date")]
     [DataType(DataType.Date)]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime InsertDate { get; set; }
 
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime? DeleteDate { get; set; }
 
     [Required]

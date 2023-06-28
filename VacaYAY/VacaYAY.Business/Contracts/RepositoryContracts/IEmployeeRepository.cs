@@ -9,6 +9,7 @@ namespace VacaYAY.Business.Contracts.RepositoryContracts;
 public interface IEmployeeRepository : IRepositoryBase<Employee>
 {
     Task<Employee?> GetById(string id);
+    Task<Employee?> GetDetailedById(string id);
     Task<IEnumerable<Employee>> GetByFilters(EmployeeView filters);
     Task<Employee?> GetCurrent(ClaimsPrincipal userClaims);
     Task<IEnumerable<Employee>> GetAdmins();
@@ -17,7 +18,7 @@ public interface IEmployeeRepository : IRepositoryBase<Employee>
     Task<ServiceResult<Employee>> Update(string id, EmployeeEdit employeeData);
     void RemoveOldDaysOff();
     void AddNewDaysOff(int numOfDays);
-    Task<IdentityResult> Delete(string id);
+    Task<ServiceResult<Employee>> Delete(string id);
     Task<bool> IsAdmin(Employee employee);
     bool IsAdmin(ClaimsPrincipal userClaims);
     Task<bool> isAuthorized(ClaimsPrincipal userClaims);

@@ -26,7 +26,7 @@
             Date range
         </dt>
         <dd>
-            @Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")
+            @Html.DisplayFor(model => model.StartDate) - @Html.DisplayFor(model => model.EndDate)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Status)

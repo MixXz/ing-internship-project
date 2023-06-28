@@ -12,6 +12,11 @@
     <h2>Manage vacation requests</h2>
     <hr />
     <div class="col">
+        <h5>Configuration</h5>
+        <hr />
+        <a class="btn btn-sm btn-outline-primary mb-3 w-100" asp-controller="LeaveTypes" asp-action="Index"><i class="bi bi-gear"></i> Manage leave types</a>
+        <h5 class="mt-2">Filter</h5>
+        <hr />
         <form asp-controller="Requests" asp-action="AdminPanel" method="get">
             <div class="d-flex flex-column">
                 <input type="text" asp-for="SearchInput" class="form-control" placeholder="Search..." />
@@ -39,8 +44,8 @@
         </form>
     </div>
     <div class="col-10">
-        <table class="table table-bordered text-center">
-            <thead>
+        <table class="table table-striped">
+            <thead class="table-primary">
                 <tr>
                     <th>
                         @Html.DisplayNameFor(model => model.Requests.First().CreatedBy)
@@ -57,7 +62,7 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Status)
                     </th>
-                    <th></th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,9 +87,9 @@
                         <td class="text-end" style="white-space:nowrap; width:10%;">
                             @if (item.Response is null)
                             {
-                                <a asp-action="CreateResponse" asp-route-id="@item.ID" class="btn btn-primary">Respond</a>
+                                <a asp-action="CreateResponse" asp-route-id="@item.ID" class="btn btn-sm btn-primary">Respond</a>
                             }
-                            <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">Details</a>
+                            <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info">Details</a>
                         </td>
                     </tr>
                 }

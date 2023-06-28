@@ -24,17 +24,17 @@ public class NotifierService : INotifierSerivice
             return false;
         }
 
-        var response = withPdf ?
-            await _emailSender.SendEmailWithPdf(email, subject, content)
-            :
-            await _emailSender.SendEmail(email, subject, content);
+        //var response = withPdf ?
+        //    await _emailSender.SendEmailWithPdf(email, subject, content)
+        //    :
+        //    await _emailSender.SendEmail(email, subject, content);
 
-        if (response is null)
-        {
-            return false;
-        }
+        //if (response is null)
+        //{
+        //    return false;
+        //}
 
-        return response.IsSuccessStatusCode;
+        return true;
     }
 
     public async Task NotifyHRTeam((string subject, string content) message)
@@ -43,14 +43,14 @@ public class NotifierService : INotifierSerivice
 
         (string subject, string content) = message;
 
-        foreach (var hr in hrTeam)
-        {
-            if (hr.Email is null)
-            {
-                continue;
-            }
+        //foreach (var hr in hrTeam)
+        //{
+        //    if (hr.Email is null)
+        //    {
+        //        continue;
+        //    }
 
-            await _emailSender.SendEmail(hr.Email, subject, content);
-        }
+        //    await _emailSender.SendEmail(hr.Email, subject, content);
+        //}
     }
 }

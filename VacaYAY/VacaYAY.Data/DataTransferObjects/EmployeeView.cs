@@ -15,7 +15,9 @@ public class EmployeeView
     [DisplayName("End date")]
     public DateTime? EndDateFilter { get; set; }
 
-    public List<int> Positions { get; set; } = new();
+    public List<int> SelectedPositionIds { get; set; } = new();
 
     public IEnumerable<Employee> Employees { get; set; } = Enumerable.Empty<Employee>();
+
+    public IEnumerable<Position> Positions { get; set; } = Enumerable.Empty<Position>();
 }

@@ -11,11 +11,11 @@
     <span>Employee: <strong>@employee.Name </strong></span>
     <hr />
     <div class="col">
-        <a asp-action="Create" asp-route-id="@employee.Id" class="btn btn-success btn-block w-100">Add new contract</a>
+        <a asp-action="Create" asp-route-id="@employee.Id" class="btn btn-success btn-block w-100"><i class="bi bi-plus-circle"></i> Add new</a>
     </div>
     <div class="col-10">
-        <table class="table table-bordered text-center">
-            <thead>
+        <table class="table table-striped">
+            <thead class="table-primary">
                 <tr>
                     <th>
                         @Html.DisplayNameFor(model => model.ContractNumber)
@@ -26,9 +26,7 @@
                     <th>
                         @Html.DisplayNameFor(model => model.EndDate)
                     </th>
-                    <th>
-                        Actions
-                    </th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,12 +40,12 @@
                             @Html.DisplayFor(modelItem => item.StartDate)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.EndDate)
+                            @(item.EndDate is null ? "Not set" : @Html.DisplayFor(modelItem => item.EndDate))
                         </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">Edit</a>
-                            <a asp-action="PreviewDocument" asp-route-id="@item.ID" class="btn btn-outline-primary" style="margin-right:10px">View</a>
-                            <a asp-action="DownloadDocument" asp-route-id="@item.ID" class="btn btn-outline-success" style="margin-right:10px">Download</a>
+                        <td class="text-center" style="width: 1%; white-space: nowrap;">
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-fill"></i> Edit</a>
+                            <a asp-action="PreviewDocument" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View</a>
+                            <a asp-action="DownloadDocument" asp-route-id="@item.ID" class="btn btn-sm btn-success"><i class="bi bi-download"></i> Download</a>
                         </td>
                     </tr>
                 }

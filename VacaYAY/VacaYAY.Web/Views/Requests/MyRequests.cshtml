@@ -1,6 +1,6 @@
-﻿@using VacaYAY.Data.Enums;
-@model IEnumerable<VacaYAY.Data.Entities.Request>
-
+﻿@using VacaYAY.Data.Entities;
+@using VacaYAY.Data.Enums;
+@model IEnumerable<Request>
 @{
     ViewData["Title"] = "My vacation requests";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -10,13 +10,11 @@
     <h2>My vacation requests</h2>
     <hr />
     <div class="col">
-        <p class="mb-0">New days off: <strong> @(ViewBag.DaysOffNumber)</strong></p>
-        <p>Old days off: <strong> @(ViewBag.OldDaysOffNumber)</strong></p>
-        <a asp-action="CreateRequest" class="btn btn-success btn-block w-100">Create new request</a>
+        <a asp-action="CreateRequest" class="btn btn-success btn-block w-100"><i class="bi bi-plus-circle"></i> Create new</a>
     </div>
     <div class="col-10">
-        <table class="table table-bordered text-center align-middle">
-            <thead>
+        <table class="table table-striped">
+            <thead class="table-primary">
                 <tr>
                     <th>
                         @Html.DisplayNameFor(model => model.LeaveType)
@@ -30,7 +28,7 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Status)
                     </th>
-                    <th></th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,8 +47,8 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Status)
                         </td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-outline-secondary">View more</a>
+                        <td class="text-end" style="white-space:nowrap; width:1%;">
+                            <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info">View more</a>
                         </td>
                     </tr>
                 }

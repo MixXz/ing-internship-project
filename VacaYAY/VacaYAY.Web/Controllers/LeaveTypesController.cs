@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
 using VacaYAY.Data.Entities;
@@ -10,10 +11,14 @@ namespace VacaYAY.Web.Controllers;
 public class LeaveTypesController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotyfService _toaster;
 
-    public LeaveTypesController(IUnitOfWork unitOfWork)
+    public LeaveTypesController(
+        IUnitOfWork unitOfWork,
+        INotyfService toaster)
     {
         _unitOfWork = unitOfWork;
+        _toaster = toaster;
     }
 
     public async Task<IActionResult> Index()
@@ -62,6 +67,8 @@ public class LeaveTypesController : Controller
         _unitOfWork.LeaveType.Insert(leaveType);
         await _unitOfWork.SaveChangesAsync();
 
+        _toaster.Success($"Leave type {leaveType.Caption} successfully created.");
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -105,6 +112,8 @@ public class LeaveTypesController : Controller
         _unitOfWork.LeaveType.Update(leaveType);
         await _unitOfWork.SaveChangesAsync();
 
+        _toaster.Success($"Leave type {leaveType.Caption} successfully edited.");
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -116,6 +125,8 @@ public class LeaveTypesController : Controller
         {
             _unitOfWork.LeaveType.Delete(leaveType);
             await _unitOfWork.SaveChangesAsync();
+
+            _toaster.Success($"Leave type {leaveType.Caption} successfully deleted.");
         }
 
         return RedirectToAction(nameof(Index));

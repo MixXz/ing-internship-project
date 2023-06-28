@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
@@ -16,16 +17,18 @@ public class RequestsController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotifierSerivice _notifierService;
     private readonly IMapper _mapper;
-
+    private readonly INotyfService _toaster;
     public RequestsController(
         IUnitOfWork unitOfWork,
         INotifierSerivice notifierService,
-        IMapper mapper
+        IMapper mapper,
+        INotyfService toaster
         )
     {
         _unitOfWork = unitOfWork;
         _notifierService = notifierService;
         _mapper = mapper;
+        _toaster = toaster;
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
@@ -147,6 +150,8 @@ public class RequestsController : Controller
             :
             NotificationStatus.NotNotifiedOfCreation;
 
+        _toaster.Success("Vacation request submitted.");
+
         return Redirect(nameof(MyRequests));
     }
 
@@ -246,6 +251,8 @@ public class RequestsController : Controller
 
         await _unitOfWork.SaveChangesAsync();
 
+        _toaster.Success($"Vacation request successfully {request.Status.ToString().ToLower()}.");
+
         return RedirectToAction(nameof(AdminPanel));
     }
 
@@ -337,10 +344,9 @@ public class RequestsController : Controller
         _unitOfWork.Request.Update(requestEntity);
         await _unitOfWork.SaveChangesAsync();
 
-        return _unitOfWork.Employee.IsAdmin(User) ?
-            RedirectToAction(nameof(AdminPanel))
-            :
-            RedirectToAction(nameof(MyRequests));
+        _toaster.Success("Request successfully edited.");
+
+        return RedirectToAction(nameof(Details), requestEntity.ID);
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
@@ -449,29 +455,23 @@ public class RequestsController : Controller
 
         await _unitOfWork.SaveChangesAsync();
 
+        _toaster.Success("Response successfully edited.");
+
         return RedirectToAction(nameof(AdminPanel));
     }
 
     public async Task<IActionResult> Delete(int id)
     {
-        var author = await _unitOfWork.Employee.GetCurrent(User);
-        if (author is null)
+        var user = await _unitOfWork.Employee.GetCurrent(User);
+        if (user is null)
         {
             return Unauthorized();
         }
 
-        var isAdmin = _unitOfWork.Employee.IsAdmin(User);
-
-        var redirect = RedirectToAction(isAdmin ?
-                                        nameof(AdminPanel)
-                                        :
-                                        nameof(MyRequests));
-
         var request = await _unitOfWork.Request.GetById(id);
-
         if (request is null)
         {
-            return redirect;
+            return NotFound();
         }
 
         if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
@@ -482,10 +482,15 @@ public class RequestsController : Controller
         _unitOfWork.Request.Delete(request);
         await _unitOfWork.SaveChangesAsync();
 
-        RequestEmailTemplates templates = new(author, request);
+        _toaster.Success("Request successfully deleted.");
+
+        RequestEmailTemplates templates = new(request.CreatedBy, request);
         await _notifierService.NotifyEmployee(templates.Deleted);
         await _notifierService.NotifyHRTeam(templates.HRDeleted);
 
-        return redirect;
+        return user.Id == request.CreatedBy.Id ?
+            RedirectToAction(nameof(MyRequests))
+            :
+            RedirectToAction(nameof(AdminPanel));
     }
 }

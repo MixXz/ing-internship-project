@@ -37,20 +37,13 @@ $((function () {
         $("#confirmModal").modal('show');
     });
 
-    $("#cancel-action").on('click', () => $("#confirmModal").modal('hide'))
+    $("#confirm-action").on('click', function () {
+        var form = $('<form action="' + url + '" method="post"></form>');
+        $('body').append(form);
+        form.submit();
 
-    $("#confirm-action").on('click', () => {
-        $.get(url)
-            .done(() => {
-                if (redirectUrl) {
-                    window.location.href = redirectUrl;
-                }
-                else {
-                    location.reload();
-                }
-            })
-            .always(() => {
-                $("#confirmModal").modal('hide');
-            });
+        $("#confirmModal").modal('hide');
     });
+
+    $("#cancel-action").on('click', () => $("#confirmModal").modal('hide'))
 }()));

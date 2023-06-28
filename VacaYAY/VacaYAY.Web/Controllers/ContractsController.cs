@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using Azure.Storage.Blobs.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
@@ -15,15 +15,17 @@ public class ContractsController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IBlobService _blobService;
-
+    private readonly INotyfService _toaster;
     public ContractsController(
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        IBlobService blobService)
+        IBlobService blobService,
+        INotyfService toaster)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _blobService = blobService;
+        _toaster = toaster;
     }
 
     public async Task<IActionResult> Index(string id)
@@ -122,7 +124,9 @@ public class ContractsController : Controller
         _unitOfWork.Employee.Update(employee);
         await _unitOfWork.SaveChangesAsync();
 
-        return RedirectToAction("Index", new { employee.Id });
+        _toaster.Success($"Contract successfully added to employee {employee.Name}.");
+
+        return RedirectToAction(nameof(Index), new { employee.Id });
     }
 
     public async Task<IActionResult> Edit(int? id)
@@ -165,6 +169,8 @@ public class ContractsController : Controller
         }
 
         await _unitOfWork.SaveChangesAsync();
+
+        _toaster.Success($"Contract successfully edited.");
 
         return RedirectToAction(nameof(Index), new { result.Entity.Employee.Id });
     }

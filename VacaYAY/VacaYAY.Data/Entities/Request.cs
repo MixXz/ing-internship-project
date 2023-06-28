@@ -13,11 +13,13 @@ public class Request
     [Required]
     [DisplayName("Start date")]
     [DataType(DataType.Date)]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime StartDate { get; set; }
 
     [Required]
     [DisplayName("End date")]
     [DataType(DataType.Date)]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime EndDate { get; set; }
 
     [NotMapped]
