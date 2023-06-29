@@ -45,10 +45,12 @@ public class EmployeeEdit
     public DateTime? EmployeeEndDate { get; set; }
 
     [Required]
-    public Position Position { get; set; } = new();
+    public Position SelectedPosition { get; set; } = new();
 
     [Required]
     public Contract Contract { get; set; } = new();
 
     public bool MakeAdmin { get; set; } = false;
+
+    public IEnumerable<Position> Positions { get; set; } = Enumerable.Empty<Position>();
 }

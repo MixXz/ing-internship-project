@@ -48,7 +48,9 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
                         .Include(e => e.Position)
                         .Include(e => e.Contracts)
                         .Include(e => e.LeaveRequests)
-                        .ThenInclude(l => l.LeaveType)
+                            .ThenInclude(l => l.LeaveType)
+                        .Include(e => e.LeaveRequests)
+                            .ThenInclude(e => e.Response)
                         .Where(e => e.Id == id)
                         .FirstOrDefaultAsync();
     }
@@ -208,7 +210,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         employeeEntity.DaysOffNumber = employeeData.DaysOffNumber;
         employeeEntity.EmployeeStartDate = employeeData.EmployeeStartDate;
         employeeEntity.EmployeeEndDate = employeeData.EmployeeEndDate;
-        employeeEntity.Position = employeeData.Position;
+        employeeEntity.Position = employeeData.SelectedPosition;
 
         await SetAdminPrivileges(employeeEntity, employeeData.MakeAdmin);
         await _userManager.SetEmailAsync(employeeEntity, employeeData.Email);

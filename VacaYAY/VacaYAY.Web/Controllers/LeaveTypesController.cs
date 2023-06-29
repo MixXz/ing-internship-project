@@ -85,6 +85,7 @@ public class LeaveTypesController : Controller
         {
             return NotFound();
         }
+
         return View(leaveType);
     }
 
@@ -121,13 +122,16 @@ public class LeaveTypesController : Controller
     {
         var leaveType = await _unitOfWork.LeaveType.GetById(id);
 
-        if (leaveType is not null)
+        if (leaveType is null)
         {
-            _unitOfWork.LeaveType.Delete(leaveType);
-            await _unitOfWork.SaveChangesAsync();
-
-            _toaster.Success($"Leave type {leaveType.Caption} successfully deleted.");
+            _toaster.Error("Leave type deletion failed.");
+            return RedirectToAction(nameof(Index));
         }
+
+        _unitOfWork.LeaveType.Delete(leaveType);
+        await _unitOfWork.SaveChangesAsync();
+
+        _toaster.Success($"Leave type {leaveType.Caption} successfully deleted.");
 
         return RedirectToAction(nameof(Index));
     }

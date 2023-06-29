@@ -122,13 +122,16 @@ public class PositionsController : Controller
     {
         var position = await _unitOfWork.Position.GetById(id);
 
-        if (position is not null)
+        if (position is null)
         {
-            _unitOfWork.Position.Delete(position);
-            await _unitOfWork.SaveChangesAsync();
-
-            _toaster.Success($"Position {position.Caption} successfully deleted.");
+            _toaster.Error("Position deletion failed.");
+            return RedirectToAction(nameof(Index));
         }
+
+        _unitOfWork.Position.Delete(position);
+        await _unitOfWork.SaveChangesAsync();
+
+        _toaster.Success($"Position {position.Caption} successfully deleted.");
 
         return RedirectToAction(nameof(Index));
     }

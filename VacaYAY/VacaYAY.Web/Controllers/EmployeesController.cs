@@ -144,8 +144,6 @@ public class EmployeesController : Controller
 
     public async Task<IActionResult> Edit(string? id)
     {
-        ViewBag.Positions = await _unitOfWork.Position.GetAll();
-
         if (id is null)
         {
             return NotFound();
@@ -158,27 +156,28 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        var employeeEdit = _mapper.Map<EmployeeEdit>(employee);
+        var model = _mapper.Map<EmployeeEdit>(employee);
 
-        employeeEdit.MakeAdmin = await _unitOfWork.Employee.IsAdmin(employee);
+        model.MakeAdmin = await _unitOfWork.Employee.IsAdmin(employee);
+        model.Positions = await _unitOfWork.Position.GetAll();
+        model.SelectedPosition = employee.Position;
 
-        return View(employeeEdit);
+        return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(string id, EmployeeEdit employee)
     {
-        ViewBag.Positions = await _unitOfWork.Position.GetAll();
-
-        var position = await _unitOfWork.Position.GetById(employee.Position.ID);
+        var positions = await _unitOfWork.Position.GetAll();
+        var position = await _unitOfWork.Position.GetById(employee.SelectedPosition.ID);
 
         if (position is null)
         {
             return View(employee);
         }
 
-        employee.Position = position;
+        employee.SelectedPosition = position;
         var result = await _unitOfWork.Employee.Update(id, employee);
 
         if (result.Entity is null)
@@ -192,7 +191,7 @@ public class EmployeesController : Controller
 
         _toaster.Success($"Employee {result.Entity.Name} has been successfully edited.");
 
-        return RedirectToAction(nameof(Index), new { employee.Id });
+        return RedirectToAction(nameof(Details), new { employee.Id });
     }
 
     public async Task<IActionResult> Delete(string id)

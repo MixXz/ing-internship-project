@@ -6,11 +6,16 @@ namespace VacaYAY.Data.DataTransferObjects;
 public class ResponseCreate
 {
     [Required]
-    public LeaveType LeaveType { get; set; } = new();
+    public int SelectedLeaveTypeID { get; set; }
 
     [Required]
     public bool IsApproved { get; set; } = false;
 
     [MaxLength(256)]
     public string? Comment { get; set; }
+
+    [Required]
+    public Request Request { get; set; } = new();
+
+    public IEnumerable<LeaveType> LeaveTypes { get; set; } = Enumerable.Empty<LeaveType>();
 }

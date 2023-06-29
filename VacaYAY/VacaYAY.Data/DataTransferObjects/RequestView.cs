@@ -22,5 +22,7 @@ public class RequestView
     [DataType(DataType.Date)]
     public DateTime? EndDateFilter { get; set; }
 
+    public IEnumerable<LeaveType> LeaveTypes { get; set; } = Enumerable.Empty<LeaveType>();
+
     public IEnumerable<Request> Requests { get; set; } = Enumerable.Empty<Request>();
 }

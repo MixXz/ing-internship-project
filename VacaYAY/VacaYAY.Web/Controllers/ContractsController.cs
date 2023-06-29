@@ -31,15 +31,21 @@ public class ContractsController : Controller
     public async Task<IActionResult> Index(string id)
     {
         var employee = await _unitOfWork.Employee.GetById(id);
+
         if (employee is null)
         {
             return NotFound();
         }
 
-        ViewBag.Employee = employee;
-
         var contracts = await _unitOfWork.Contract.GetByEmployeeId(id);
-        return View(contracts);
+
+        ContractView model = new()
+        {
+            Employee = employee,
+            Contracts = contracts
+        };
+
+        return View(model);
     }
 
     public async Task<IActionResult> PreviewDocument(int? id)
@@ -67,6 +73,7 @@ public class ContractsController : Controller
         {
             return NotFound();
         }
+
         var blobUrl = await _unitOfWork.Contract.GetDocumentUrlByContractId((int)id);
 
         if (blobUrl is null)

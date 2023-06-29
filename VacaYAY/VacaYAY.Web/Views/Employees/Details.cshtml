@@ -69,7 +69,8 @@
     <div class="card mt-3">
         <div class="card-body">
             <h5 class="card-title">Employee contracts</h5>
-            <hr />
+            <hr />                
+            <a asp-controller="Contracts" asp-action="Index" asp-route-id="@Model.Id" class="btn btn-sm mb-2 btn-outline-info">View more</a>
             @if (Model.Contracts.Any())
             {
                 <table class="table table-striped">
@@ -79,7 +80,6 @@
                             <th>@Html.DisplayNameFor(model => model.Contracts.First().ContractNumber)</th>
                             <th>@Html.DisplayNameFor(model => model.Contracts.First().StartDate)</th>
                             <th>@Html.DisplayNameFor(model => model.Contracts.First().EndDate)</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,9 +91,6 @@
                                 <td>@Html.DisplayFor(model => contract.StartDate)</td>
                                 <td>
                                     @(contract.EndDate is null ? "Not set" : @Html.DisplayFor(modelItem => contract.EndDate))
-                                </td>
-                                <td style="width: 1%; white-space: nowrap;">
-                                    <a asp-controller="Contracts" asp-action="Index" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-info">Details</a>
                                 </td>
                             </tr>
                         }
