@@ -17,7 +17,7 @@ public class LeaveTypeRepository : RepositoryBase<LeaveType>, ILeaveTypeReposito
     {
         List<CustomValidationResult> errors = new();
 
-        if (char.IsDigit(leaveType.Caption[0]) || !Regex.IsMatch(leaveType.Caption, @"^[a-zA-Z0-9]+$"))
+        if (char.IsDigit(leaveType.Caption[0]) || !Regex.IsMatch(leaveType.Caption, @"^(?! )[A-Za-z0-9 ]+$"))
         {
             errors.Add(new()
             {

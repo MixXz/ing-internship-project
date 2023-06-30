@@ -17,10 +17,12 @@ public class Contract
     [Required]
     [DataType(DataType.Date)]
     [DisplayName("Contract start date")]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime StartDate { get; set; }
 
     [DataType(DataType.Date)]
     [DisplayName("Contract end date")]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd. MM. yyyy.}")]
     public DateTime? EndDate { get; set; }
 
     [Required]

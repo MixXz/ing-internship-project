@@ -3,14 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using System.Threading;
 using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VacaYAY.Business.Repository;
 
@@ -40,6 +38,19 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
     {
         return await _context.Employees
                         .Include(e => e.Position)
+                        .Where(e => e.Id == id)
+                        .FirstOrDefaultAsync();
+    }
+
+    public async Task<Employee?> GetDetailedById(string id)
+    {
+        return await _context.Employees
+                        .Include(e => e.Position)
+                        .Include(e => e.Contracts)
+                        .Include(e => e.LeaveRequests)
+                            .ThenInclude(l => l.LeaveType)
+                        .Include(e => e.LeaveRequests)
+                            .ThenInclude(e => e.Response)
                         .Where(e => e.Id == id)
                         .FirstOrDefaultAsync();
     }
@@ -87,9 +98,9 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
             employees = employees.Where(e => e.EmployeeEndDate <= filters.EndDateFilter);
         }
 
-        if (filters.Positions.Any())
+        if (filters.SelectedPositionIds.Any())
         {
-            employees = employees.Where(e => filters.Positions.Contains(e.Position.ID));
+            employees = employees.Where(e => filters.SelectedPositionIds.Contains(e.Position.ID));
         }
 
         if (query.Any())
@@ -199,7 +210,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         employeeEntity.DaysOffNumber = employeeData.DaysOffNumber;
         employeeEntity.EmployeeStartDate = employeeData.EmployeeStartDate;
         employeeEntity.EmployeeEndDate = employeeData.EmployeeEndDate;
-        employeeEntity.Position = employeeData.Position;
+        employeeEntity.Position = employeeData.SelectedPosition;
 
         await SetAdminPrivileges(employeeEntity, employeeData.MakeAdmin);
         await _userManager.SetEmailAsync(employeeEntity, employeeData.Email);
@@ -278,26 +289,38 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return errors;
     }
 
-    public async Task<IdentityResult> Delete(string id)
+    public async Task<ServiceResult<Employee>> Delete(string id)
     {
+        ServiceResult<Employee> result = new();
+
         var employee = await GetById(id);
 
         if (employee is null)
         {
-            return IdentityResult.Failed();
+            result.Errors.Add(new()
+            {
+                Text = "Employee not found in database!"
+            });
+
+            return result;
         }
 
+        result.Entity = employee;
         employee.DeleteDate = DateTime.Now;
 
-        var result = await _userManager.UpdateAsync(employee);
+        await _userManager.SetLockoutEnabledAsync(employee, true);
+        var lockoutResult = await _userManager.SetLockoutEndDateAsync(employee, DateTime.Today.AddYears(10));
 
-        if (!result.Succeeded)
+        if (!lockoutResult.Succeeded)
         {
-            return IdentityResult.Failed();
+            result.Errors.Add(new()
+            {
+                Text = "Failed to lock employee account."
+            });
         }
 
-        await _userManager.SetLockoutEnabledAsync(employee, true);
-        result = await _userManager.SetLockoutEndDateAsync(employee, DateTime.Today.AddYears(10));
+        _context.Update(employee);
+        await _context.SaveChangesAsync();
 
         return result;
     }

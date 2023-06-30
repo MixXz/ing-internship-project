@@ -6,19 +6,21 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-    <h2>Manage employees</h2>
+<div class="row mt-3">
+    <h3>Manage employees</h3>
     <hr />
     <div class="col">
-        <div class="d-flex flex-column">
-            <a class="btn btn-success" id="register" asp-controller="Employees" asp-action="Register">Register new employee</a>
-            <a class="btn btn-outline-primary mt-3" asp-controller="Employees" asp-action="LoadExistingEmployees">Load existing employees</a>
-        </div>
+        <h5>Configuration</h5>        
+        <hr />        
+        <a class="btn btn-success w-100" id="register" asp-controller="Employees" asp-action="Register"><i class="bi bi-person-plus-fill"></i> Register new employee</a>
+        <a class="btn btn-sm btn-outline-primary mt-3 mb-2 w-100" asp-controller="Employees" asp-action="LoadExistingEmployees"><i class="bi bi-cloud-arrow-down"></i> Load existing employees</a>
+        <a class="btn btn-sm btn-outline-primary mb-3 w-100" asp-controller="Positions" asp-action="Index"><i class="bi bi-gear"></i> Manage employee postions</a>
+        <h5 class="mt-2">Filter</h5>
         <hr />
         <form asp-controller="Employees" asp-action="Index" method="get">
             <div class="d-flex flex-column">
                 <div>
-                    <input type="text" asp-for="SearchInput" class="form-control" placeholder="Pera Perić..." />
+                    <input type="text" asp-for="SearchInput" class="form-control" placeholder="Search..." />
                 </div>
                 <div class="form-floating mb-3 mt-3">
                     <input asp-for="StartDateFilter" type="date" class="form-control" aria-required="true" placeholder="Start Date" />
@@ -29,11 +31,11 @@
                     <label asp-for="EndDateFilter"></label>
                 </div>
                 <div class="mb-3">
-                    <label for="Positions" class="col control-label">Select positions</label>
-                    <select id="Positions" name="Positions" multiple="multiple" class="form-control dropdown-toggle">
-                        @foreach (var position in ViewBag.Positions)
+                    <label for="SelectedPositionIds" class="col control-label">Select positions</label>
+                    <select id="SelectedPositionIds" name="SelectedPositionIds" multiple="multiple" class="form-control dropdown-toggle">
+                        @foreach (var position in Model.Positions)
                         {
-                            @if (Model.Positions.Contains(@position.ID))
+                            @if (Model.SelectedPositionIds.Contains(@position.ID))
                             {
                                 <option value="@position.ID" selected>@position.Caption</option>
                             }
@@ -43,16 +45,16 @@
                             }
                         }
                     </select>
-                    <span asp-validation-for="Positions" class="text-danger"></span>
+                    <span asp-validation-for="SelectedPositionIds" class="text-danger"></span>
                 </div>
-                <input type="submit" value="Search" class="btn btn-primary" />
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Search</button>
             </div>
         </form>
     </div>
     <div class="col-10">
-        <table class="table table-bordered text-center">
+        <table class="table table-striped">
             <thead>
-                <tr>
+                <tr class="table-primary">
                     <th>
                         @Html.DisplayNameFor(model => model.Employees.First().Name)
                     </th>
@@ -68,7 +70,7 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Employees.First().InsertDate)
                     </th>
-                    <th>
+                    <th class="text-center">
                         Actions
                     </th>
                 </tr>
@@ -92,16 +94,16 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.InsertDate)
                         </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary">Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Details</a>
-                            <a class="btn btn-danger open-confirm-modal"
+                        <td class="text-center" style="width: 1%; white-space: nowrap;">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-fill small"></i> Edit</a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
+                            <a class="btn btn-sm btn-danger open-confirm-modal"
                                data-id="@item.Id"
                                data-controller="Employees"
                                data-action="Delete"
                                data-title="Confirm employee deletion"
                                data-body-message="Are you sure you want to delete the employee <strong> @item.Name</strong>?">
-                                Delete
+                                <i class="bi bi-trash small"></i> Delete
                             </a>
                         </td>
                     </tr>
@@ -117,7 +119,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script type="text/javascript">
         $(function () {
-            $('#Positions').select2();
+            $('#SelectedPositionIds').select2();
         });
     </script>
 }

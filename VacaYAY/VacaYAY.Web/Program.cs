@@ -8,6 +8,8 @@ using SendGrid.Extensions.DependencyInjection;
 using Quartz;
 using VacaYAY.Business.Jobs;
 using VacaYAY.Business.Contracts.ServiceContracts;
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +47,13 @@ builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
 builder.Services.AddScoped<INotifierSerivice, NotifierService>();
 builder.Services.AddScoped<IBlobService, BlobService>();
 
+builder.Services.AddNotyf(config =>
+{
+    config.DurationInSeconds = 5;
+    config.IsDismissable = true;
+    config.Position = NotyfPosition.TopRight;
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -63,6 +72,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.UseNotyf();
+
 app.MapRazorPages();
 
 app.Run();

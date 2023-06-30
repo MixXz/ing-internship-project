@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.Contracts;
@@ -16,25 +17,30 @@ public class RequestsController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotifierSerivice _notifierService;
     private readonly IMapper _mapper;
-
+    private readonly INotyfService _toaster;
     public RequestsController(
         IUnitOfWork unitOfWork,
         INotifierSerivice notifierService,
-        IMapper mapper
+        IMapper mapper,
+        INotyfService toaster
         )
     {
         _unitOfWork = unitOfWork;
         _notifierService = notifierService;
         _mapper = mapper;
+        _toaster = toaster;
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> AdminPanel(RequestView filters)
     {
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-        var requests = await _unitOfWork.Request.GetByFilters(filters);
+        RequestView model = new()
+        {
+            LeaveTypes = await _unitOfWork.LeaveType.GetAll(),
+            Requests = await _unitOfWork.Request.GetByFilters(filters),
+        };
 
-        return View(new RequestView { Requests = requests });
+        return View(model);
     }
 
     public async Task<IActionResult> MyRequests()
@@ -45,9 +51,6 @@ public class RequestsController : Controller
         {
             return Unauthorized();
         }
-
-        ViewBag.DaysOffNumber = user.DaysOffNumber;
-        ViewBag.OldDaysOffNumber = user.OldDaysOffNumber;
 
         return View(await _unitOfWork.Request.GetByUser(user.Id));
     }
@@ -147,14 +150,14 @@ public class RequestsController : Controller
             :
             NotificationStatus.NotNotifiedOfCreation;
 
+        _toaster.Success("Vacation request submitted.");
+
         return Redirect(nameof(MyRequests));
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> CreateResponse(int? id)
     {
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-
         if (id is null)
         {
             return NotFound();
@@ -167,14 +170,19 @@ public class RequestsController : Controller
             return NotFound();
         }
 
-        ViewBag.Request = request;
-
         if (!await _unitOfWork.Employee.isAuthorized(User))
         {
             return Unauthorized();
         }
 
-        return View(new ResponseCreate { LeaveType = request.LeaveType });
+        ResponseCreate model = new()
+        {
+            LeaveTypes = await _unitOfWork.LeaveType.GetAll(),
+            Request = request,
+            SelectedLeaveTypeID = request.LeaveType.ID
+        };
+
+        return View(model);
     }
 
     [HttpPost]
@@ -191,9 +199,7 @@ public class RequestsController : Controller
 
         var request = await _unitOfWork.Request.GetById(id);
         var leaveTypes = await _unitOfWork.LeaveType.GetAll();
-        var leaveType = leaveTypes.FirstOrDefault(l => l.ID == responseData.LeaveType.ID);
-
-        ViewBag.LeaveTypes = leaveTypes;
+        var leaveType = await _unitOfWork.LeaveType.GetById(responseData.SelectedLeaveTypeID);
 
         if (request is null
             || leaveType is null
@@ -201,6 +207,9 @@ public class RequestsController : Controller
         {
             return NotFound();
         }
+
+        responseData.LeaveTypes = leaveTypes;
+        responseData.Request = request;
 
         Response response = new()
         {
@@ -246,6 +255,8 @@ public class RequestsController : Controller
 
         await _unitOfWork.SaveChangesAsync();
 
+        _toaster.Success($"Vacation request successfully {request.Status.ToString().ToLower()}.");
+
         return RedirectToAction(nameof(AdminPanel));
     }
 
@@ -255,8 +266,6 @@ public class RequestsController : Controller
         {
             return NotFound();
         }
-
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
 
         var request = await _unitOfWork.Request.GetById((int)id);
 
@@ -271,6 +280,8 @@ public class RequestsController : Controller
         }
 
         var requestData = _mapper.Map<RequestEdit>(request);
+        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        requestData.SelectedLeaveTypeID = request.LeaveType.ID;
 
         return View(requestData);
     }
@@ -279,10 +290,9 @@ public class RequestsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditRequest(int id, RequestEdit requestData)
     {
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-
+        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
         var requestEntity = await _unitOfWork.Request.GetById(requestData.ID);
-        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.LeaveType.ID);
+        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.SelectedLeaveTypeID);
 
         if (requestEntity is null || leaveType is null)
         {
@@ -337,10 +347,9 @@ public class RequestsController : Controller
         _unitOfWork.Request.Update(requestEntity);
         await _unitOfWork.SaveChangesAsync();
 
-        return _unitOfWork.Employee.IsAdmin(User) ?
-            RedirectToAction(nameof(AdminPanel))
-            :
-            RedirectToAction(nameof(MyRequests));
+        _toaster.Success("Request successfully edited.");
+
+        return RedirectToAction(nameof(Details), new { requestEntity.ID });
     }
 
     [Authorize(Roles = nameof(Roles.Admin))]
@@ -351,8 +360,6 @@ public class RequestsController : Controller
             return NotFound();
         }
 
-        ViewBag.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
-
         var response = await _unitOfWork.Response.GetById((int)id);
 
         if (response is null)
@@ -361,17 +368,23 @@ public class RequestsController : Controller
         }
 
         var request = await _unitOfWork.Request.GetById(response.RequestID);
-        ViewBag.Request = request;
+
+        if (request is null)
+        {
+            return NotFound();
+        }
 
         if (!await _unitOfWork.Employee.isAuthorized(User))
         {
             return Unauthorized();
         }
 
-        var responseData = _mapper.Map<ResponseEdit>(response);
-        responseData.LeaveType = request!.LeaveType;
+        var model = _mapper.Map<ResponseEdit>(response);
+        model.Request = request;
+        model.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        model.SelectedLeaveTypeID = request.LeaveType.ID;
 
-        return View(responseData);
+        return View(model);
     }
 
     [HttpPost]
@@ -387,7 +400,7 @@ public class RequestsController : Controller
             return Forbid();
         }
 
-        var request = await _unitOfWork.Request.GetById(responseData.RequestID);
+        var request = await _unitOfWork.Request.GetById(responseData.Request.ID);
 
         if (request is null)
         {
@@ -396,7 +409,7 @@ public class RequestsController : Controller
 
         var seeker = request.CreatedBy;
         var response = request.Response;
-        var leaveType = await _unitOfWork.LeaveType.GetById(responseData.LeaveType.ID);
+        var leaveType = await _unitOfWork.LeaveType.GetById(responseData.SelectedLeaveTypeID);
 
         if (response is null
             || leaveType is null
@@ -449,29 +462,23 @@ public class RequestsController : Controller
 
         await _unitOfWork.SaveChangesAsync();
 
+        _toaster.Success("Response successfully edited.");
+
         return RedirectToAction(nameof(AdminPanel));
     }
 
     public async Task<IActionResult> Delete(int id)
     {
-        var author = await _unitOfWork.Employee.GetCurrent(User);
-        if (author is null)
+        var user = await _unitOfWork.Employee.GetCurrent(User);
+        if (user is null)
         {
             return Unauthorized();
         }
 
-        var isAdmin = _unitOfWork.Employee.IsAdmin(User);
-
-        var redirect = RedirectToAction(isAdmin ?
-                                        nameof(AdminPanel)
-                                        :
-                                        nameof(MyRequests));
-
         var request = await _unitOfWork.Request.GetById(id);
-
         if (request is null)
         {
-            return redirect;
+            return NotFound();
         }
 
         if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
@@ -482,10 +489,15 @@ public class RequestsController : Controller
         _unitOfWork.Request.Delete(request);
         await _unitOfWork.SaveChangesAsync();
 
-        RequestEmailTemplates templates = new(author, request);
+        _toaster.Success("Request successfully deleted.");
+
+        RequestEmailTemplates templates = new(request.CreatedBy, request);
         await _notifierService.NotifyEmployee(templates.Deleted);
         await _notifierService.NotifyHRTeam(templates.HRDeleted);
 
-        return redirect;
+        return user.Id == request.CreatedBy.Id ?
+            RedirectToAction(nameof(MyRequests))
+            :
+            RedirectToAction(nameof(AdminPanel));
     }
 }

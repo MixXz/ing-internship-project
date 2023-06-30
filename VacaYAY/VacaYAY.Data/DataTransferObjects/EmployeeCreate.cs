@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using VacaYAY.Data.Entities;
 
 namespace VacaYAY.Data.DataTransferObjects;
 
@@ -32,7 +33,7 @@ public class EmployeeCreate
 
     [Required]
     [DisplayName("Start date")]
-    public DateTime EmployeeStartDate { get; set; }
+    public DateTime EmployeeStartDate { get; set; } = DateTime.Now;
 
     [DisplayName("End date")]
     public DateTime? EmployeeEndDate { get; set; }
@@ -56,4 +57,6 @@ public class EmployeeCreate
     public int SelectedPositionID { get; set; }
 
     public bool MakeAdmin { get; set; } = false;
+
+    public IEnumerable<Position> Positions { get; set; } = Enumerable.Empty<Position>();
 }

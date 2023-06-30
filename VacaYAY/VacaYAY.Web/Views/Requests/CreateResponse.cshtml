@@ -4,8 +4,6 @@
 @{
     ViewData["Title"] = "Create response";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    Request req = ViewBag.Request;
 }
 
 <div class="container-sm w-25">
@@ -14,21 +12,21 @@
     <hr />
     <dl>
         <dt>Date range</dt>
-        <dd>@req.StartDate.ToString("dd.MM.yyyy") - @req.EndDate.ToString("dd.MM.yyyy")</dd>
+        <dd>@Model.Request.StartDate.ToString("dd. MM. yyyy. ") - @Model.Request.EndDate.ToString("dd. MM. yyyy.")</dd>
         <dt>Requested by</dt>
-        <dd>@req.CreatedBy.Name</dd>
+        <dd>@Model.Request.CreatedBy.Name</dd>
         <dt>Comment</dt>
-        <dd>@(string.IsNullOrEmpty(req.Comment) ? "No comment to show." : req.Comment)</dd>
+        <dd>@(string.IsNullOrEmpty(Model.Request.Comment) ? "No comment to show." : Model.Request.Comment)</dd>
     </dl>
     <hr />
     <form asp-action="CreateResponse">
         <div class="form-floating mb-3">
-            @Html.DropDownListFor(model => model.LeaveType.ID,
-            new SelectList(ViewBag.LeaveTypes, nameof(LeaveType.ID),
-            nameof(LeaveType.Caption), Model.LeaveType.ID),
+            @Html.DropDownListFor(model => model.SelectedLeaveTypeID,
+            new SelectList(Model.LeaveTypes, nameof(LeaveType.ID),
+            nameof(LeaveType.Caption), Model.SelectedLeaveTypeID),
             new { @class = "form-control" })
-            @Html.ValidationMessageFor(x => x.LeaveType)
-            <label asp-for="LeaveType.ID" class="control-label"> Leave type </label>
+            @Html.ValidationMessageFor(x => x.SelectedLeaveTypeID)
+            <label asp-for="SelectedLeaveTypeID" class="control-label"> Leave type </label>
         </div>
         <div>
             @Html.RadioButtonFor(m => m.IsApproved, true) Approve

@@ -25,7 +25,7 @@ public class PositionRepository : RepositoryBase<Position>, IPositionRepository
     {
         List<CustomValidationResult> errors = new();
 
-        if (char.IsDigit(position.Caption[0]) || !Regex.IsMatch(position.Caption, @"^[a-zA-Z0-9]+$"))
+        if (char.IsDigit(position.Caption[0]) || !Regex.IsMatch(position.Caption, @"^(?! )[A-Za-z0-9 ]+$"))
         {
             errors.Add(new()
             {

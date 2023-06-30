@@ -16,8 +16,8 @@
         <form asp-action="Edit">
             @Html.ValidationSummary(true, null, new { @class = "text-danger" })
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="Position.Caption" />
-            <input type="hidden" asp-for="Position.Description" />
+            <input type="hidden" asp-for="SelectedPosition.Caption" />
+            <input type="hidden" asp-for="SelectedPosition.Description" />
             <div class="row">
                 <div class="col">
                     <div class="form-floating mb-3">
@@ -63,12 +63,12 @@
                         <span asp-validation-for="EmployeeEndDate" class="text-danger"></span>
                     </div>
                     <div class="form-floating mb-3">
-                        @Html.DropDownListFor(model => model.Position.ID,
-                        new SelectList(ViewBag.Positions, nameof(Position.ID),
-                        nameof(Position.Caption), Model.Position.ID),
+                        @Html.DropDownListFor(model => model.SelectedPosition.ID,
+                        new SelectList(Model.Positions, nameof(Position.ID),
+                        nameof(Position.Caption), Model.SelectedPosition.ID),
                         new { @class = "form-control" })
-                        @Html.ValidationMessageFor(x => x.Position)
-                        <label for="Model.Position.ID" class="col-sm-2 control-label"> Position </label>
+                        @Html.ValidationMessageFor(x => x.SelectedPosition)
+                        <label for="Model.SelectedPosition.ID" class="control-label"> Position </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" asp-for="MakeAdmin" checked="@Model.MakeAdmin" id="flexCheckDefault">
@@ -78,7 +78,7 @@
                     </div>
                 </div>
             </div>
-            <a asp-action="Index" asp-controller="Contracts" asp-route-id="@Model.Id" class="btn btn-outline-success mb-3 w-100">Edit employee contracts</a>
+            <a asp-action="Index" asp-controller="Contracts" asp-route-id="@Model.Id" class="btn btn-outline-primary mb-3 w-100">Edit employee contracts</a>
             <button type="submit" class="btn btn-primary btn-block w-100">Save changes</button>
         </form>
     </div>

@@ -36,5 +36,7 @@ public class RequestEdit
     public Response? Response { get; set; }
 
     [Required]
-    public LeaveType LeaveType { get; set; } = new();
+    public int SelectedLeaveTypeID { get; set; }
+
+    public IEnumerable<LeaveType> LeaveTypes { get; set; } = Enumerable.Empty<LeaveType>();
 }

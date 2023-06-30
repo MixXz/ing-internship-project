@@ -34,7 +34,7 @@ public class NotifierService : INotifierSerivice
             return false;
         }
 
-        return response.IsSuccessStatusCode;
+        return true;
     }
 
     public async Task NotifyHRTeam((string subject, string content) message)

@@ -1,12 +1,152 @@
 ﻿@using VacaYAY.Data.Entities;
 @model Employee
-
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Employee details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-sm w-25">
+<div class="container-sm mt-3">
+    <div class="d-flex w-100">
+        <div>
+            <img src="~/images/user.png" class="rounded float-left" alt="User image" width="300" height="300">
+        </div>
+        <div class="w-100" style="margin-left: 10px">
+            <div class="card bg-light h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">Basic Information</h5>
+                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                            <button type="button" class="btn btn-primary">Actions</button>
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="">
+                                    <a asp-controller="Contracts" asp-action="Index" asp-route-id="@Model.Id" class="dropdown-item"><i class="bi bi-eye"></i> View contracts</a>
+                                    <a asp-action="Edit" asp-route-id="@Model.Id" class="dropdown-item"><i class="bi bi-pencil-fill"></i> Edit</a>
+                                    <a class="dropdown-item open-confirm-modal"
+                                       data-id="@Model.Id"
+                                       data-controller="Employees"
+                                       data-action="Delete"
+                                       data-title="Confirm employee deletion"
+                                       data-body-message="Are you sure you want to delete the employee <strong> @Model.Name</strong>?">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <h3>@Model.Name</h3>
+                    <dl class="row">
+                        <dt>Email:</dt>
+                        <dd>@Model.Email</dd>
+                        <dt>Position:</dt>
+                        <dd>@Model.Position.Caption</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Additional Information</h5>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-3 mb-1">@Html.DisplayNameFor(model => model.Address):</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Address)</dd>
+                <dt class="col-sm-3 mb-1">@Html.DisplayNameFor(model => model.DaysOffNumber):</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.DaysOffNumber)</dd>
+                <dt class="col-sm-3 mb-1">@Html.DisplayNameFor(model => model.OldDaysOffNumber):</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.OldDaysOffNumber)</dd>
+                <dt class="col-sm-3 mb-1">@Html.DisplayNameFor(model => model.EmployeeStartDate):</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.EmployeeStartDate)</dd>
+                <dt class="col-sm-3 mb-1">@Html.DisplayNameFor(model => model.EmployeeEndDate):</dt>
+                <dd class="col-sm-9"> @(Model.EmployeeEndDate is null ? "Not set" : @Html.DisplayFor(model => model.EmployeeEndDate))</dd>
+                <dt class="col-sm-3 mb-1">@Html.DisplayNameFor(model => model.InsertDate):</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.InsertDate)</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Employee contracts</h5>
+            <hr />                
+            <a asp-controller="Contracts" asp-action="Index" asp-route-id="@Model.Id" class="btn btn-sm mb-2 btn-outline-info">View more</a>
+            @if (Model.Contracts.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="table-primary">
+                            <th>@Html.DisplayNameFor(model => model.Contracts.First().ContractType)</th>
+                            <th>@Html.DisplayNameFor(model => model.Contracts.First().ContractNumber)</th>
+                            <th>@Html.DisplayNameFor(model => model.Contracts.First().StartDate)</th>
+                            <th>@Html.DisplayNameFor(model => model.Contracts.First().EndDate)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var contract in Model.Contracts)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(model => contract.ContractType)</td>
+                                <td>@Html.DisplayFor(model => contract.ContractNumber)</td>
+                                <td>@Html.DisplayFor(model => contract.StartDate)</td>
+                                <td>
+                                    @(contract.EndDate is null ? "Not set" : @Html.DisplayFor(modelItem => contract.EndDate))
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>Nothing to show.</p>
+            }
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Employee vacation requests</h5>
+            <hr />
+            @if (Model.LeaveRequests.Any())
+            {
+
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="table-primary">
+                            <th>@Html.DisplayNameFor(model => model.LeaveRequests.First().LeaveType)</th>
+                            <th>@Html.DisplayNameFor(model => model.LeaveRequests.First().StartDate)</th>
+                            <th>@Html.DisplayNameFor(model => model.LeaveRequests.First().EndDate)</th>
+                            <th>@Html.DisplayNameFor(model => model.LeaveRequests.First().Status)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model.LeaveRequests)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(model => request.LeaveType.Caption)</td>
+                                <td>@Html.DisplayFor(model => request.StartDate)</td>
+                                <td>@Html.DisplayFor(model => request.EndDate)</td>
+                                <td>@Html.DisplayFor(model => request.Status)</td>
+                                <td style="width: 1%; white-space: nowrap;">
+                                    <a asp-controller="Requests" asp-action="Details" asp-route-id="@request.ID" class="btn btn-sm btn-outline-info">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>Nothing to show.</p>
+            }
+        </div>
+    </div>
+</div>
+
+
+@*<div class="container-sm w-25">
     <h2>Details</h2>
     <h4>Employee</h4>
     <hr />
@@ -78,5 +218,4 @@
             Delete
         </a>
     </div>
-</div>
-
+</div>*@

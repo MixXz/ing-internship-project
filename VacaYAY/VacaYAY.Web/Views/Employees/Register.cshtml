@@ -9,8 +9,8 @@
 
 <div class="container-sm w-25">
     <form asp-action="Register" method="post">
-        <h4>Register employee</h4>
-        <p>Create a new user account.</p>
+        <h3>Register employee</h3>
+        <h4>Create a new user account.</h4>
         <hr />
         <div class="row">
             @Html.ValidationSummary(true, null, new { @class = "text-danger" })
@@ -58,8 +58,8 @@
                     <span asp-validation-for="DaysOffNumber" class="text-danger"></span>
                 </div>
                 <div class="form-floating mb-3">
-                    <select class="form-select" name="SelectedPositionID" asp-items="@(new SelectList(ViewBag.Positions, nameof(Position.ID), nameof(Position.Caption)))"></select>
-                    <label for="SelectedPositionID" class="col-sm-2 control-label"> Position </label>
+                    <select class="form-select" name="SelectedPositionID" asp-items="@(new SelectList(Model.Positions, nameof(Position.ID), nameof(Position.Caption)))"></select>
+                    <label for="SelectedPositionID" class="control-label"> Position </label>
                     <span asp-validation-for="SelectedPositionID" class="text-danger"></span>
                 </div>
                 <div class="form-floating mb-3">

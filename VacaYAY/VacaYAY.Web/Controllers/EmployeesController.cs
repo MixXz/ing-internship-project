@@ -4,8 +4,8 @@ using VacaYAY.Business.Contracts;
 using VacaYAY.Data.DataTransferObjects;
 using AutoMapper;
 using VacaYAY.Data.Enums;
-using VacaYAY.Data.Entities;
 using VacaYAY.Business.Contracts.ServiceContracts;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace VacaYAY.Web.Controllers;
 
@@ -16,41 +16,46 @@ public class EmployeesController : Controller
     private readonly IMapper _mapper;
     private readonly IConfiguration _config;
     private readonly IHttpClientService _httpClientService;
+    private readonly INotyfService _toaster;
 
     public EmployeesController(
         IUnitOfWork unitOfWork,
         IMapper mapper,
         IConfiguration configuration,
-        IHttpClientService httpClientService)
+        IHttpClientService httpClientService,
+        INotyfService toaster)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _config = configuration;
         _httpClientService = httpClientService;
+        _toaster = toaster;
     }
 
     public async Task<IActionResult> Index(EmployeeView filters)
     {
-        ViewBag.Positions = await _unitOfWork.Position.GetAll();
+        EmployeeView model = new()
+        {
+            Positions = await _unitOfWork.Position.GetAll(),
+            SelectedPositionIds = filters.SelectedPositionIds,
+            Employees = await _unitOfWork.Employee.GetByFilters(filters)
+        };
 
-        var employees = await _unitOfWork.Employee.GetByFilters(filters);
-
-        return View(new EmployeeView { Employees = employees, Positions = filters.Positions });
+        return View(model);
     }
 
     public async Task<IActionResult> Register()
     {
-        ViewBag.Positions = await _unitOfWork.Position.GetAll();
-
-        return View();
+        return View(new EmployeeCreate { Positions = await _unitOfWork.Position.GetAll() });
     }
 
     [HttpPost]
     public async Task<IActionResult> Register(EmployeeCreate employeeData)
     {
-        ViewBag.Positions = await _unitOfWork.Position.GetAll();
+        var positions = await _unitOfWork.Position.GetAll();
+        employeeData.Positions = positions;
 
-        var position = await _unitOfWork.Position.GetById(employeeData.SelectedPositionID);
+        var position = positions.FirstOrDefault(p => p.ID == employeeData.SelectedPositionID);
 
         if (position is null)
         {
@@ -70,6 +75,8 @@ public class EmployeesController : Controller
         }
 
         await _unitOfWork.SaveChangesAsync();
+
+        _toaster.Success($"Employee {result.Entity.Name} successfully registered.");
 
         return RedirectToAction("Create", "Contracts", new { result.Entity.Id });
     }
@@ -113,6 +120,8 @@ public class EmployeesController : Controller
             await _unitOfWork.Employee.Insert(employeeData, position);
         }
 
+        _toaster.Success($"Successfully loaded {oldEmployees.Count()} from old database.");
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -123,7 +132,7 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        var employee = await _unitOfWork.Employee.GetById(id);
+        var employee = await _unitOfWork.Employee.GetDetailedById(id);
 
         if (employee is null)
         {
@@ -135,8 +144,6 @@ public class EmployeesController : Controller
 
     public async Task<IActionResult> Edit(string? id)
     {
-        ViewBag.Positions = await _unitOfWork.Position.GetAll();
-
         if (id is null)
         {
             return NotFound();
@@ -149,27 +156,28 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        var employeeEdit = _mapper.Map<EmployeeEdit>(employee);
+        var model = _mapper.Map<EmployeeEdit>(employee);
 
-        employeeEdit.MakeAdmin = await _unitOfWork.Employee.IsAdmin(employee);
+        model.MakeAdmin = await _unitOfWork.Employee.IsAdmin(employee);
+        model.Positions = await _unitOfWork.Position.GetAll();
+        model.SelectedPosition = employee.Position;
 
-        return View(employeeEdit);
+        return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(string id, EmployeeEdit employee)
     {
-        ViewBag.Positions = await _unitOfWork.Position.GetAll();
-
-        var position = await _unitOfWork.Position.GetById(employee.Position.ID);
+        var positions = await _unitOfWork.Position.GetAll();
+        var position = await _unitOfWork.Position.GetById(employee.SelectedPosition.ID);
 
         if (position is null)
         {
             return View(employee);
         }
 
-        employee.Position = position;
+        employee.SelectedPosition = position;
         var result = await _unitOfWork.Employee.Update(id, employee);
 
         if (result.Entity is null)
@@ -181,12 +189,25 @@ public class EmployeesController : Controller
             return View(employee);
         }
 
-        return RedirectToAction(nameof(Index));
+        _toaster.Success($"Employee {result.Entity.Name} has been successfully edited.");
+
+        return RedirectToAction(nameof(Details), new { employee.Id });
     }
 
     public async Task<IActionResult> Delete(string id)
     {
-        await _unitOfWork.Employee.Delete(id);
+        var result = await _unitOfWork.Employee.Delete(id);
+
+        if (result.Entity is null)
+        {
+            foreach (var error in result.Errors)
+            {
+                _toaster.Error(error.Text);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        _toaster.Success($"Employee {result.Entity.Name} has been successfully deleted.");
 
         return RedirectToAction(nameof(Index));
     }
