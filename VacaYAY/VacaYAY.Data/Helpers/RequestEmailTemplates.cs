@@ -1,5 +1,15 @@
-﻿using System;
+﻿using Azure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Drawing;
+using System.Net;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 using VacaYAY.Data.Entities;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VacaYAY.Data.Helpers;
 
@@ -90,6 +100,53 @@ public class RequestEmailTemplates
             string subject = $"Leave Request Notification: {_employee.Name}";
 
             return (subject, GetHRTemplate("edited"));
+        }
+    }
+
+    public (string? email, string subject, string content) CollectiveVacation
+    {
+        get
+        {
+            string subject = "Collective vacation";
+            string content = $@"
+                            <!DOCTYPE html>  
+                            <html>
+                            <head>
+                              <meta charset=""UTF-8"">
+                              <title>Collective Vacation Announcement</title>
+                            </head>
+                            <body style=""font-family: Arial, sans-serif;"">
+
+                              <table cellpadding=""0"" cellspacing=""0"" width=""100%"" style=""max-width: 600px; margin: 0 auto; border-collapse: collapse;"">
+                                <tr>
+                                  <td bgcolor=""#ffffff"" style=""padding: 40px 30px;"">
+                                    <table cellpadding=""0"" cellspacing=""0"" width=""100%"">
+                                      <tr>
+                                        <td style=""padding-top: 20px;"">
+                                          <p>Dear {_employee.Name},</p>
+                                          <p>We are pleased to announce that a collective vacation has been scheduled for all employees at our company. This vacation period will allow everyone to take a well-deserved break and recharge.</p>
+                                          <p>Here are the details of the collective vacation:</p>
+                                          <ul>
+                                            <li>Start Date: {_request.StartDate.ToString("dd. MM. yyyy.")}</li>
+                                            <li>End Date: {_request.EndDate.ToString("dd. MM. yyyy.")}</li>
+                                            <li>Duration: {_request.NumOfDaysRequested} days</li>
+                                          </ul>
+                                          <p>Please note that during this period, all employees are expected to take time off and refrain from work-related activities. We encourage you to fully disconnect from work and enjoy your vacation.</p>
+                                          <p>If you have any questions or concerns regarding the collective vacation, please feel free to reach out to the Human Resources department.</p>
+                                          <p>Thank you for your understanding and cooperation.</p>
+                                          <p>Best regards,</p>
+                                          <p>Your HR team</p>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </table>
+
+                            </body>
+                            </html>";
+
+            return (_employee.Email, subject, content);
         }
     }
 

@@ -87,7 +87,7 @@ public class RequestsController : Controller
 
         RequestCreate model = new()
         {
-            LeaveTypes = await _unitOfWork.LeaveType.GetAll(),
+            LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll(),
             NewDaysOff = user.DaysOffNumber,
             OldDaysOff = user.OldDaysOffNumber,
             StartDate = DateTime.Now.AddDays(1),
@@ -107,7 +107,7 @@ public class RequestsController : Controller
             return Unauthorized();
         }
 
-        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
         requestData.NewDaysOff = author.DaysOffNumber;
         requestData.OldDaysOff = author.OldDaysOffNumber;
 
@@ -177,7 +177,7 @@ public class RequestsController : Controller
 
         ResponseCreate model = new()
         {
-            LeaveTypes = await _unitOfWork.LeaveType.GetAll(),
+            LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll(),
             Request = request,
             SelectedLeaveTypeID = request.LeaveType.ID
         };
@@ -198,7 +198,7 @@ public class RequestsController : Controller
         }
 
         var request = await _unitOfWork.Request.GetById(id);
-        var leaveTypes = await _unitOfWork.LeaveType.GetAll();
+        var leaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
         var leaveType = await _unitOfWork.LeaveType.GetById(responseData.SelectedLeaveTypeID);
 
         if (request is null
@@ -280,7 +280,7 @@ public class RequestsController : Controller
         }
 
         var requestData = _mapper.Map<RequestEdit>(request);
-        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
         requestData.SelectedLeaveTypeID = request.LeaveType.ID;
 
         return View(requestData);
@@ -290,7 +290,7 @@ public class RequestsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditRequest(int id, RequestEdit requestData)
     {
-        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
         var requestEntity = await _unitOfWork.Request.GetById(requestData.ID);
         var leaveType = await _unitOfWork.LeaveType.GetById(requestData.SelectedLeaveTypeID);
 
@@ -381,7 +381,7 @@ public class RequestsController : Controller
 
         var model = _mapper.Map<ResponseEdit>(response);
         model.Request = request;
-        model.LeaveTypes = await _unitOfWork.LeaveType.GetAll();
+        model.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
         model.SelectedLeaveTypeID = request.LeaveType.ID;
 
         return View(model);
@@ -499,5 +499,76 @@ public class RequestsController : Controller
             RedirectToAction(nameof(MyRequests))
             :
             RedirectToAction(nameof(AdminPanel));
+    }
+
+    [Authorize(Roles = nameof(Roles.Admin))]
+    public async Task<IActionResult> CreateCollectiveVacation(CollectiveVacationCreate data)
+    {
+        var user = await _unitOfWork.Employee.GetCurrent(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        if (!await _unitOfWork.Employee.IsAdmin(user))
+        {
+            return Forbid();
+        }
+
+        if (data.StartDate > data.EndDate)
+        {
+            _toaster.Error("Vacation not created, end date cannot be earlier than the start date.");
+            return RedirectToAction(nameof(AdminPanel));
+        }
+
+        var leaveType = await _unitOfWork.LeaveType.GetByCaption(VacationType.CollectiveVacation);
+
+        if (leaveType is null)
+        {
+            _toaster.Error("Invalid leave type.");
+            return RedirectToAction(nameof(AdminPanel));
+        }
+
+        Request req = new()
+        {
+            LeaveType = leaveType,
+            StartDate = data.StartDate,
+            EndDate = data.EndDate,
+            Comment = data.Comment,
+            CreatedBy = user
+        };
+
+        Response resp = new()
+        {
+            IsApproved = true,
+            Request = req,
+            ReviewedBy = user
+        };
+
+        req.Response = resp;
+
+        _unitOfWork.Request.Insert(req);
+        _unitOfWork.Response.Insert(resp);
+
+        var employees = await _unitOfWork.Employee.GetAll();
+
+        foreach (var emp in employees)
+        {
+            var distrib = _unitOfWork.Request.GetDaysOffDistribution(emp.OldDaysOffNumber, emp.DaysOffNumber, req);
+
+            emp.DaysOffNumber = Math.Max(emp.DaysOffNumber - distrib.removeFromNewDays, 0);
+            emp.OldDaysOffNumber = Math.Max(emp.OldDaysOffNumber - distrib.removeFromOldDays, 0);
+
+            RequestEmailTemplates templates = new(emp, req);
+            await _notifierService.NotifyEmployee(templates.CollectiveVacation);
+
+            _unitOfWork.Employee.Update(emp);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        _toaster.Success("Collective vacation successfully created.");
+
+        return RedirectToAction(nameof(AdminPanel));
     }
 }

@@ -1,6 +1,7 @@
 ﻿@using VacaYAY.Data.DataTransferObjects;
 @using VacaYAY.Data.Entities;
 @using VacaYAY.Data.Enums;
+@using VacaYAY.Data.Helpers;
 
 @model RequestView
 @{
@@ -14,6 +15,7 @@
     <div class="col">
         <h5>Configuration</h5>
         <hr />
+        <button type="button" class="btn btn-info w-100 mb-3" data-bs-toggle="modal" data-bs-target="#createCollectiveVacationModal"><i class="bi bi-plus-circle"></i> Create collective vacation</button>
         <a class="btn btn-sm btn-outline-primary mb-3 w-100" asp-controller="LeaveTypes" asp-action="Index"><i class="bi bi-gear"></i> Manage leave types</a>
         <h5 class="mt-2">Filter</h5>
         <hr />
@@ -68,7 +70,13 @@
             <tbody>
                 @foreach (var item in Model.Requests)
                 {
-                    <tr class="@(item.Response is null ? "table-active" : "table-default")">
+                    <tr class="@(item.LeaveType.Caption == VacationType.CollectiveVacation ?
+                        "table-warning"
+                        :
+                        item.Response is null ?
+                        "table-active"
+                        :
+                        "table-default")">
                         <td>
                             @Html.DisplayFor(modelItem => item.CreatedBy.Name)
                         </td>
@@ -89,7 +97,10 @@
                             {
                                 <a asp-action="CreateResponse" asp-route-id="@item.ID" class="btn btn-sm btn-primary">Respond</a>
                             }
-                            <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info">Details</a>
+                            @if (item.LeaveType.Caption != VacationType.CollectiveVacation)
+                            {
+                                <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info">Details</a>
+                            }
                         </td>
                     </tr>
                 }
@@ -97,3 +108,4 @@
         </table>
     </div>
 </div>
+<partial name="_CreateCollectiveVacation" model="@Model.CollectiveVacation" />

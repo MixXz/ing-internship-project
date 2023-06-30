@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
 using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
@@ -111,7 +109,8 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
         return await _context.Requests
                         .Include(r => r.LeaveType)
                         .Include(r => r.Response)
-                        .Where(r => r.CreatedBy.Id == userId)
+                        .Where(r => r.CreatedBy.Id == userId
+                                 || r.LeaveType.Caption == VacationType.CollectiveVacation)
                         .OrderByDescending(r => r.Response == null)
                         .ToListAsync();
     }
@@ -235,7 +234,17 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                        .Any(r => (r.ID != requestIdToExclude)
                                 && (r.StartDate <= end)
                                 && (r.EndDate >= start)
-                                && (r.CreatedBy.Id == authorId));
+                                && (r.CreatedBy.Id == authorId)
+                                && (r.LeaveType.Caption != VacationType.CollectiveVacation));
+        return result;
+    }
+
+    private bool CheckForOverlappingWithCollectiveVacation(DateTime start, DateTime end)
+    {
+        var result = _context.Requests
+                       .Any(r => (r.StartDate <= end)
+                                && (r.EndDate >= start)
+                                && (r.LeaveType.Caption == VacationType.CollectiveVacation));
         return result;
     }
 
@@ -305,6 +314,15 @@ public class RequestRepository : RepositoryBase<Request>, IRequestRepository
                     Text = "The selected number of days exceeds the available number of free days, your old days off expire after June 30th."
                 });
             }
+        }
+
+        if (CheckForOverlappingWithCollectiveVacation(start, end))
+        {
+            errors.Add(new()
+            {
+                Property = string.Empty,
+                Text = "You already have a collective vacation that overlaps with the defined scope."
+            });
         }
 
         return errors;
