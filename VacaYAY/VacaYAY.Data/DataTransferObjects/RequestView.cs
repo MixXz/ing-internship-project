@@ -25,4 +25,6 @@ public class RequestView
     public IEnumerable<LeaveType> LeaveTypes { get; set; } = Enumerable.Empty<LeaveType>();
 
     public IEnumerable<Request> Requests { get; set; } = Enumerable.Empty<Request>();
+
+    public CollectiveVacationCreate? CollectiveVacation { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿@using VacaYAY.Data.Entities;
 @using VacaYAY.Data.Enums;
+@using VacaYAY.Data.Helpers;
 @model IEnumerable<Request>
 @{
     ViewData["Title"] = "My vacation requests";
@@ -34,7 +35,10 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
+                    <tr class="@(item.LeaveType.Caption == VacationType.CollectiveVacation ?
+                              "table-warning"
+                              :
+                              "table-default")">
                         <td>
                             @Html.DisplayFor(modelItem => item.LeaveType.Caption)
                         </td>
@@ -48,7 +52,10 @@
                             @Html.DisplayFor(modelItem => item.Status)
                         </td>
                         <td class="text-end" style="white-space:nowrap; width:1%;">
-                            <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info">View more</a>
+                            @if (item.LeaveType.Caption != VacationType.CollectiveVacation)
+                            {
+                                <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info">View more</a>
+                            }
                         </td>
                     </tr>
                 }

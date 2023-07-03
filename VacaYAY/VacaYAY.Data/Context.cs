@@ -52,10 +52,11 @@ public class Context : IdentityDbContext<Employee>
     {
         DataSeeder.SeedRootUser(modelBuilder);
 
-        DataSeeder.SeedLeaveType(modelBuilder, 1, "Sick Leave", "Neki opis");
-        DataSeeder.SeedLeaveType(modelBuilder, 2, "Days off", "Neki opis");
-        DataSeeder.SeedLeaveType(modelBuilder, 3, "Paid leave", "Neki opis");
-        DataSeeder.SeedLeaveType(modelBuilder, 4, "Unpaid leave", "Neki opis");
+        DataSeeder.SeedLeaveType(modelBuilder, 1, VacationType.CollectiveVacation, VacationType.CollectiveVacation);
+        DataSeeder.SeedLeaveType(modelBuilder, 2, "Sick Leave", "Neki opis");
+        DataSeeder.SeedLeaveType(modelBuilder, 3, "Days off", "Neki opis");
+        DataSeeder.SeedLeaveType(modelBuilder, 4, "Paid leave", "Neki opis");
+        DataSeeder.SeedLeaveType(modelBuilder, 5, "Unpaid leave", "Neki opis");
 
         DataSeeder.SeedPosition(modelBuilder, 2, "Software Engineer", "Responsible for developing software applications.");
         DataSeeder.SeedPosition(modelBuilder, 3, "Project Manager", "Leading project teams and ensuring project success.");
