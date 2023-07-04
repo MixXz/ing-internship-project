@@ -1,6 +1,4 @@
-﻿using VacaYAY.Business.Contracts.RepositoryContracts;
-
-namespace VacaYAY.Business.Contracts;
+﻿namespace VacaYAY.Data.RepositoryContracts;
 public interface IUnitOfWork
 {
     IEmployeeRepository Employee { get; }

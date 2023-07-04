@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using VacaYAY.Business.Contracts;
 using VacaYAY.Data;
 using Microsoft.AspNetCore.Identity;
 using VacaYAY.Data.Entities;
@@ -7,9 +6,14 @@ using VacaYAY.Business.Services;
 using SendGrid.Extensions.DependencyInjection;
 using Quartz;
 using VacaYAY.Business.Jobs;
-using VacaYAY.Business.Contracts.ServiceContracts;
 using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
+using VacaYAY.Business.ServiceContracts;
+using VacaYAY.Data.RepositoryContracts;
+using VacaYAY.Data.Services;
+using VacaYAY.Data.DataServiceContracts;
+using VacaYAY.Data.DataService;
+using VacaYAY.Data.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +50,11 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
 builder.Services.AddScoped<INotifierSerivice, NotifierService>();
 builder.Services.AddScoped<IBlobService, BlobService>();
+
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
+builder.Services.AddScoped<ILeaveTypeService, LeaveTypeService>();
 
 builder.Services.AddNotyf(config =>
 {

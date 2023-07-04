@@ -1,75 +1,68 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VacaYAY.Business.Contracts;
-using VacaYAY.Business.Contracts.ServiceContracts;
+using VacaYAY.Business.ServiceContracts;
 using VacaYAY.Data.DataTransferObjects;
-using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
-using VacaYAY.Data.Helpers;
 
 namespace VacaYAY.Web.Controllers;
 
 [Authorize]
-public class RequestsController : Controller
+public class RequestsController : BaseController
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly INotifierSerivice _notifierService;
-    private readonly IMapper _mapper;
-    private readonly INotyfService _toaster;
+    private readonly IRequestService _requestService;
+    private readonly IEmployeeService _employeeService;
+    private readonly ILeaveTypeService _leaveTypeService;
+
     public RequestsController(
-        IUnitOfWork unitOfWork,
-        INotifierSerivice notifierService,
-        IMapper mapper,
+        IRequestService requestService,
+        IEmployeeService employeeService,
+        ILeaveTypeService leaveTypeService,
         INotyfService toaster
-        )
+        ) : base(toaster)
     {
-        _unitOfWork = unitOfWork;
-        _notifierService = notifierService;
-        _mapper = mapper;
-        _toaster = toaster;
+        _requestService = requestService;
+        _employeeService = employeeService;
+        _leaveTypeService = leaveTypeService;
     }
 
+    [HttpGet]
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> AdminPanel(RequestView filters)
     {
-        RequestView model = new()
+        RequestView view = new()
         {
-            LeaveTypes = await _unitOfWork.LeaveType.GetAll(),
-            Requests = await _unitOfWork.Request.GetByFilters(filters),
+            LeaveTypes = await _leaveTypeService.GetAll(restricted: false),
+            Requests = await _requestService.GetByFilters(filters),
         };
 
-        return View(model);
+        return View(view);
     }
 
+    [HttpGet]
     public async Task<IActionResult> MyRequests()
     {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
+        var user = await _employeeService.GetCurrent(User);
 
         if (user is null)
         {
             return Unauthorized();
         }
 
-        return View(await _unitOfWork.Request.GetByUser(user.Id));
+        return View(await _requestService.GetByEmployeeId(user.Id));
     }
 
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var request = await _unitOfWork.Request.GetById((int)id);
+        var request = await _requestService.GetById(id);
 
         if (request is null)
         {
             return NotFound();
         }
 
-        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
+        if (!await _employeeService.IsAuthorizedToSee(User, request.CreatedBy.Id))
         {
             return Unauthorized();
         }
@@ -77,9 +70,11 @@ public class RequestsController : Controller
         return View(request);
     }
 
+    [HttpGet]
     public async Task<IActionResult> CreateRequest()
     {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
+        var user = await _employeeService.GetCurrent(User);
+
         if (user is null)
         {
             return Unauthorized();
@@ -87,11 +82,9 @@ public class RequestsController : Controller
 
         RequestCreate model = new()
         {
-            LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll(),
+            LeaveTypes = await _leaveTypeService.GetAll(),
             NewDaysOff = user.DaysOffNumber,
             OldDaysOff = user.OldDaysOffNumber,
-            StartDate = DateTime.Now.AddDays(1),
-            EndDate = DateTime.Now.AddDays(2)
         };
 
         return View(model);
@@ -101,83 +94,48 @@ public class RequestsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateRequest(RequestCreate requestData)
     {
-        var author = await _unitOfWork.Employee.GetCurrent(User);
+        var author = await _employeeService.GetCurrent(User);
         if (author is null)
         {
             return Unauthorized();
         }
 
-        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
+        requestData.LeaveTypes = await _leaveTypeService.GetAll();
         requestData.NewDaysOff = author.DaysOffNumber;
         requestData.OldDaysOff = author.OldDaysOffNumber;
 
-        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.LeaveTypeID);
-        if (leaveType is null)
+        var result = await _requestService.Create(requestData, author);
+
+        if (result.Entity is null)
         {
+            HandleModelErrors(result.Errors);
             return View(requestData);
         }
 
-        var errors = await _unitOfWork.Request.ValidateOnCreate(requestData, author);
-        foreach (var error in errors)
-        {
-            ModelState.AddModelError(error.Property, error.Text);
-        }
+        Notification("Vacation request successfully submitted.");
 
-        if (!ModelState.IsValid)
-        {
-            return View(requestData);
-        }
-
-        Request requestEntity = new()
-        {
-            LeaveType = leaveType,
-            StartDate = requestData.StartDate,
-            EndDate = requestData.EndDate,
-            CreatedBy = author,
-            Comment = requestData.Comment,
-        };
-
-        _unitOfWork.Request.Insert(requestEntity);
-        await _unitOfWork.SaveChangesAsync();
-
-        RequestEmailTemplates templates = new(author, requestEntity);
-
-        bool isNotified = await _notifierService.NotifyEmployee(templates.Created);
-        await _notifierService.NotifyHRTeam(templates.HRCreated);
-
-        requestEntity.NotificationStatus = isNotified ?
-            NotificationStatus.Notified
-            :
-            NotificationStatus.NotNotifiedOfCreation;
-
-        _toaster.Success("Vacation request submitted.");
-
-        return Redirect(nameof(MyRequests));
+        return RedirectToAction(nameof(Details), new { result.Entity.ID });
     }
 
+    [HttpGet]
     [Authorize(Roles = nameof(Roles.Admin))]
-    public async Task<IActionResult> CreateResponse(int? id)
+    public async Task<IActionResult> CreateResponse(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var request = await _unitOfWork.Request.GetById((int)id);
+        var request = await _requestService.GetById(id);
 
         if (request is null)
         {
             return NotFound();
         }
 
-        if (!await _unitOfWork.Employee.isAuthorized(User))
+        if (!await _employeeService.IsAuthorized(User))
         {
-            return Unauthorized();
+            return Forbid();
         }
 
         ResponseCreate model = new()
         {
-            LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll(),
+            LeaveTypes = await _leaveTypeService.GetAll(),
             Request = request,
             SelectedLeaveTypeID = request.LeaveType.ID
         };
@@ -190,97 +148,54 @@ public class RequestsController : Controller
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> CreateResponse(int id, ResponseCreate responseData)
     {
-        var reviewer = await _unitOfWork.Employee.GetCurrent(User);
+        var reviewer = await _employeeService.GetCurrent(User);
 
         if (reviewer is null)
         {
             return Unauthorized();
         }
 
-        var request = await _unitOfWork.Request.GetById(id);
-        var leaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
-        var leaveType = await _unitOfWork.LeaveType.GetById(responseData.SelectedLeaveTypeID);
+        var request = await _requestService.GetById(id);
 
         if (request is null
-            || leaveType is null
             || request.Response is not null)
         {
             return NotFound();
         }
 
-        responseData.LeaveTypes = leaveTypes;
+        responseData.LeaveTypes = await _leaveTypeService.GetAll();
         responseData.Request = request;
 
-        Response response = new()
+        var result = await _requestService.CreateResponse(reviewer, request, responseData);
+
+        if (result.Entity is null)
         {
-            IsApproved = responseData.IsApproved,
-            Comment = responseData.Comment,
-            RequestID = request.ID,
-            Request = request,
-            ReviewedBy = reviewer
-        };
-
-        _unitOfWork.Response.Insert(response);
-
-        var seeker = request.CreatedBy;
-        if (response.IsApproved)
-        {
-            var distrib = _unitOfWork.Request.GetDaysOffDistribution(
-                seeker.OldDaysOffNumber,
-                seeker.DaysOffNumber,
-                request);
-
-            seeker.OldDaysOffNumber -= distrib.removeFromOldDays;
-            seeker.DaysOffNumber -= distrib.removeFromNewDays;
-
-            response.NumOfDaysRemovedFromNewDaysOff = distrib.removeFromNewDays;
-            response.NumOfDaysRemovedFromOldDaysOff = distrib.removeFromOldDays;
-
-            _unitOfWork.Employee.Update(seeker);
+            HandleModelErrors(result.Errors);
+            return View(responseData);
         }
 
-        request.Response = response;
-        request.LeaveType = leaveType;
-
-        RequestEmailTemplates templates = new(seeker, request);
-        var isNotified = await _notifierService
-            .NotifyEmployee(response.IsApproved ? templates.Approved : templates.Rejected, true);
-
-        request.NotificationStatus = isNotified ?
-            NotificationStatus.Notified
-            :
-            NotificationStatus.NotNotifiedOfReponse;
-
-        _unitOfWork.Request.Update(request);
-
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Vacation request successfully {request.Status.ToString().ToLower()}.");
+        Notification($"Vacation request successfully {request.Status.ToString().ToLower()}.");
 
         return RedirectToAction(nameof(AdminPanel));
     }
 
-    public async Task<IActionResult> EditRequest(int? id)
+    [HttpGet]
+    public async Task<IActionResult> EditRequest(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var request = await _unitOfWork.Request.GetById((int)id);
+        var request = await _requestService.GetById(id);
 
         if (request is null)
         {
             return NotFound();
         }
 
-        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
+        if (!await _employeeService.IsAuthorizedToSee(User, request.CreatedBy.Id))
         {
-            return Unauthorized();
+            return Forbid();
         }
 
-        var requestData = _mapper.Map<RequestEdit>(request);
-        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
+        var requestData = _requestService.ConvertToEditDto(request);
+        requestData.LeaveTypes = await _leaveTypeService.GetAll();
         requestData.SelectedLeaveTypeID = request.LeaveType.ID;
 
         return View(requestData);
@@ -288,103 +203,65 @@ public class RequestsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditRequest(int id, RequestEdit requestData)
+    public async Task<IActionResult> EditRequest(RequestEdit requestData)
     {
-        requestData.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
-        var requestEntity = await _unitOfWork.Request.GetById(requestData.ID);
-        var leaveType = await _unitOfWork.LeaveType.GetById(requestData.SelectedLeaveTypeID);
+        var requestEntity = await _requestService.GetById(requestData.ID);
 
-        if (requestEntity is null || leaveType is null)
+        if (requestEntity is null)
         {
             return NotFound();
         }
 
-        requestData.Response = requestEntity.Response;
-        var errors = await _unitOfWork.Request.ValidateOnEdit(requestData, requestEntity.CreatedBy);
-        foreach (var error in errors)
+        if (!await _employeeService.IsAuthorizedToSee(User, requestEntity.CreatedBy.Id))
         {
-            ModelState.AddModelError(error.Property, error.Text);
+            return Forbid();
         }
 
-        if (!ModelState.IsValid)
+        requestData.LeaveTypes = await _leaveTypeService.GetAll();
+        requestData.Response = requestEntity.Response;
+
+        var result = await _requestService.Edit(requestEntity, requestData);
+
+        if (result.Entity is null)
         {
+            HandleModelErrors(result.Errors);
             return View(requestData);
         }
 
-        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, requestEntity.CreatedBy.Id))
-        {
-            return Unauthorized();
-        }
+        Notification("Request successfully edited.");
 
-        var response = requestEntity.Response;
-        var seeker = requestEntity.CreatedBy;
-
-        if (response is not null)
-        {
-            if (requestEntity.Status is RequestStatus.Approved)
-            {
-                seeker.DaysOffNumber += response.NumOfDaysRemovedFromNewDaysOff;
-                seeker.OldDaysOffNumber += response.NumOfDaysRemovedFromOldDaysOff;
-            }
-
-            _unitOfWork.Response.Delete(response);
-            _unitOfWork.Employee.Update(seeker);
-        }
-
-        _mapper.Map(requestData, requestEntity);
-        requestEntity.LeaveType = leaveType;
-
-        RequestEmailTemplates templates = new(seeker, requestEntity);
-
-        var isNotified = await _notifierService.NotifyEmployee(templates.Edited);
-        await _notifierService.NotifyHRTeam(templates.HREdited);
-
-        requestEntity.NotificationStatus = isNotified ?
-            NotificationStatus.Notified
-            :
-            NotificationStatus.NotNotifiedOfChange;
-
-        _unitOfWork.Request.Update(requestEntity);
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success("Request successfully edited.");
-
-        return RedirectToAction(nameof(Details), new { requestEntity.ID });
+        return RedirectToAction(nameof(Details), new { result.Entity.ID });
     }
 
+    [HttpGet]
     [Authorize(Roles = nameof(Roles.Admin))]
-    public async Task<IActionResult> EditResponse(int? id)
+    public async Task<IActionResult> EditResponse(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var response = await _unitOfWork.Response.GetById((int)id);
+        var response = await _requestService.GetResponseById(id);
 
         if (response is null)
         {
             return NotFound();
         }
 
-        var request = await _unitOfWork.Request.GetById(response.RequestID);
+        var request = await _requestService.GetById(response.RequestID);
 
         if (request is null)
         {
             return NotFound();
         }
 
-        if (!await _unitOfWork.Employee.isAuthorized(User))
+        if (!await _employeeService.IsAuthorized(User))
         {
             return Unauthorized();
         }
 
-        var model = _mapper.Map<ResponseEdit>(response);
-        model.Request = request;
-        model.LeaveTypes = await _unitOfWork.LeaveType.GetRestrictedAll();
-        model.SelectedLeaveTypeID = request.LeaveType.ID;
+        var responseEdit = _requestService.ConvertToEditDto(response);
+        responseEdit.Request = request;
+        responseEdit.LeaveTypes = await _leaveTypeService.GetAll();
+        responseEdit.SelectedLeaveTypeID = request.LeaveType.ID;
 
-        return View(model);
+        return View(responseEdit);
     }
 
     [HttpPost]
@@ -392,182 +269,92 @@ public class RequestsController : Controller
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> EditResponse(int id, ResponseEdit responseData)
     {
-        var reviewer = await _unitOfWork.Employee.GetCurrent(User);
+        var reviewer = await _employeeService.GetCurrent(User);
 
         if (reviewer is null
-            || !await _unitOfWork.Employee.IsAdmin(reviewer))
+            || !await _employeeService.IsAuthorized(User))
         {
             return Forbid();
         }
 
-        var request = await _unitOfWork.Request.GetById(responseData.Request.ID);
+        var request = await _requestService.GetById(responseData.Request.ID);
 
-        if (request is null)
+        if (request is null
+            || request.Response is null)
         {
             return NotFound();
         }
 
-        var seeker = request.CreatedBy;
-        var response = request.Response;
-        var leaveType = await _unitOfWork.LeaveType.GetById(responseData.SelectedLeaveTypeID);
+        var result = await _requestService.EditResponse(request, request.Response, responseData, reviewer);
 
-        if (response is null
-            || leaveType is null
-            || seeker is null
-            || id != response.ID)
+        if (result.Entity is null)
         {
-            return NotFound();
+            HandleModelErrors(result.Errors);
+            return View(responseData);
         }
 
-        var oldStatus = request.Status;
-        var newStatus = responseData.IsApproved ?
-                        RequestStatus.Approved
-                        :
-                        RequestStatus.Rejected;
-
-        if (oldStatus != newStatus)
-        {
-            if (oldStatus is RequestStatus.Rejected
-                && newStatus is RequestStatus.Approved)
-            {
-                var distrib = _unitOfWork.Request.GetDaysOffDistribution(
-                    seeker.OldDaysOffNumber,
-                    seeker.DaysOffNumber,
-                    request);
-
-                seeker.OldDaysOffNumber -= distrib.removeFromOldDays;
-                seeker.DaysOffNumber -= distrib.removeFromNewDays;
-
-                response.NumOfDaysRemovedFromNewDaysOff = distrib.removeFromNewDays;
-                response.NumOfDaysRemovedFromOldDaysOff = distrib.removeFromOldDays;
-            }
-
-            if (oldStatus is RequestStatus.Approved
-                && newStatus is RequestStatus.Rejected)
-            {
-                seeker.DaysOffNumber += response.NumOfDaysRemovedFromNewDaysOff;
-                seeker.OldDaysOffNumber += response.NumOfDaysRemovedFromOldDaysOff;
-            }
-
-            _unitOfWork.Employee.Update(seeker);
-        }
-
-        request.LeaveType = leaveType;
-        _unitOfWork.Request.Update(request);
-
-        response.IsApproved = responseData.IsApproved;
-        response.Comment = responseData.Comment;
-        response.ReviewedBy = reviewer;
-        _unitOfWork.Response.Update(response);
-
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success("Response successfully edited.");
+        Notification("Response successfully edited.");
 
         return RedirectToAction(nameof(AdminPanel));
     }
 
+
+    [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
+        var user = await _employeeService.GetCurrent(User);
+
         if (user is null)
         {
             return Unauthorized();
         }
 
-        var request = await _unitOfWork.Request.GetById(id);
+        var request = await _requestService.GetById(id);
+
         if (request is null)
         {
             return NotFound();
         }
 
-        if (!await _unitOfWork.Employee.isAuthorizedToSee(User, request.CreatedBy.Id))
+        if (!await _employeeService.IsAuthorizedToSee(User, request.CreatedBy.Id))
         {
             return Forbid();
         }
 
-        _unitOfWork.Request.Delete(request);
-        await _unitOfWork.SaveChangesAsync();
+        await _requestService.Delete(request);
 
-        _toaster.Success("Request successfully deleted.");
+        Notification("Request successfully deleted.");
 
-        RequestEmailTemplates templates = new(request.CreatedBy, request);
-        await _notifierService.NotifyEmployee(templates.Deleted);
-        await _notifierService.NotifyHRTeam(templates.HRDeleted);
-
-        return user.Id == request.CreatedBy.Id ?
-            RedirectToAction(nameof(MyRequests))
+        return RedirectToAction(user.Id == request.CreatedBy.Id ?
+            nameof(MyRequests)
             :
-            RedirectToAction(nameof(AdminPanel));
+            nameof(AdminPanel));
     }
 
+    [HttpPost]
     [Authorize(Roles = nameof(Roles.Admin))]
     public async Task<IActionResult> CreateCollectiveVacation(CollectiveVacationCreate data)
     {
-        var user = await _unitOfWork.Employee.GetCurrent(User);
+        var user = await _employeeService.GetCurrent(User);
         if (user is null)
         {
             return Unauthorized();
         }
 
-        if (!await _unitOfWork.Employee.IsAdmin(user))
+        if (!await _employeeService.IsAuthorized(User))
         {
             return Forbid();
         }
 
-        if (data.StartDate > data.EndDate)
+        var result = await _requestService.CreateCollectiveVacation(user, data);
+
+        if (result.Entity is null)
         {
-            _toaster.Error("Vacation not created, end date cannot be earlier than the start date.");
+            HandleErrors(result.Errors);
             return RedirectToAction(nameof(AdminPanel));
         }
 
-        var leaveType = await _unitOfWork.LeaveType.GetByCaption(VacationType.CollectiveVacation);
-
-        if (leaveType is null)
-        {
-            _toaster.Error("Invalid leave type.");
-            return RedirectToAction(nameof(AdminPanel));
-        }
-
-        Request req = new()
-        {
-            LeaveType = leaveType,
-            StartDate = data.StartDate,
-            EndDate = data.EndDate,
-            Comment = data.Comment,
-            CreatedBy = user
-        };
-
-        Response resp = new()
-        {
-            IsApproved = true,
-            Request = req,
-            ReviewedBy = user
-        };
-
-        req.Response = resp;
-
-        _unitOfWork.Request.Insert(req);
-        _unitOfWork.Response.Insert(resp);
-
-        var employees = await _unitOfWork.Employee.GetAll();
-
-        foreach (var emp in employees)
-        {
-            var distrib = _unitOfWork.Request.GetDaysOffDistribution(emp.OldDaysOffNumber, emp.DaysOffNumber, req);
-
-            emp.DaysOffNumber = Math.Max(emp.DaysOffNumber - distrib.removeFromNewDays, 0);
-            emp.OldDaysOffNumber = Math.Max(emp.OldDaysOffNumber - distrib.removeFromOldDays, 0);
-
-            RequestEmailTemplates templates = new(emp, req);
-            await _notifierService.NotifyEmployee(templates.CollectiveVacation);
-
-            _unitOfWork.Employee.Update(emp);
-        }
-
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success("Collective vacation successfully created.");
+        Notification("Collective vacation successfully created.");
 
         return RedirectToAction(nameof(AdminPanel));
     }

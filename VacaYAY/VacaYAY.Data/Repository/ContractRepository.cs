@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
-using VacaYAY.Business.Contracts.RepositoryContracts;
-using VacaYAY.Business.Contracts.ServiceContracts;
-using VacaYAY.Data;
+using VacaYAY.Data.DataServiceContracts;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;
+using VacaYAY.Data.RepositoryContracts;
 
-namespace VacaYAY.Business.Repository;
+namespace VacaYAY.Data.Repository;
 
 public class ContractRepository : RepositoryBase<Contract>, IContractRepository
 {

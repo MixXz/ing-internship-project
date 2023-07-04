@@ -1,7 +1,6 @@
-﻿using Azure.Storage.Blobs.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace VacaYAY.Business.Contracts.ServiceContracts;
+namespace VacaYAY.Data.DataServiceContracts;
 
 public interface IBlobService
 {

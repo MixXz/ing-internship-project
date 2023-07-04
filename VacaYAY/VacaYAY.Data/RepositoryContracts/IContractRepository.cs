@@ -2,7 +2,7 @@
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 
-namespace VacaYAY.Business.Contracts.RepositoryContracts;
+namespace VacaYAY.Data.RepositoryContracts;
 
 public interface IContractRepository : IRepositoryBase<Contract>
 {

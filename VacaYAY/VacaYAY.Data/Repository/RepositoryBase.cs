@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using VacaYAY.Business.Contracts.RepositoryContracts;
-using VacaYAY.Data;
+using VacaYAY.Data.RepositoryContracts;
 
-namespace VacaYAY.Business.Repository;
+namespace VacaYAY.Data.Repository;
 public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
     private readonly Context _context;

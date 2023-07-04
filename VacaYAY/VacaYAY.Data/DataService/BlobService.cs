@@ -3,9 +3,9 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using VacaYAY.Business.Contracts.ServiceContracts;
+using VacaYAY.Data.DataServiceContracts;
 
-namespace VacaYAY.Business.Services;
+namespace VacaYAY.Data.DataService;
 
 public class BlobService : IBlobService
 {
@@ -60,7 +60,7 @@ public class BlobService : IBlobService
         var blobClient = GetBlobClientFromBlobUrl(blobUrl);
         var result = await blobClient.DownloadAsync();
 
-        return (result.Value.Content,  result.Value.ContentType);
+        return (result.Value.Content, result.Value.ContentType);
     }
 
     public async Task<Stream> DownloadToPdfStream(string blobUrl)

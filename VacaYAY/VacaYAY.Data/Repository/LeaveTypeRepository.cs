@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
-using VacaYAY.Business.Contracts.RepositoryContracts;
 using VacaYAY.Data;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
+using VacaYAY.Data.RepositoryContracts;
 
-namespace VacaYAY.Business.Repository;
+namespace VacaYAY.Data.Repository;
 
 public class LeaveTypeRepository : RepositoryBase<LeaveType>, ILeaveTypeRepository
 {

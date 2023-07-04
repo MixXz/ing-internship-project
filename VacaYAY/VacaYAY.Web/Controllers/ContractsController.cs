@@ -2,10 +2,10 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VacaYAY.Business.Contracts;
-using VacaYAY.Business.Contracts.ServiceContracts;
+using VacaYAY.Data.DataServiceContracts;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Enums;
+using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Web.Controllers;
 

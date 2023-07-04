@@ -1,6 +1,4 @@
-﻿using VacaYAY.Data.Entities;
-
-namespace VacaYAY.Business.Contracts.ServiceContracts;
+﻿namespace VacaYAY.Business.ServiceContracts;
 
 public interface INotifierSerivice
 {

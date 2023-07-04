@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using VacaYAY.Business.Contracts.ServiceContracts;
+using VacaYAY.Business.ServiceContracts;
 
 namespace VacaYAY.Business.Services;
 

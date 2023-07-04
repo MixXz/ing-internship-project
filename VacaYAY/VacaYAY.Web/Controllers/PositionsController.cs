@@ -1,9 +1,9 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VacaYAY.Business.Contracts;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
+using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Web.Controllers;
 

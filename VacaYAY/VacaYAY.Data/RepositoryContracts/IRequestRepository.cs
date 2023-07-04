@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using VacaYAY.Data.DataTransferObjects;
+﻿using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 
-namespace VacaYAY.Business.Contracts.RepositoryContracts;
+namespace VacaYAY.Data.RepositoryContracts;
 
 public interface IRequestRepository : IRepositoryBase<Request>
 {

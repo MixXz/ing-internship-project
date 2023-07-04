@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Quartz;
-using VacaYAY.Business.Contracts;
+﻿using Quartz;
+using Microsoft.Extensions.Configuration;
+using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Business.Jobs;
 

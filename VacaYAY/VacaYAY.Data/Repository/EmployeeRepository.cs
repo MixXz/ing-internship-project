@@ -3,14 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using VacaYAY.Business.Contracts.RepositoryContracts;
-using VacaYAY.Data;
 using VacaYAY.Data.DataTransferObjects;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;
+using VacaYAY.Data.RepositoryContracts;
 
-namespace VacaYAY.Business.Repository;
+namespace VacaYAY.Data.Repository;
 
 public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
 {
@@ -175,13 +174,13 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return result;
     }
 
-    public async Task<ServiceResult<Employee>> Update(string id, EmployeeEdit employeeData)
+    public async Task<ServiceResult<Employee>> Update(EmployeeEdit employeeData)
     {
         ServiceResult<Employee> result = new();
 
         result.Errors = Validate(employeeData.FirstName, employeeData.LastName, employeeData.EmployeeStartDate, employeeData.EmployeeEndDate);
 
-        var employeeEntity = await GetById(id);
+        var employeeEntity = await GetById(employeeData.Id);
 
         if (employeeEntity is null)
         {
@@ -356,7 +355,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return userClaims.IsInRole(nameof(Roles.Admin));
     }
 
-    public async Task<bool> isAuthorized(ClaimsPrincipal userClaims)
+    public async Task<bool> IsAuthorized(ClaimsPrincipal userClaims)
     {
         var user = await GetCurrent(userClaims);
 
@@ -368,7 +367,7 @@ public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
         return await IsAdmin(user);
     }
 
-    public async Task<bool> isAuthorizedToSee(ClaimsPrincipal userClaims, string authorId)
+    public async Task<bool> IsAuthorizedToSee(ClaimsPrincipal userClaims, string authorId)
     {
         var user = await GetCurrent(userClaims);
 

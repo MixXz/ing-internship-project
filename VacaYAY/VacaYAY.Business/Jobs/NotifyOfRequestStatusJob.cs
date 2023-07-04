@@ -1,8 +1,8 @@
 ﻿using Quartz;
-using VacaYAY.Business.Contracts;
-using VacaYAY.Business.Contracts.ServiceContracts;
+using VacaYAY.Business.ServiceContracts;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;
+using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Business.Jobs;
 

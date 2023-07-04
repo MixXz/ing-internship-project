@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using VacaYAY.Business.Contracts;
-using VacaYAY.Business.Contracts.RepositoryContracts;
-using VacaYAY.Business.Contracts.ServiceContracts;
-using VacaYAY.Business.Repository;
-using VacaYAY.Data;
+using VacaYAY.Data.DataServiceContracts;
 using VacaYAY.Data.Entities;
+using VacaYAY.Data.Repository;
+using VacaYAY.Data.RepositoryContracts;
 
-namespace VacaYAY.Business.Services;
+namespace VacaYAY.Data.Services;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly Context _context;

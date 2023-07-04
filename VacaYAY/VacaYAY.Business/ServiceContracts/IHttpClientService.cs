@@ -1,4 +1,4 @@
-﻿namespace VacaYAY.Business.Contracts.ServiceContracts;
+﻿namespace VacaYAY.Business.ServiceContracts;
 
 public interface IHttpClientService
 {
