@@ -8,6 +8,7 @@ namespace VacaYAY.Web.Controllers;
 public class BaseController : Controller
 {
     private readonly INotyfService _toaster;
+
     public BaseController(INotyfService toaster)
     {
         _toaster = toaster;

@@ -11,12 +11,12 @@ namespace VacaYAY.Business.Services;
 public class RequestService : IRequestService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly INotifierSerivice _notifierService;
+    private readonly INotifierService _notifierService;
     private readonly IMapper _mapper;
 
     public RequestService(
         IUnitOfWork unitOfWork,
-        INotifierSerivice notifierService,
+        INotifierService notifierService,
         IMapper mapper)
     {
         _unitOfWork = unitOfWork;
@@ -81,10 +81,16 @@ public class RequestService : IRequestService
             Comment = requestData.Comment,
         };
 
-        RequestEmailTemplates templates = new(author, requestEntity);
+        bool isNotified = await _notifierService.NotifyEmployee(RequestEmailTemplates.GetEmail(
+            EmailTemplateType.Created,
+            author,
+            requestEntity));
 
-        bool isNotified = await _notifierService.NotifyEmployee(templates.Created);
-        await _notifierService.NotifyHRTeam(templates.HRCreated);
+        await _notifierService.NotifyHRTeam(RequestEmailTemplates.GetEmail(
+            EmailTemplateType.Created,
+            author,
+            requestEntity,
+            isForHR: true));
 
         requestEntity.NotificationStatus = isNotified ?
             NotificationStatus.Notified
@@ -141,10 +147,16 @@ public class RequestService : IRequestService
         _mapper.Map(requestData, requestEntity);
         requestEntity.LeaveType = leaveType;
 
-        RequestEmailTemplates templates = new(seeker, requestEntity);
+        bool isNotified = await _notifierService.NotifyEmployee(RequestEmailTemplates.GetEmail(
+            EmailTemplateType.Edited,
+            seeker,
+            requestEntity));
 
-        var isNotified = await _notifierService.NotifyEmployee(templates.Edited);
-        await _notifierService.NotifyHRTeam(templates.HREdited);
+        await _notifierService.NotifyHRTeam(RequestEmailTemplates.GetEmail(
+            EmailTemplateType.Edited,
+            seeker,
+            requestEntity,
+            isForHR: true));
 
         requestEntity.NotificationStatus = isNotified ?
             NotificationStatus.Notified
@@ -164,9 +176,16 @@ public class RequestService : IRequestService
         _unitOfWork.Request.Delete(request);
         await _unitOfWork.SaveChangesAsync();
 
-        RequestEmailTemplates templates = new(request.CreatedBy, request);
-        await _notifierService.NotifyEmployee(templates.Deleted);
-        await _notifierService.NotifyHRTeam(templates.HRDeleted);
+        await _notifierService.NotifyEmployee(RequestEmailTemplates.GetEmail(
+            EmailTemplateType.Deleted,
+            request.CreatedBy,
+            request));
+
+        await _notifierService.NotifyHRTeam(RequestEmailTemplates.GetEmail(
+            EmailTemplateType.Edited,
+            request.CreatedBy,
+            request,
+            isForHR: true));
 
         return new ServiceResult<Request> { Entity = request };
     }
@@ -220,11 +239,13 @@ public class RequestService : IRequestService
         request.Response = response;
         request.LeaveType = leaveType;
 
-        RequestEmailTemplates templates = new(seeker, request);
-        var isNotified = await _notifierService.NotifyEmployee(response.IsApproved ?
-            templates.Approved
+        var isNotified = await _notifierService.NotifyEmployee(RequestEmailTemplates.GetEmail(
+            response.IsApproved ?
+            EmailTemplateType.Approved
             :
-            templates.Rejected, true);
+            EmailTemplateType.Rejected,
+            seeker,
+            request));
 
         request.NotificationStatus = isNotified ?
             NotificationStatus.Notified
@@ -364,13 +385,18 @@ public class RequestService : IRequestService
 
         foreach (var emp in employees)
         {
-            var distrib = _unitOfWork.Request.GetDaysOffDistribution(emp.OldDaysOffNumber, emp.DaysOffNumber, req);
+            var distrib = _unitOfWork.Request.GetDaysOffDistribution(
+                emp.OldDaysOffNumber,
+                emp.DaysOffNumber,
+                req);
 
             emp.DaysOffNumber = Math.Max(emp.DaysOffNumber - distrib.removeFromNewDays, 0);
             emp.OldDaysOffNumber = Math.Max(emp.OldDaysOffNumber - distrib.removeFromOldDays, 0);
 
-            RequestEmailTemplates templates = new(emp, req);
-            await _notifierService.NotifyEmployee(templates.CollectiveVacation);
+            await _notifierService.NotifyEmployee(RequestEmailTemplates.GetEmail(
+                EmailTemplateType.CollectiveVacation,
+                emp,
+                req));
 
             _unitOfWork.Employee.Update(emp);
         }
@@ -378,7 +404,6 @@ public class RequestService : IRequestService
         await _unitOfWork.SaveChangesAsync();
 
         result.Entity = req;
-
         return result;
     }
 }

@@ -8,11 +8,11 @@ namespace VacaYAY.Business.Jobs;
 public class RemoveOldDaysOffJob : IJob
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly INotifierSerivice _notifierService;
+    private readonly INotifierService _notifierService;
 
     public RemoveOldDaysOffJob(
         IUnitOfWork unitOfWork,
-        INotifierSerivice notifierSerivice)
+        INotifierService notifierSerivice)
     {
         _unitOfWork = unitOfWork;
         _notifierService = notifierSerivice;

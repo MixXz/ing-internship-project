@@ -7,7 +7,7 @@ using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Data.Repository;
 
-public class RequestRepository : RepositoryBase<Request>, IRequestRepository
+internal class RequestRepository : RepositoryBase<Request>, IRequestRepository
 {
     private readonly Context _context;
     public RequestRepository(Context context)

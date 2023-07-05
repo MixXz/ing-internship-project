@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Data.Repository;
-public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
+internal abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
     private readonly Context _context;
 

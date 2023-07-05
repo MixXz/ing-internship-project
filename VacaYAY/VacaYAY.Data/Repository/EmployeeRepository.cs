@@ -11,7 +11,7 @@ using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Data.Repository;
 
-public class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
+internal class EmployeeRepository : RepositoryBase<Employee>, IEmployeeRepository
 {
     private readonly Context _context;
     private readonly UserManager<Employee> _userManager;

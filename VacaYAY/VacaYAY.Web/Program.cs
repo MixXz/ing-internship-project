@@ -48,13 +48,14 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
-builder.Services.AddScoped<INotifierSerivice, NotifierService>();
+builder.Services.AddScoped<INotifierService, NotifierService>();
 builder.Services.AddScoped<IBlobService, BlobService>();
 
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<ILeaveTypeService, LeaveTypeService>();
+builder.Services.AddScoped<IContractService, ContractService>();
 
 builder.Services.AddNotyf(config =>
 {

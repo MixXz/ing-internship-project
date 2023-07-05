@@ -10,7 +10,7 @@ using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Data.Repository;
 
-public class ContractRepository : RepositoryBase<Contract>, IContractRepository
+internal class ContractRepository : RepositoryBase<Contract>, IContractRepository
 {
     private readonly Context _context;
     private readonly IBlobService _blobService;

@@ -24,7 +24,7 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_employeeRepository == null)
+            if (_employeeRepository is null)
             {
                 _employeeRepository = new(
                     _context,
@@ -41,7 +41,7 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_requestRepository == null)
+            if (_requestRepository is null)
             {
                 _requestRepository = new(_context);
             }
@@ -54,7 +54,7 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_responseRepository == null)
+            if (_responseRepository is null)
             {
                 _responseRepository = new(_context);
             }
@@ -67,7 +67,7 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_positionRepository == null)
+            if (_positionRepository is null)
             {
                 _positionRepository = new(_context);
             }
@@ -80,7 +80,7 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_leaveTypeRepository == null)
+            if (_leaveTypeRepository is null)
             {
                 _leaveTypeRepository = new(_context);
             }
@@ -93,7 +93,7 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_contractRepository == null)
+            if (_contractRepository is null)
             {
                 _contractRepository = new(
                     _context,

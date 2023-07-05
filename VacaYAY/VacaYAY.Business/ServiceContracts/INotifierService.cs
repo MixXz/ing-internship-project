@@ -1,7 +1,7 @@
 ﻿namespace VacaYAY.Business.ServiceContracts;
 
-public interface INotifierSerivice
+public interface INotifierService
 {
     Task<bool> NotifyEmployee((string? email, string subject, string content) message, bool withPdf = false);
-    Task NotifyHRTeam((string subject, string content) message);
+    Task NotifyHRTeam((string? email, string subject, string content) message);
 }

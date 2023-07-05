@@ -7,7 +7,7 @@ using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Data.Repository;
 
-public class LeaveTypeRepository : RepositoryBase<LeaveType>, ILeaveTypeRepository
+internal class LeaveTypeRepository : RepositoryBase<LeaveType>, ILeaveTypeRepository
 {
     private readonly Context _context;
     public LeaveTypeRepository(Context context)

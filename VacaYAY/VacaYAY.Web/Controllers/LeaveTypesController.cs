@@ -1,39 +1,35 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VacaYAY.Business.ServiceContracts;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
-using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Web.Controllers;
 
 [Authorize(Roles = nameof(Roles.Admin))]
-public class LeaveTypesController : Controller
+public class LeaveTypesController : BaseController
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly INotyfService _toaster;
+    private readonly ILeaveTypeService _leaveTypeService;
 
     public LeaveTypesController(
-        IUnitOfWork unitOfWork,
+        ILeaveTypeService leaveTypeService,
         INotyfService toaster)
+        : base(toaster)
     {
-        _unitOfWork = unitOfWork;
-        _toaster = toaster;
+        _leaveTypeService = leaveTypeService;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
-        return View(await _unitOfWork.LeaveType.GetAll());
+        return View(await _leaveTypeService.GetAll());
     }
 
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var leaveType = await _unitOfWork.LeaveType.GetById((int)id);
+        var leaveType = await _leaveTypeService.GetById(id);
 
         if (leaveType is null)
         {
@@ -43,6 +39,7 @@ public class LeaveTypesController : Controller
         return View(leaveType);
     }
 
+    [HttpGet]
     public IActionResult Create()
     {
         return View();
@@ -52,34 +49,23 @@ public class LeaveTypesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(LeaveType leaveType)
     {
-        var errors = _unitOfWork.LeaveType.Validate(leaveType);
+        var result = await _leaveTypeService.Create(leaveType);
 
-        foreach (var error in errors)
+        if (result.Entity is null)
         {
-            ModelState.AddModelError(error.Property, error.Text);
-        }
-
-        if (!ModelState.IsValid)
-        {
+            HandleModelErrors(result.Errors);
             return View(leaveType);
         }
 
-        _unitOfWork.LeaveType.Insert(leaveType);
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Leave type {leaveType.Caption} successfully created.");
+        Notification($"Leave type {leaveType.Caption} successfully created.");
 
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Edit(int? id)
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var leaveType = await _unitOfWork.LeaveType.GetById((int)id);
+        var leaveType = await _leaveTypeService.GetById(id);
 
         if (leaveType is null)
         {
@@ -91,47 +77,32 @@ public class LeaveTypesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, LeaveType leaveType)
+    public async Task<IActionResult> Edit(LeaveType leaveType)
     {
-        if (id != leaveType.ID)
-        {
-            return NotFound();
-        }
+        var result = await _leaveTypeService.Update(leaveType);
 
-        var errors = _unitOfWork.LeaveType.Validate(leaveType);
-
-        foreach (var error in errors)
+        if (result.Entity is null)
         {
-            ModelState.AddModelError(error.Property, error.Text);
-        }
-
-        if (!ModelState.IsValid)
-        {
+            HandleModelErrors(result.Errors);
             return View(leaveType);
         }
 
-        _unitOfWork.LeaveType.Update(leaveType);
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Leave type {leaveType.Caption} successfully edited.");
+        Notification($"Leave type {leaveType.Caption} successfully edited.");
 
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Delete(int id)
     {
-        var leaveType = await _unitOfWork.LeaveType.GetById(id);
+        var result = await _leaveTypeService.Delete(id);
 
-        if (leaveType is null)
+        if (result.Entity is null)
         {
-            _toaster.Error("Leave type deletion failed.");
+            HandleErrors(result.Errors);
             return RedirectToAction(nameof(Index));
         }
 
-        _unitOfWork.LeaveType.Delete(leaveType);
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Leave type {leaveType.Caption} successfully deleted.");
+        Notification($"Leave type {result.Entity.Caption} successfully deleted.");
 
         return RedirectToAction(nameof(Index));
     }

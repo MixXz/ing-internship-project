@@ -9,14 +9,14 @@ namespace VacaYAY.Business.Jobs;
 public class NotifyOfRequestStatusJob : IJob
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly INotifierSerivice _notifierService;
+    private readonly INotifierService _notifierService;
 
     public NotifyOfRequestStatusJob(
         IUnitOfWork unitOfWork,
-        INotifierSerivice notifierSerivice)
+        INotifierService notifierService)
     {
         _unitOfWork = unitOfWork;
-        _notifierService = notifierSerivice;
+        _notifierService = notifierService;
     }
     public async Task Execute(IJobExecutionContext context)
     {
@@ -24,30 +24,20 @@ public class NotifyOfRequestStatusJob : IJob
 
         foreach (var request in requests)
         {
-            RequestEmailTemplates templates = new(request.CreatedBy, request);
-            bool isNotified = false;
-
-            switch (request.NotificationStatus)
+            EmailTemplateType type = request.NotificationStatus switch
             {
-                case NotificationStatus.NotNotifiedOfCreation:
-                    isNotified = await _notifierService.NotifyEmployee(templates.Created);
-                    break;
-                case NotificationStatus.NotNotifiedOfChange:
-                    isNotified = await _notifierService.NotifyEmployee(templates.Edited);
-                    break;
-                case NotificationStatus.NotNotifiedOfDeletion:
-                    isNotified = await _notifierService.NotifyEmployee(templates.Deleted);
-                    break;
-                case NotificationStatus.NotNotifiedOfReponse:
-                    isNotified = await _notifierService
-                        .NotifyEmployee(request.Status is RequestStatus.Approved ?
-                        templates.Approved
-                        :
-                        templates.Rejected);
-                    break;
-                default:
-                    break;
-            }
+                NotificationStatus.NotNotifiedOfCreation => EmailTemplateType.Created,
+                NotificationStatus.NotNotifiedOfChange => EmailTemplateType.Edited,
+                NotificationStatus.NotNotifiedOfDeletion => EmailTemplateType.Deleted,
+                NotificationStatus.NotNotifiedOfReponse when request.Status is RequestStatus.Approved => EmailTemplateType.Approved,
+                NotificationStatus.NotNotifiedOfReponse => EmailTemplateType.Rejected,
+                _ => throw new InvalidOperationException("Invalid notification status.")
+            };
+
+            var isNotified = await _notifierService.NotifyEmployee(RequestEmailTemplates.GetEmail(
+                type,
+                request.CreatedBy,
+                request));
 
             if (isNotified)
             {

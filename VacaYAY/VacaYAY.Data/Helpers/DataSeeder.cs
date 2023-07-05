@@ -5,7 +5,7 @@ using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Data.Helpers;
 
-public static class DataSeeder
+internal static class DataSeeder
 {
     public static void SeedRootUser(ModelBuilder builder)
     {
