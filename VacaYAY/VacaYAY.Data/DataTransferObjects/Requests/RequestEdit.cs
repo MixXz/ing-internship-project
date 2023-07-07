@@ -3,7 +3,7 @@ using System.ComponentModel;
 using VacaYAY.Data.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Requests;
 
 public class RequestEdit
 {

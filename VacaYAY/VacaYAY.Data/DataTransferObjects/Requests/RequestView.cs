@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using VacaYAY.Data.DataTransferObjects.Vacations;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Requests;
 
 public class RequestView
 {

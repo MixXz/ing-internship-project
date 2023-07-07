@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using VacaYAY.Data.DataServiceContracts;
-using VacaYAY.Data.DataTransferObjects;
+using VacaYAY.Data.DataTransferObjects.Contracts;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using VacaYAY.Business.ServiceContracts;
-using VacaYAY.Data.DataTransferObjects;
+using VacaYAY.Data.DataTransferObjects.Requests;
+using VacaYAY.Data.DataTransferObjects.Responses;
+using VacaYAY.Data.DataTransferObjects.Vacations;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;

@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using VacaYAY.Data.DataTransferObjects;
+using VacaYAY.Data.DataTransferObjects.Employees;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 

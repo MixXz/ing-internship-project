@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using VacaYAY.Data.DataTransferObjects;
+using VacaYAY.Data.DataTransferObjects.Employees;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 using VacaYAY.Data.Helpers;

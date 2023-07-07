@@ -1,6 +1,6 @@
 ﻿using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Contracts;
 
 public class ContractView
 {

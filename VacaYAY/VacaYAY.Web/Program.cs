@@ -13,7 +13,6 @@ using VacaYAY.Data.RepositoryContracts;
 using VacaYAY.Data.Services;
 using VacaYAY.Data.DataServiceContracts;
 using VacaYAY.Data.DataService;
-using VacaYAY.Data.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 

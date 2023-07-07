@@ -1,11 +1,14 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Employees;
 
-public class EmployeeCreate
+public class EmployeeEdit
 {
+    [Key]
+    public string Id { get; set; } = string.Empty;
+
     [Required]
     [MaxLength(50)]
     [DisplayName("First name")]
@@ -22,6 +25,9 @@ public class EmployeeCreate
     public string Address { get; set; } = string.Empty;
 
     [Required]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
     [MaxLength(50)]
     [DisplayName("ID number")]
     public string IDNumber { get; set; } = string.Empty;
@@ -33,28 +39,16 @@ public class EmployeeCreate
 
     [Required]
     [DisplayName("Start date")]
-    public DateTime EmployeeStartDate { get; set; } = DateTime.Now;
+    public DateTime EmployeeStartDate { get; set; }
 
     [DisplayName("End date")]
     public DateTime? EmployeeEndDate { get; set; }
 
     [Required]
-    [EmailAddress]
-    [DisplayName("Email")]
-    public string Email { get; set; } = string.Empty;
+    public Position SelectedPosition { get; set; } = new();
 
     [Required]
-    [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-    [DataType(DataType.Password)]
-    [DisplayName("Password")]
-    public string Password { get; set; } = string.Empty;
-
-    [DataType(DataType.Password)]
-    [DisplayName("Confirm password")]
-    public string ConfirmPassword { get; set; } = string.Empty;
-
-    [Required]
-    public int SelectedPositionID { get; set; }
+    public Contract Contract { get; set; } = new();
 
     public bool MakeAdmin { get; set; } = false;
 

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Vacations;
 
 public class CollectiveVacationCreate
 {

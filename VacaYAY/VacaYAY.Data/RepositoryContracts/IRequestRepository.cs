@@ -1,4 +1,4 @@
-﻿using VacaYAY.Data.DataTransferObjects;
+﻿using VacaYAY.Data.DataTransferObjects.Requests;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 

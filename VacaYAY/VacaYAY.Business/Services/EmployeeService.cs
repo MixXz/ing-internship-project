@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using System.Security.Claims;
 using VacaYAY.Business.ServiceContracts;
-using VacaYAY.Data.DataTransferObjects;
+using VacaYAY.Data.DataTransferObjects.Employees;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 using VacaYAY.Data.RepositoryContracts;

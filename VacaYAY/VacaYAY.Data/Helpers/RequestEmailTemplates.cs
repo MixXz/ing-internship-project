@@ -1,16 +1,7 @@
 ﻿using VacaYAY.Data.Entities;
+using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Data.Helpers;
-
-public enum EmailTemplateType
-{
-    Created,
-    Edited,
-    Deleted,
-    Approved,
-    Rejected,
-    CollectiveVacation
-}
 
 public static class RequestEmailTemplates
 {

@@ -2,8 +2,5 @@
 
 namespace VacaYAY.Data.RepositoryContracts;
 
-public interface IResponseRepository : IRepositoryBase<Response>
-{
-
-}
+public interface IResponseRepository : IRepositoryBase<Response> { }
 

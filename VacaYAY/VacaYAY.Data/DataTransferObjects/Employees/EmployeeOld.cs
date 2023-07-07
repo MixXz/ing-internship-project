@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Employees;
 
 public class EmployeeOld
 {

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using VacaYAY.Business.ServiceContracts;
 using VacaYAY.Data.DataServiceContracts;
-using VacaYAY.Data.DataTransferObjects;
+using VacaYAY.Data.DataTransferObjects.Contracts;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 using VacaYAY.Data.RepositoryContracts;

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VacaYAY.Business.ServiceContracts;
-using VacaYAY.Data.DataTransferObjects;
+using VacaYAY.Data.DataTransferObjects.Contracts;
 using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Web.Controllers;

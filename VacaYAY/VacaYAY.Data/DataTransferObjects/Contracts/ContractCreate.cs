@@ -3,7 +3,7 @@ using System.ComponentModel;
 using VacaYAY.Data.Enums;
 using Microsoft.AspNetCore.Http;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Contracts;
 
 public class ContractCreate
 {

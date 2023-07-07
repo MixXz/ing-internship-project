@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using VacaYAY.Data.Entities;
 
-namespace VacaYAY.Data.DataTransferObjects;
+namespace VacaYAY.Data.DataTransferObjects.Responses;
 
 public class ResponseEdit
 {
