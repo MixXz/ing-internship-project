@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using VacaYAY.Data.DataTransferObjects.Employees;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 
@@ -7,39 +9,46 @@ namespace VacaYAY.Data.Helpers;
 
 internal static class DataSeeder
 {
-    public static void SeedRootUser(ModelBuilder builder)
+    public static void SeedRootUser(ModelBuilder builder, IConfiguration config)
     {
-        var userId = Guid.NewGuid().ToString();
-        var email = "root@root.com";
-        var password = "Root123!";
-        var positionId = 1;
-        var placeholder = "Root";
+        var section = config.GetSection("AppSettings:DefaultData:Employee");
+
+        if (section is null)
+        {
+            throw new ArgumentException("Sections not found.");
+        }
+
+        var employee = section.Get<EmployeeCreate>()!;
+        var employeeId = Guid.NewGuid().ToString();
+
+        var position = section.GetSection(nameof(Position)).Get<Position>()!;
+        position.ID = 1;
 
         var hashedPassword = new PasswordHasher<Employee>().HashPassword(new Employee()
         {
-            Id = userId,
-            Email = email,
-        }, password);
+            Id = employeeId,
+            Email = employee.Email,
+        }, employee.Password);
 
-        SeedPosition(builder, positionId, "HR Manager", "Managing HR operations and employee relations.");
+        SeedPosition(builder, 1, position.Caption, position.Description);
 
         builder.Entity<Employee>()
            .HasData(new
            {
-               Id = userId,
-               FirstName = placeholder,
-               LastName = placeholder,
-               UserName = email,
-               NormalizedUserName = email.ToUpper(),
-               Email = email,
+               Id = employeeId,
+               FirstName = employee.FirstName,
+               LastName = employee.LastName,
+               UserName = employee.Email,
+               NormalizedUserName = employee.Email.ToUpper(),
+               Email = employee.Email,
                PasswordHash = hashedPassword,
-               IDNumber = "999999",
-               Address = placeholder,
+               IDNumber = employee.IDNumber,
+               Address = employee.FirstName,
                EmployeeStartDate = DateTime.Now,
                InsertDate = DateTime.Now,
-               DaysOffNumber = 22,
+               DaysOffNumber = employee.DaysOffNumber,
                OldDaysOffNumber = 0,
-               PositionID = positionId,
+               PositionID = position.ID,
                AccessFailedCount = 0,
                EmailConfirmed = true,
                LockoutEnabled = false,
@@ -50,7 +59,7 @@ internal static class DataSeeder
 
         var roleId = Guid.NewGuid().ToString();
         SeedRole(builder, roleId, nameof(Roles.Admin));
-        SeedUserToRole(builder, userId, roleId);
+        SeedUserToRole(builder, employeeId, roleId);
     }
 
     public static void SeedPosition(ModelBuilder builder, int id, string caption, string description)
@@ -64,15 +73,46 @@ internal static class DataSeeder
             });
     }
 
-    public static void SeedLeaveType(ModelBuilder builder, int id, string caption, string description)
+    public static void SeedPositions(ModelBuilder builder, IConfiguration config)
     {
-        builder.Entity<LeaveType>()
-            .HasData(new LeaveType()
-            {
-                ID = id,
-                Caption = caption,
-                Description = description
-            });
+        var positions = config.GetSection("AppSettings:DefaultData:Positions").Get<List<Position>>();
+
+        if (positions is null)
+        {
+            throw new ArgumentException("Sections not found.");
+        }
+
+        for (int i = 0; i < positions.Count(); i++)
+        {
+            SeedPosition(builder, i + 2, positions[i].Caption, positions[i].Description);
+        }
+    }
+
+    public static void SeedLeaveTypes(ModelBuilder builder, IConfiguration config)
+    {
+        var leaveTypes = config.GetSection("AppSettings:DefaultData:LeaveTypes").Get<List<LeaveType>>();
+
+        if (leaveTypes is null)
+        {
+            throw new ArgumentException("Sections not found.");
+        }
+
+        leaveTypes.Add(new()
+        {
+            Caption = VacationType.CollectiveVacation,
+            Description = VacationType.CollectiveVacation
+        });
+
+        for (int i = 0; i < leaveTypes.Count(); i++)
+        {
+            builder.Entity<LeaveType>()
+                .HasData(new LeaveType()
+                {
+                    ID = i + 1,
+                    Caption = leaveTypes[i].Caption,
+                    Description = leaveTypes[i].Description
+                });
+        }
     }
 
     public static void SeedRole(ModelBuilder builder, string id, string roleName)

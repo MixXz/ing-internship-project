@@ -12,6 +12,7 @@ public interface IEmployeeService
     Task<Employee?> GetByIdDetailed(string id);
     Task<IEnumerable<Employee>> GetAll();
     Task<IEnumerable<Employee>> GetByFilters(EmployeeView filters);
+    Task<IEnumerable<Employee>> GetWithRemainingDaysOff();
     Task<ServiceResult<Employee>> Register(EmployeeCreate employeeData);
     Task<ServiceResult<Employee>> Edit(EmployeeEdit employeeData);
     Task<ServiceResult<Employee>> Delete(string id);
@@ -20,4 +21,6 @@ public interface IEmployeeService
     Task<bool> IsAuthorized(ClaimsPrincipal userClaims);
     Task<bool> IsAuthorizedToSee(ClaimsPrincipal userClaims, string authorId);
     EmployeeEdit GetEditDto(Employee employee);
+    void RemoveOldDaysOff();
+    void AddNewDaysOff(int days);
 }

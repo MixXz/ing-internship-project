@@ -408,4 +408,35 @@ public class RequestService : IRequestService
         result.Entity = req;
         return result;
     }
+
+    public async Task NotifyUninformed()
+    {
+        var requests = await _unitOfWork.Request.GetRequestsWhereAuthorIsntNotified();
+
+        foreach (var request in requests)
+        {
+            EmailTemplateType type = request.NotificationStatus switch
+            {
+                NotificationStatus.NotNotifiedOfCreation => EmailTemplateType.Created,
+                NotificationStatus.NotNotifiedOfChange => EmailTemplateType.Edited,
+                NotificationStatus.NotNotifiedOfDeletion => EmailTemplateType.Deleted,
+                NotificationStatus.NotNotifiedOfReponse when request.Status is RequestStatus.Approved => EmailTemplateType.Approved,
+                NotificationStatus.NotNotifiedOfReponse => EmailTemplateType.Rejected,
+                _ => throw new InvalidOperationException("Invalid notification status.")
+            };
+
+            var isNotified = await _notifierService.NotifyEmployee(RequestEmailTemplates.GetEmail(
+                type,
+                request.CreatedBy,
+                request));
+
+            if (isNotified)
+            {
+                request.NotificationStatus = NotificationStatus.Notified;
+
+                _unitOfWork.Request.Update(request);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+    }
 }

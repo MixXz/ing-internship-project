@@ -21,4 +21,5 @@ public interface IRequestService
     Task<ServiceResult<Request>> CreateCollectiveVacation(Employee author, CollectiveVacationCreate data);
     RequestEdit ConvertToEditDto(Request request);
     ResponseEdit ConvertToEditDto(Response response);
+    Task NotifyUninformed();
 }

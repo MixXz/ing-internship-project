@@ -29,50 +29,50 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "85c9d842-a904-49cc-b412-3ad0b3012fc8", "a1511504-005b-4666-bb10-69eb0c5e9f16", "Admin", "ADMIN" });
+                values: new object[] { "16f58530-02ce-44dc-a08f-b06b69986279", "8008e641-c97c-4975-9ca7-8b11d66458ab", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "DaysOffNumber", "DeleteDate", "Email", "EmailConfirmed", "EmployeeEndDate", "EmployeeStartDate", "FirstName", "IDNumber", "InsertDate", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "OldDaysOffNumber", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PositionID", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "f3518c1e-1c6a-4479-8557-625c673e1720", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 6, 29, 14, 23, 41, 945, DateTimeKind.Local).AddTicks(631), "Root", "999999", new DateTime(2023, 6, 29, 14, 23, 41, 945, DateTimeKind.Local).AddTicks(717), "Root", false, null, null, "ROOT@ROOT.COM", 0, "AQAAAAIAAYagAAAAEGRYO43Z5Lavn5pxFdUXe1JXRTq2knKbRNu1KSDtDJH9pXQSZtQAiqepehXoEzDJLg==", null, false, 1, "f0422ff2-a945-4bba-948b-2e725b08f3d2", false, "root@root.com" });
+                values: new object[] { "a700eb88-5fa4-49d4-9890-08a011bc9dbb", 0, "Root", null, 22, null, "root@root.com", true, null, new DateTime(2023, 7, 10, 9, 52, 39, 644, DateTimeKind.Local).AddTicks(1865), "Root", "999999", new DateTime(2023, 7, 10, 9, 52, 39, 644, DateTimeKind.Local).AddTicks(1923), "Root", false, null, null, "ROOT@ROOT.COM", 0, "AQAAAAIAAYagAAAAED+Sl8tap/IKx7COhI9lLFfzMqEFsJzlcLynTb7IxMOfbd3L5E21V4BQ9RYdigeX/w==", null, false, 1, "b45b27e0-d329-4186-b8da-99924a9122ab", false, "root@root.com" });
 
             migrationBuilder.UpdateData(
                 table: "LeaveTypes",
                 keyColumn: "ID",
                 keyValue: 1,
                 columns: new[] { "Caption", "Description" },
-                values: new object[] { "Collective Vacation", "Opisa bez" });
+                values: new object[] { "Days off", "Some desc." });
 
             migrationBuilder.UpdateData(
                 table: "LeaveTypes",
                 keyColumn: "ID",
                 keyValue: 2,
-                column: "Caption",
-                value: "Sick Leave");
+                columns: new[] { "Caption", "Description" },
+                values: new object[] { "Paid leave", "Some desc." });
 
             migrationBuilder.UpdateData(
                 table: "LeaveTypes",
                 keyColumn: "ID",
                 keyValue: 3,
-                column: "Caption",
-                value: "Days off");
+                columns: new[] { "Caption", "Description" },
+                values: new object[] { "Unpaid leave", "Some desc." });
 
             migrationBuilder.UpdateData(
                 table: "LeaveTypes",
                 keyColumn: "ID",
                 keyValue: 4,
-                column: "Caption",
-                value: "Paid leave");
+                columns: new[] { "Caption", "Description" },
+                values: new object[] { "Sick Leave", "Some desc." });
 
             migrationBuilder.InsertData(
                 table: "LeaveTypes",
                 columns: new[] { "ID", "Caption", "Description" },
-                values: new object[] { 5, "Unpaid leave", "Neki opis" });
+                values: new object[] { 5, "Collective Vacation", "Collective Vacation" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "85c9d842-a904-49cc-b412-3ad0b3012fc8", "f3518c1e-1c6a-4479-8557-625c673e1720" });
+                values: new object[] { "16f58530-02ce-44dc-a08f-b06b69986279", "a700eb88-5fa4-49d4-9890-08a011bc9dbb" });
         }
 
         /// <inheritdoc />
@@ -81,7 +81,7 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "85c9d842-a904-49cc-b412-3ad0b3012fc8", "f3518c1e-1c6a-4479-8557-625c673e1720" });
+                keyValues: new object[] { "16f58530-02ce-44dc-a08f-b06b69986279", "a700eb88-5fa4-49d4-9890-08a011bc9dbb" });
 
             migrationBuilder.DeleteData(
                 table: "LeaveTypes",
@@ -91,12 +91,12 @@ namespace VacaYAY.Data.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "85c9d842-a904-49cc-b412-3ad0b3012fc8");
+                keyValue: "16f58530-02ce-44dc-a08f-b06b69986279");
 
             migrationBuilder.DeleteData(
                 table: "Employees",
                 keyColumn: "Id",
-                keyValue: "f3518c1e-1c6a-4479-8557-625c673e1720");
+                keyValue: "a700eb88-5fa4-49d4-9890-08a011bc9dbb");
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
@@ -119,22 +119,22 @@ namespace VacaYAY.Data.Migrations
                 table: "LeaveTypes",
                 keyColumn: "ID",
                 keyValue: 2,
-                column: "Caption",
-                value: "Days off");
+                columns: new[] { "Caption", "Description" },
+                values: new object[] { "Days off", "Neki opis" });
 
             migrationBuilder.UpdateData(
                 table: "LeaveTypes",
                 keyColumn: "ID",
                 keyValue: 3,
-                column: "Caption",
-                value: "Paid leave");
+                columns: new[] { "Caption", "Description" },
+                values: new object[] { "Paid leave", "Neki opis" });
 
             migrationBuilder.UpdateData(
                 table: "LeaveTypes",
                 keyColumn: "ID",
                 keyValue: 4,
-                column: "Caption",
-                value: "Unpaid leave");
+                columns: new[] { "Caption", "Description" },
+                values: new object[] { "Unpaid leave", "Neki opis" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",

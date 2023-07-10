@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Quartz;
+﻿using Quartz;
 
 public static class QuartzConfiguratorExtensions
 {

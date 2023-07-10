@@ -46,6 +46,11 @@ public class EmployeeService : IEmployeeService
         return await _unitOfWork.Employee.GetCurrent(claims);
     }
 
+    public async Task<IEnumerable<Employee>> GetWithRemainingDaysOff()
+    {
+        return await _unitOfWork.Employee.GetWithRemainingDaysOff();
+    }
+
     public async Task<ServiceResult<Employee>> Register(EmployeeCreate employeeData)
     {
         ServiceResult<Employee> result = new();
@@ -173,5 +178,15 @@ public class EmployeeService : IEmployeeService
     public EmployeeEdit GetEditDto(Employee employee)
     {
         return _mapper.Map<EmployeeEdit>(employee);
+    }
+
+    public void RemoveOldDaysOff()
+    {
+        _unitOfWork.Employee.RemoveOldDaysOff();
+    }
+
+    public void AddNewDaysOff(int days)
+    {
+        _unitOfWork.Employee.AddNewDaysOff(days);
     }
 }

@@ -12,7 +12,7 @@ using VacaYAY.Data;
 namespace VacaYAY.Data.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230629122342_V14")]
+    [Migration("20230710075239_V14")]
     partial class V14
     {
         /// <inheritdoc />
@@ -54,8 +54,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "85c9d842-a904-49cc-b412-3ad0b3012fc8",
-                            ConcurrencyStamp = "a1511504-005b-4666-bb10-69eb0c5e9f16",
+                            Id = "16f58530-02ce-44dc-a08f-b06b69986279",
+                            ConcurrencyStamp = "8008e641-c97c-4975-9ca7-8b11d66458ab",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -150,8 +150,8 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "f3518c1e-1c6a-4479-8557-625c673e1720",
-                            RoleId = "85c9d842-a904-49cc-b412-3ad0b3012fc8"
+                            UserId = "a700eb88-5fa4-49d4-9890-08a011bc9dbb",
+                            RoleId = "16f58530-02ce-44dc-a08f-b06b69986279"
                         });
                 });
 
@@ -321,24 +321,24 @@ namespace VacaYAY.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f3518c1e-1c6a-4479-8557-625c673e1720",
+                            Id = "a700eb88-5fa4-49d4-9890-08a011bc9dbb",
                             AccessFailedCount = 0,
                             Address = "Root",
                             DaysOffNumber = 22,
                             Email = "root@root.com",
                             EmailConfirmed = true,
-                            EmployeeStartDate = new DateTime(2023, 6, 29, 14, 23, 41, 945, DateTimeKind.Local).AddTicks(631),
+                            EmployeeStartDate = new DateTime(2023, 7, 10, 9, 52, 39, 644, DateTimeKind.Local).AddTicks(1865),
                             FirstName = "Root",
                             IDNumber = "999999",
-                            InsertDate = new DateTime(2023, 6, 29, 14, 23, 41, 945, DateTimeKind.Local).AddTicks(717),
+                            InsertDate = new DateTime(2023, 7, 10, 9, 52, 39, 644, DateTimeKind.Local).AddTicks(1923),
                             LastName = "Root",
                             LockoutEnabled = false,
                             NormalizedUserName = "ROOT@ROOT.COM",
                             OldDaysOffNumber = 0,
-                            PasswordHash = "AQAAAAIAAYagAAAAEGRYO43Z5Lavn5pxFdUXe1JXRTq2knKbRNu1KSDtDJH9pXQSZtQAiqepehXoEzDJLg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAED+Sl8tap/IKx7COhI9lLFfzMqEFsJzlcLynTb7IxMOfbd3L5E21V4BQ9RYdigeX/w==",
                             PhoneNumberConfirmed = false,
                             PositionID = 1,
-                            SecurityStamp = "f0422ff2-a945-4bba-948b-2e725b08f3d2",
+                            SecurityStamp = "b45b27e0-d329-4186-b8da-99924a9122ab",
                             TwoFactorEnabled = false,
                             UserName = "root@root.com"
                         });
@@ -370,32 +370,32 @@ namespace VacaYAY.Data.Migrations
                         new
                         {
                             ID = 1,
-                            Caption = "Collective Vacation",
-                            Description = "Opisa bez"
+                            Caption = "Days off",
+                            Description = "Some desc."
                         },
                         new
                         {
                             ID = 2,
-                            Caption = "Sick Leave",
-                            Description = "Neki opis"
+                            Caption = "Paid leave",
+                            Description = "Some desc."
                         },
                         new
                         {
                             ID = 3,
-                            Caption = "Days off",
-                            Description = "Neki opis"
+                            Caption = "Unpaid leave",
+                            Description = "Some desc."
                         },
                         new
                         {
                             ID = 4,
-                            Caption = "Paid leave",
-                            Description = "Neki opis"
+                            Caption = "Sick Leave",
+                            Description = "Some desc."
                         },
                         new
                         {
                             ID = 5,
-                            Caption = "Unpaid leave",
-                            Description = "Neki opis"
+                            Caption = "Collective Vacation",
+                            Description = "Collective Vacation"
                         });
                 });
 
