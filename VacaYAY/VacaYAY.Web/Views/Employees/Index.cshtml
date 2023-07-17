@@ -1,5 +1,6 @@
 ﻿@using VacaYAY.Data.DataTransferObjects;
 @using VacaYAY.Data.Entities;
+@using VacaYAY.Data.DataTransferObjects.Employees;
 @model EmployeeView
 @{
     ViewData["Title"] = "Manage employees";
@@ -9,11 +10,13 @@
 <div class="row mt-3">
     <h3>Manage employees</h3>
     <hr />
-    <div class="col">
-        <h5>Configuration</h5>        
-        <hr />        
+    <div class="col-2">
+        <h5>Configuration</h5>
+        <hr />
         <a class="btn btn-success w-100" id="register" asp-controller="Employees" asp-action="Register"><i class="bi bi-person-plus-fill"></i> Register new employee</a>
-        <a class="btn btn-sm btn-outline-primary mt-3 mb-2 w-100" asp-controller="Employees" asp-action="LoadExistingEmployees"><i class="bi bi-cloud-arrow-down"></i> Load existing employees</a>
+        <form asp-controller="Employees" asp-action="LoadExistingEmployees" method="post">
+            <button class="btn btn-sm btn-outline-primary mt-3 mb-2 w-100"><i class="bi bi-cloud-arrow-down"></i> Load existing employees</button>
+        </form>
         <a class="btn btn-sm btn-outline-primary mb-3 w-100" asp-controller="Positions" asp-action="Index"><i class="bi bi-gear"></i> Manage employee postions</a>
         <h5 class="mt-2">Filter</h5>
         <hr />
@@ -31,7 +34,7 @@
                     <label asp-for="EndDateFilter"></label>
                 </div>
                 <div class="mb-3">
-                    <label for="SelectedPositionIds" class="col control-label">Select positions</label>
+                    <label asp-for="SelectedPositionIds">Select positions</label>
                     <select id="SelectedPositionIds" name="SelectedPositionIds" multiple="multiple" class="form-control dropdown-toggle">
                         @foreach (var position in Model.Positions)
                         {

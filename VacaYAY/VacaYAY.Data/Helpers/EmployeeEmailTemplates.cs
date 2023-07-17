@@ -96,7 +96,7 @@ public class EmployeeEmailTemplates
         }
     }
 
-    public (string subject, string content) RemainingDaysOffHR
+    public (string? email, string subject, string content) RemainingDaysOffHR
     {
         get
         {
@@ -127,11 +127,11 @@ public class EmployeeEmailTemplates
                         </body>
                         </html>";
 
-            return (subject, content);
+            return (null, subject, content);
         }
     }
 
-    public (string subject, string content) RemovedOldDaysOffHR
+    public (string? email, string subject, string content) RemovedOldDaysOffHR
     {
         get
         {
@@ -161,7 +161,7 @@ public class EmployeeEmailTemplates
                         </body>
                         </html>";
 
-            return (subject, content);
+            return (null, subject, content);
         }
     }
 

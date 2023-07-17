@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Helpers;
 
@@ -14,7 +15,13 @@ public class Context : IdentityDbContext<Employee>
     public DbSet<Response> Responses => Set<Response>();
     public DbSet<Contract> Contracts => Set<Contract>();
 
-    public Context(DbContextOptions<Context> options) : base(options) { }
+    private readonly IConfiguration _config;
+    public Context(
+        DbContextOptions<Context> options,
+        IConfiguration config) : base(options)
+    {
+        _config = config;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,15 +57,8 @@ public class Context : IdentityDbContext<Employee>
 
     private void SeedData(ModelBuilder modelBuilder)
     {
-        DataSeeder.SeedRootUser(modelBuilder);
-
-        DataSeeder.SeedLeaveType(modelBuilder, 1, VacationType.CollectiveVacation, VacationType.CollectiveVacation);
-        DataSeeder.SeedLeaveType(modelBuilder, 2, "Sick Leave", "Neki opis");
-        DataSeeder.SeedLeaveType(modelBuilder, 3, "Days off", "Neki opis");
-        DataSeeder.SeedLeaveType(modelBuilder, 4, "Paid leave", "Neki opis");
-        DataSeeder.SeedLeaveType(modelBuilder, 5, "Unpaid leave", "Neki opis");
-
-        DataSeeder.SeedPosition(modelBuilder, 2, "Software Engineer", "Responsible for developing software applications.");
-        DataSeeder.SeedPosition(modelBuilder, 3, "Project Manager", "Leading project teams and ensuring project success.");
+        DataSeeder.SeedRootUser(modelBuilder, _config);
+        DataSeeder.SeedPositions(modelBuilder, _config);
+        DataSeeder.SeedLeaveTypes(modelBuilder, _config);
     }
 }

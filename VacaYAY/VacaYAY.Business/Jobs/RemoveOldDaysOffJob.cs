@@ -1,27 +1,28 @@
 ﻿using Quartz;
-using VacaYAY.Business.Contracts;
-using VacaYAY.Business.Contracts.ServiceContracts;
+using VacaYAY.Business.ServiceContracts;
 using VacaYAY.Data.Helpers;
+using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Business.Jobs;
 
 public class RemoveOldDaysOffJob : IJob
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly INotifierSerivice _notifierService;
+    private readonly IEmployeeService _employeeService;
+    private readonly INotifierService _notifierService;
 
     public RemoveOldDaysOffJob(
+        IEmployeeService employeeService,
         IUnitOfWork unitOfWork,
-        INotifierSerivice notifierSerivice)
+        INotifierService notifierSerivice)
     {
-        _unitOfWork = unitOfWork;
+        _employeeService = employeeService;
         _notifierService = notifierSerivice;
     }
 
     public async Task Execute(IJobExecutionContext context)
     {
-        var employees = await _unitOfWork.Employee.GetWithRemainingDaysOff();
-        _unitOfWork.Employee.RemoveOldDaysOff();
+        var employees = await _employeeService.GetWithRemainingDaysOff();
+        _employeeService.RemoveOldDaysOff();
 
         EmployeeEmailTemplates templates = new();
         templates.ListOfEmployees = employees;

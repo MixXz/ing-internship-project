@@ -1,39 +1,35 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VacaYAY.Business.Contracts;
+using VacaYAY.Business.ServiceContracts;
 using VacaYAY.Data.Entities;
 using VacaYAY.Data.Enums;
 
 namespace VacaYAY.Web.Controllers;
 
 [Authorize(Roles = nameof(Roles.Admin))]
-public class PositionsController : Controller
+public class PositionsController : BaseController
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly INotyfService _toaster;
+    private readonly IPositionService _positionService;
 
     public PositionsController(
-        IUnitOfWork unitOfWork,
+        IPositionService positionService,
         INotyfService toaster)
+        : base(toaster)
     {
-        _unitOfWork = unitOfWork;
-        _toaster = toaster;
+        _positionService = positionService;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
-        return View(await _unitOfWork.Position.GetAll());
+        return View(await _positionService.GetAll());
     }
 
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var position = await _unitOfWork.Position.GetById((int)id);
+        var position = await _positionService.GetById(id);
 
         if (position is null)
         {
@@ -43,6 +39,7 @@ public class PositionsController : Controller
         return View(position);
     }
 
+    [HttpGet]
     public IActionResult Create()
     {
         return View();
@@ -52,34 +49,23 @@ public class PositionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Position position)
     {
-        var errors = _unitOfWork.Position.Validate(position);
+        var result = await _positionService.Create(position);
 
-        foreach (var error in errors)
+        if (result.Entity is null)
         {
-            ModelState.AddModelError(error.Property, error.Text);
-        }
-
-        if (!ModelState.IsValid)
-        {
+            HandleModelErrors(result.Errors);
             return View(position);
         }
 
-        _unitOfWork.Position.Insert(position);
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Position {position.Caption} successfully created.");
+        Notification($"Position {result.Entity.Caption} successfully created.");
 
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Edit(int? id)
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var position = await _unitOfWork.Position.GetById((int)id);
+        var position = await _positionService.GetById(id);
 
         if (position is null)
         {
@@ -91,47 +77,33 @@ public class PositionsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Position position)
+    public async Task<IActionResult> Edit(Position position)
     {
-        if (id != position.ID)
-        {
-            return NotFound();
-        }
+        var result = await _positionService.Update(position);
 
-        var errors = _unitOfWork.Position.Validate(position);
-
-        foreach (var error in errors)
+        if (result.Entity is null)
         {
-            ModelState.AddModelError(error.Property, error.Text);
-        }
-
-        if (!ModelState.IsValid)
-        {
+            HandleModelErrors(result.Errors);
             return View(position);
         }
 
-        _unitOfWork.Position.Update(position);
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Position {position.Caption} successfully edited.");
+        Notification($"Position {result.Entity.Caption} successfully edited.");
 
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {
-        var position = await _unitOfWork.Position.GetById(id);
+        var result = await _positionService.Delete(id);
 
-        if (position is null)
+        if (result.Entity is null)
         {
-            _toaster.Error("Position deletion failed.");
+            HandleErrors(result.Errors);
             return RedirectToAction(nameof(Index));
         }
 
-        _unitOfWork.Position.Delete(position);
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Position {position.Caption} successfully deleted.");
+        Notification($"Position {result.Entity.Caption} successfully deleted.");
 
         return RedirectToAction(nameof(Index));
     }

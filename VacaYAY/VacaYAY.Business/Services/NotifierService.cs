@@ -1,9 +1,9 @@
-﻿using VacaYAY.Business.Contracts;
-using VacaYAY.Business.Contracts.ServiceContracts;
+﻿using VacaYAY.Business.ServiceContracts;
+using VacaYAY.Data.RepositoryContracts;
 
 namespace VacaYAY.Business.Services;
 
-public class NotifierService : INotifierSerivice
+public class NotifierService : INotifierService
 {
     private readonly IEmailSenderService _emailSender;
     private readonly IUnitOfWork _unitOfWork;
@@ -37,11 +37,11 @@ public class NotifierService : INotifierSerivice
         return true;
     }
 
-    public async Task NotifyHRTeam((string subject, string content) message)
+    public async Task NotifyHRTeam((string? email, string subject, string content) message)
     {
         var hrTeam = await _unitOfWork.Employee.GetAdmins();
 
-        (string subject, string content) = message;
+        (_, string subject, string content) = message;
 
         foreach (var hr in hrTeam)
         {

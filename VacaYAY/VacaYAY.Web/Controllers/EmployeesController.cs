@@ -1,138 +1,93 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VacaYAY.Business.Contracts;
-using VacaYAY.Data.DataTransferObjects;
-using AutoMapper;
 using VacaYAY.Data.Enums;
-using VacaYAY.Business.Contracts.ServiceContracts;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using VacaYAY.Business.ServiceContracts;
+using VacaYAY.Data.DataTransferObjects.Employees;
 
 namespace VacaYAY.Web.Controllers;
 
 [Authorize(Roles = nameof(Roles.Admin))]
-public class EmployeesController : Controller
+public class EmployeesController : BaseController
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly IConfiguration _config;
+    private readonly IEmployeeService _employeeService;
+    private readonly IPositionService _positionService;
     private readonly IHttpClientService _httpClientService;
-    private readonly INotyfService _toaster;
 
     public EmployeesController(
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        IConfiguration configuration,
+        IEmployeeService employeeService,
+        IPositionService positionService,
         IHttpClientService httpClientService,
         INotyfService toaster)
+        : base(toaster)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _config = configuration;
+        _employeeService = employeeService;
+        _positionService = positionService;
         _httpClientService = httpClientService;
-        _toaster = toaster;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Index(EmployeeView filters)
     {
-        EmployeeView model = new()
+        EmployeeView view = new()
         {
-            Positions = await _unitOfWork.Position.GetAll(),
+            Positions = await _positionService.GetAll(),
             SelectedPositionIds = filters.SelectedPositionIds,
-            Employees = await _unitOfWork.Employee.GetByFilters(filters)
+            Employees = await _employeeService.GetByFilters(filters)
         };
 
-        return View(model);
+        return View(view);
     }
 
+    [HttpGet]
     public async Task<IActionResult> Register()
     {
-        return View(new EmployeeCreate { Positions = await _unitOfWork.Position.GetAll() });
+        return View(new EmployeeCreate { Positions = await _positionService.GetAll() });
     }
 
     [HttpPost]
     public async Task<IActionResult> Register(EmployeeCreate employeeData)
     {
-        var positions = await _unitOfWork.Position.GetAll();
-        employeeData.Positions = positions;
+        employeeData.Positions = await _positionService.GetAll();
 
-        var position = positions.FirstOrDefault(p => p.ID == employeeData.SelectedPositionID);
-
-        if (position is null)
-        {
-            return NotFound();
-        }
-
-        var result = await _unitOfWork.Employee.Insert(employeeData, position);
+        var result = await _employeeService.Register(employeeData);
 
         if (result.Entity is null)
         {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.Property, error.Text);
-            }
-
+            HandleModelErrors(result.Errors);
             return View(employeeData);
         }
 
-        await _unitOfWork.SaveChangesAsync();
-
-        _toaster.Success($"Employee {result.Entity.Name} successfully registered.");
+        Notification($"Employee {result.Entity.Name} successfully registered.");
 
         return RedirectToAction("Create", "Contracts", new { result.Entity.Id });
     }
 
+    [HttpPost]
     public async Task<IActionResult> LoadExistingEmployees()
     {
         var response = await _httpClientService.GetAsync("RandomData");
 
         if (!response.IsSuccessStatusCode)
         {
-            return NotFound();
+            Notification("Error loading employees from old database.", NotificationType.Error);
         }
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        var oldEmployees = _unitOfWork.Employee.ExtractEmployeeData(jsonResponse);
+        var insertedEmpCount = await _employeeService.InsertOldEmployees(jsonResponse);
 
-        if (oldEmployees is null)
+        if (insertedEmpCount > 0)
         {
-            return NotFound();
+            Notification($"Successfully loaded {insertedEmpCount} from old database.");
         }
-
-        foreach (var oldEmployee in oldEmployees)
-        {
-            var position = await _unitOfWork.Position.GetByCaption(oldEmployee.Position.Caption);
-
-            if (position is null)
-            {
-                position = new()
-                {
-                    Caption = oldEmployee.Position.Caption,
-                    Description = oldEmployee.Position.Description
-                };
-
-                _unitOfWork.Position.Insert(position);
-                await _unitOfWork.SaveChangesAsync();
-            }
-
-            var employeeData = _mapper.Map<EmployeeCreate>(oldEmployee);
-            employeeData.Password = $"{oldEmployee.FirstName}123!";
-
-            await _unitOfWork.Employee.Insert(employeeData, position);
-        }
-
-        _toaster.Success($"Successfully loaded {oldEmployees.Count()} from old database.");
 
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Details(string? id)
+    [HttpGet]
+    public async Task<IActionResult> Details(string id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var employee = await _unitOfWork.Employee.GetDetailedById(id);
+        var employee = await _employeeService.GetByIdDetailed(id);
 
         if (employee is null)
         {
@@ -142,72 +97,58 @@ public class EmployeesController : Controller
         return View(employee);
     }
 
-    public async Task<IActionResult> Edit(string? id)
+    [HttpGet]
+    [Authorize(Roles = nameof(Roles.Admin))]
+    public async Task<IActionResult> Edit(string id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var employee = await _unitOfWork.Employee.GetById(id);
+        var employee = await _employeeService.GetById(id);
 
         if (employee is null)
         {
             return NotFound();
         }
 
-        var model = _mapper.Map<EmployeeEdit>(employee);
+        var employeeData = _employeeService.GetEditDto(employee);
 
-        model.MakeAdmin = await _unitOfWork.Employee.IsAdmin(employee);
-        model.Positions = await _unitOfWork.Position.GetAll();
-        model.SelectedPosition = employee.Position;
+        employeeData.MakeAdmin = await _employeeService.IsAdmin(employee);
+        employeeData.Positions = await _positionService.GetAll();
+        employeeData.SelectedPosition = employee.Position;
 
-        return View(model);
+        return View(employeeData);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, EmployeeEdit employee)
+    [Authorize(Roles = nameof(Roles.Admin))]
+    public async Task<IActionResult> Edit(EmployeeEdit employee)
     {
-        var positions = await _unitOfWork.Position.GetAll();
-        var position = await _unitOfWork.Position.GetById(employee.SelectedPosition.ID);
+        employee.Positions = await _positionService.GetAll();
 
-        if (position is null)
-        {
-            return View(employee);
-        }
-
-        employee.SelectedPosition = position;
-        var result = await _unitOfWork.Employee.Update(id, employee);
+        var result = await _employeeService.Edit(employee);
 
         if (result.Entity is null)
         {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.Property, error.Text);
-            }
+            HandleModelErrors(result.Errors);
             return View(employee);
         }
 
-        _toaster.Success($"Employee {result.Entity.Name} has been successfully edited.");
+        Notification($"Employee {result.Entity.Name} has been successfully edited.");
 
         return RedirectToAction(nameof(Details), new { employee.Id });
     }
 
+    [HttpPost]
     public async Task<IActionResult> Delete(string id)
     {
-        var result = await _unitOfWork.Employee.Delete(id);
+        var result = await _employeeService.Delete(id);
 
         if (result.Entity is null)
         {
-            foreach (var error in result.Errors)
-            {
-                _toaster.Error(error.Text);
-            }
+            HandleErrors(result.Errors);
             return RedirectToAction(nameof(Index));
         }
 
-        _toaster.Success($"Employee {result.Entity.Name} has been successfully deleted.");
+        Notification($"Employee {result.Entity.Name} has been successfully deleted.");
 
         return RedirectToAction(nameof(Index));
     }
