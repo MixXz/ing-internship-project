@@ -13,6 +13,7 @@ using VacaYAY.Data.RepositoryContracts;
 using VacaYAY.Data.Services;
 using VacaYAY.Data.DataServiceContracts;
 using VacaYAY.Data.DataService;
+using VacaYAY.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +56,7 @@ builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<ILeaveTypeService, LeaveTypeService>();
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 builder.Services.AddNotyf(config =>
 {
@@ -67,7 +69,6 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -77,6 +78,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

@@ -14,7 +14,7 @@ public static class QuartzConfiguratorExtensions
 
         if (string.IsNullOrEmpty(cronSchedule))
         {
-            throw new Exception($"No Quartz.NET Cron schedule found for job in configuration at {configKey}");
+            throw new Exception($"No Cron schedule found for job in configuration at {configKey}");
         }
 
         var jobKey = new JobKey(jobName);
@@ -22,7 +22,7 @@ public static class QuartzConfiguratorExtensions
 
         quartz.AddTrigger(opts => opts
             .ForJob(jobKey)
-            .WithIdentity(jobName + "-trigger")
+            .WithIdentity($"{jobName}-trigger")
             .WithCronSchedule(cronSchedule));
     }
 }
